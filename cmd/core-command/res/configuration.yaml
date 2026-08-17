@@ -16,7 +16,7 @@ Service:
 Clients:
   core-metadata:
     Protocol: http
-    Host: localhost
+    Host: 0.0.0.0
     Port: 59881
     SecurityOptions:
       Mode: ""

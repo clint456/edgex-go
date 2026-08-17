@@ -1,5 +1,5 @@
 Writable:
-  LogLevel: INFO
+  LogLevel: DEBUG
   InsecureSecrets:
     mqtt:
       SecretName: mqtt
@@ -16,7 +16,7 @@ Writable:
         password: "postgres"
 
 Service:
-  Host: localhost
+  Host: 0.0.0.0
   Port: 59890
   StartupMsg: "This is the Core Keeper Microservice"
   HealthCheckInterval: "10s"
