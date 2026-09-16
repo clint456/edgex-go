@@ -89,9 +89,25 @@ endif
 NO_MESSAGEBUS_GO_BUILD_TAG:=no_messagebus
 
 # Base docker image to speed up local builds
-BASE_DOCKERFILE=https://raw.githubusercontent.com/edgexfoundry/ci-build-images/golang-${GO_VERSION}/Dockerfile
 LOCAL_CACHE_IMAGE_BASE=edgex-go-local-cache-base
 LOCAL_CACHE_IMAGE=edgex-go-local-cache
+
+# Go module proxy / checksum database used *inside* the build containers.
+# The Go default (proxy.golang.org) redirects module zips to
+# storage.googleapis.com, which is often unreachable from mainland China and
+# fails with "net/http: TLS handshake timeout" during `go mod download`.
+# Override on the command line if you prefer another mirror, e.g.
+#   make docker GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
+GOPROXY ?= https://goproxy.cn,https://goproxy.io,direct
+GOSUMDB ?= sum.golang.google.cn
+
+# Alpine package mirror used inside the build containers (empty = distro default).
+ALPINE_MIRROR ?= mirrors.aliyun.com
+
+# Extra arguments for every `docker build` of the base cache image, e.g.
+#   make docker DOCKER_BUILD_EXTRA="--network=host"
+# which works around TLS handshake timeouts caused by a bridge MTU mismatch.
+DOCKER_BUILD_EXTRA ?=
 
 build: $(MICROSERVICES)
 
@@ -199,15 +215,24 @@ clean_docker_base:
 
 docker_base:
 	echo "Building local cache image";\
-	response=$(shell curl --write-out '%{http_code}' --silent --output /dev/null "$(BASE_DOCKERFILE)"); \
-	if [ "$${response}" = "200" ]; then \
-		echo "Found base Dockerfile"; \
-		curl -s "$(BASE_DOCKERFILE)" | docker build -t $(LOCAL_CACHE_IMAGE_BASE) -f - .; \
-		printf "FROM $(LOCAL_CACHE_IMAGE_BASE)\nWORKDIR /edgex-go\nCOPY go.mod .\nRUN go mod download" | docker build -t $(LOCAL_CACHE_IMAGE) -f - .; \
-	else \
-		echo "No base Dockerfile found. Using golang:$(GO_VERSION)-alpine"; \
-		printf "FROM golang:$(GO_VERSION)-alpine\nRUN apk add --update make git\nWORKDIR /edgex-go\nCOPY go.mod .\nRUN go mod download" | docker build -t $(LOCAL_CACHE_IMAGE) -f - .; \
-	fi
+	DOCKERFILE=$$(mktemp); \
+	{ \
+		echo "FROM golang:$(GO_VERSION)-alpine"; \
+		if [ -n "$(ALPINE_MIRROR)" ]; then \
+			echo "RUN sed -i 's#dl-cdn.alpinelinux.org#$(ALPINE_MIRROR)#g' /etc/apk/repositories"; \
+		fi; \
+		echo "RUN apk add --update --no-cache make git"; \
+		echo "WORKDIR /edgex-go"; \
+		echo "COPY go.mod go.sum ./"; \
+		echo "ENV GOPROXY=$(GOPROXY) GOSUMDB=$(GOSUMDB) GOTOOLCHAIN=local"; \
+		echo "RUN go mod download || (echo 'retry 1'; sleep 5; go mod download) || (echo 'retry 2'; sleep 10; go mod download)"; \
+	} > $$DOCKERFILE; \
+	echo "Using Dockerfile:"; cat $$DOCKERFILE; \
+	docker build $(DOCKER_BUILD_EXTRA) \
+		--build-arg http_proxy --build-arg https_proxy \
+		--build-arg HTTP_PROXY --build-arg HTTPS_PROXY \
+		-t $(LOCAL_CACHE_IMAGE) -f $$DOCKERFILE .; \
+	status=$$?; rm -f $$DOCKERFILE; exit $$status
 
 dcore: dmetadata ddata dcommand
 
