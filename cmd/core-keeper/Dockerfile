@@ -19,14 +19,13 @@
 ARG BUILDER_BASE=golang:1.25-alpine3.22
 FROM ${BUILDER_BASE} AS builder
 
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
+
 ARG ADD_BUILD_TAGS=""
 
 WORKDIR /edgex-go
-
-# The main mirrors are giving us timeout issues on builds periodically.
-# So we can try these.
-
-RUN sed -e 's/dl-cdn[.]alpinelinux.org/dl-4.alpinelinux.org/g' -i~ /etc/apk/repositories
 
 RUN apk add --update --no-cache make git
 
@@ -39,16 +38,16 @@ RUN make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS cmd/core-keeper/core-keeper
 #Next image - Copy built Go binary into new workspace
 FROM alpine:3.22
 
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
+
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
       copyright='Copyright (c) 2024: IOTech'
 
 ENV APP_PORT=59890
 #expose core keeper port
 EXPOSE $APP_PORT
-
-# The main mirrors are giving us timeout issues on builds periodically.
-# So we can try these.
-RUN sed -e 's/dl-cdn[.]alpinelinux.org/dl-4.alpinelinux.org/g' -i~ /etc/apk/repositories
 
 RUN apk add --update --no-cache dumb-init
 COPY --from=builder /edgex-go/Attribution.txt /

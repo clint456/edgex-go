@@ -22,6 +22,10 @@
 ARG BUILDER_BASE=golang:1.25-alpine3.22
 FROM ${BUILDER_BASE} AS builder
 
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
+
 ARG ADD_BUILD_TAGS=""
 
 WORKDIR /edgex-go
@@ -36,6 +40,10 @@ RUN make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS cmd/core-data/core-data
 
 #Next image - Copy built Go binary into new workspace
 FROM alpine:3.22
+
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
       copyright='Copyright (c) 2018: Dell, Cavium, Copyright (c) 2023: Intel Corporation'

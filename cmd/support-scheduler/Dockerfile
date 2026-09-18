@@ -18,6 +18,10 @@
 ARG BUILDER_BASE=golang:1.25-alpine3.22
 FROM ${BUILDER_BASE} AS builder
 
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
+
 ARG ADD_BUILD_TAGS=""
 
 WORKDIR /edgex-go
@@ -31,6 +35,10 @@ COPY . .
 RUN make cmd/support-scheduler/support-scheduler
 
 FROM alpine:3.22
+
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
 
 RUN apk add --update --no-cache ca-certificates dumb-init tzdata
 # Ensure using latest versions of all installed packages to avoid any recent CVEs

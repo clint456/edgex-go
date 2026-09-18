@@ -17,12 +17,17 @@
 
 # Build utility container
 ARG BUILDER_BASE=golang:1.25-alpine3.22
+ARG SPIRE_SERVER_IMAGE=ghcr.io/spiffe/spire-server:1.13.3
 FROM ${BUILDER_BASE} AS builder
 
-FROM ghcr.io/spiffe/spire-server:1.13.3 as spire_server
+FROM ${SPIRE_SERVER_IMAGE} AS spire_server
 
 # Deployment image
 FROM alpine:3.22
+
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
       copyright='Copyright (c) 2022 Intel Corporation'

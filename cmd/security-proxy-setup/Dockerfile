@@ -19,6 +19,10 @@
 ARG BUILDER_BASE=golang:1.25-alpine3.22
 FROM ${BUILDER_BASE} AS builder
 
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
+
 WORKDIR /edgex-go
 
 RUN apk add --update --no-cache make git
@@ -30,6 +34,10 @@ COPY . .
 RUN make cmd/secrets-config/secrets-config
 
 FROM alpine:3.22
+
+ARG ALPINE_MIRROR=mirrors.aliyun.com
+# Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
+RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
 
 RUN apk add --update --no-cache dumb-init su-exec openssl yq
 # Ensure using latest versions of all installed packages to avoid any recent CVEs

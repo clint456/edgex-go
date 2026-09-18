@@ -63,7 +63,7 @@ ifeq ($(ENABLE_FULL_RELRO), true)
 	ENABLE_FULL_RELRO_GOFLAGS = -bindnow
 endif
 
-GOFLAGS=-ldflags "-s -w -X github.com/edgexfoundry/edgex-go.Version=$(VERSION) $(ENABLE_FULL_RELRO_GOFLAGS)" -trimpath -mod=readonly
+GOFLAGS=-ldflags "-s -w -X github.com/edge-hy/edgex-go.Version=$(VERSION) $(ENABLE_FULL_RELRO_GOFLAGS)" -trimpath -mod=readonly
 GOTESTFLAGS?=-race
 
 ifeq ($(ENABLE_PIE), true)
@@ -108,6 +108,18 @@ ALPINE_MIRROR ?= mirrors.aliyun.com
 #   make docker DOCKER_BUILD_EXTRA="--network=host"
 # which works around TLS handshake timeouts caused by a bridge MTU mismatch.
 DOCKER_BUILD_EXTRA ?=
+
+# SPIRE base images (used by the three security-spire-* images).
+# ghcr.io serves image blobs from pkg-containers.githubusercontent.com, which is
+# frequently reset from mainland China ("failed to resolve source metadata ... EOF").
+# Point SPIRE_REGISTRY at a ghcr mirror to build those images, e.g.
+#   make docker SPIRE_REGISTRY=ghcr.m.daocloud.io
+# A mirror is a third party and can serve different content than ghcr.io, so only
+# use one you trust (these images are referenced by tag, not by digest).
+SPIRE_REGISTRY ?= ghcr.io
+SPIRE_VERSION ?= 1.13.3
+SPIRE_SERVER_IMAGE ?= $(SPIRE_REGISTRY)/spiffe/spire-server:$(SPIRE_VERSION)
+SPIRE_AGENT_IMAGE ?= $(SPIRE_REGISTRY)/spiffe/spire-agent:$(SPIRE_VERSION)
 
 build: $(MICROSERVICES)
 
@@ -243,10 +255,11 @@ docker_core_metadata: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/core-metadata/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/core-metadata:$(GIT_SHA) \
-		-t edgexfoundry/core-metadata:$(DOCKER_TAG) \
+		-t edge-hy/core-metadata:$(GIT_SHA) \
+		-t edge-hy/core-metadata:$(DOCKER_TAG) \
 		.
 
 ddata: docker_core_data
@@ -256,10 +269,11 @@ docker_core_data: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/core-data/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/core-data:$(GIT_SHA) \
-		-t edgexfoundry/core-data:$(DOCKER_TAG) \
+		-t edge-hy/core-data:$(GIT_SHA) \
+		-t edge-hy/core-data:$(DOCKER_TAG) \
 		.
 
 dcommand: docker_core_command
@@ -269,10 +283,11 @@ docker_core_command: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/core-command/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/core-command:$(GIT_SHA) \
-		-t edgexfoundry/core-command:$(DOCKER_TAG) \
+		-t edge-hy/core-command:$(GIT_SHA) \
+		-t edge-hy/core-command:$(DOCKER_TAG) \
 		.
 
 dcommon-config: docker_core_common_config
@@ -282,10 +297,11 @@ docker_core_common_config: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/core-common-config-bootstrapper/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/core-common-config-bootstrapper:$(GIT_SHA) \
-		-t edgexfoundry/core-common-config-bootstrapper:$(DOCKER_TAG) \
+		-t edge-hy/core-common-config-bootstrapper:$(GIT_SHA) \
+		-t edge-hy/core-common-config-bootstrapper:$(DOCKER_TAG) \
 		.
 
 dkeeper: docker_core_keeper
@@ -295,10 +311,11 @@ docker_core_keeper: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/core-keeper/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/core-keeper:$(GIT_SHA) \
-		-t edgexfoundry/core-keeper:$(DOCKER_TAG) \
+		-t edge-hy/core-keeper:$(GIT_SHA) \
+		-t edge-hy/core-keeper:$(DOCKER_TAG) \
 		.
 
 dsupport: dnotifications dscheduler dscheduler
@@ -310,10 +327,11 @@ docker_support_notifications: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/support-notifications/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/support-notifications:$(GIT_SHA) \
-		-t edgexfoundry/support-notifications:$(DOCKER_TAG) \
+		-t edge-hy/support-notifications:$(GIT_SHA) \
+		-t edge-hy/support-notifications:$(DOCKER_TAG) \
 		.
 
 dscheduler: docker_support_scheduler
@@ -323,10 +341,11 @@ docker_support_scheduler: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/support-scheduler/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/support-scheduler:$(GIT_SHA) \
-		-t edgexfoundry/support-scheduler:$(DOCKER_TAG) \
+		-t edge-hy/support-scheduler:$(GIT_SHA) \
+		-t edge-hy/support-scheduler:$(DOCKER_TAG) \
 		.
 
 dproxya: docker_security_proxy_auth
@@ -335,10 +354,11 @@ docker_security_proxy_auth: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/security-proxy-auth/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-proxy-auth:$(GIT_SHA) \
-		-t edgexfoundry/security-proxy-auth:$(DOCKER_TAG) \
+		-t edge-hy/security-proxy-auth:$(GIT_SHA) \
+		-t edge-hy/security-proxy-auth:$(DOCKER_TAG) \
 		.
 
 dproxys: docker_security_proxy_setup
@@ -347,10 +367,11 @@ docker_security_proxy_setup: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/security-proxy-setup/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-proxy-setup:$(GIT_SHA) \
-		-t edgexfoundry/security-proxy-setup:$(DOCKER_TAG) \
+		-t edge-hy/security-proxy-setup:$(GIT_SHA) \
+		-t edge-hy/security-proxy-setup:$(DOCKER_TAG) \
 		.
 dsecretstore: docker_security_secretstore_setup
 docker_security_secretstore_setup: docker_base
@@ -358,10 +379,11 @@ docker_security_secretstore_setup: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/security-secretstore-setup/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-secretstore-setup:$(GIT_SHA) \
-		-t edgexfoundry/security-secretstore-setup:$(DOCKER_TAG) \
+		-t edge-hy/security-secretstore-setup:$(GIT_SHA) \
+		-t edge-hy/security-secretstore-setup:$(DOCKER_TAG) \
 		.
 
 dbootstrapper: docker_security_bootstrapper
@@ -370,10 +392,11 @@ docker_security_bootstrapper: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/security-bootstrapper/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-bootstrapper:$(GIT_SHA) \
-		-t edgexfoundry/security-bootstrapper:$(DOCKER_TAG) \
+		-t edge-hy/security-bootstrapper:$(GIT_SHA) \
+		-t edge-hy/security-bootstrapper:$(DOCKER_TAG) \
 		.
 
 dspires: docker_security_spire_server
@@ -382,10 +405,12 @@ docker_security_spire_server: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg SPIRE_SERVER_IMAGE=$(SPIRE_SERVER_IMAGE) \
 		-f cmd/security-spire-server/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-spire-server:$(GIT_SHA) \
-		-t edgexfoundry/security-spire-server:$(DOCKER_TAG) \
+		-t edge-hy/security-spire-server:$(GIT_SHA) \
+		-t edge-hy/security-spire-server:$(DOCKER_TAG) \
 		.
 
 dspirea: docker_security_spire_agent
@@ -394,10 +419,13 @@ docker_security_spire_agent: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg SPIRE_SERVER_IMAGE=$(SPIRE_SERVER_IMAGE) \
+		--build-arg SPIRE_AGENT_IMAGE=$(SPIRE_AGENT_IMAGE) \
 		-f cmd/security-spire-agent/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-spire-agent:$(GIT_SHA) \
-		-t edgexfoundry/security-spire-agent:$(DOCKER_TAG) \
+		-t edge-hy/security-spire-agent:$(GIT_SHA) \
+		-t edge-hy/security-spire-agent:$(DOCKER_TAG) \
 		.
 
 dspirec: docker_security_spire_config
@@ -406,10 +434,12 @@ docker_security_spire_config: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg SPIRE_SERVER_IMAGE=$(SPIRE_SERVER_IMAGE) \
 		-f cmd/security-spire-config/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-spire-config:$(GIT_SHA) \
-		-t edgexfoundry/security-spire-config:$(DOCKER_TAG) \
+		-t edge-hy/security-spire-config:$(GIT_SHA) \
+		-t edge-hy/security-spire-config:$(DOCKER_TAG) \
 		.
 
 dspiffetp: docker_security_spiffe_token_provider
@@ -418,10 +448,11 @@ docker_security_spiffe_token_provider: docker_base
 		--build-arg http_proxy \
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
 		-f cmd/security-spiffe-token-provider/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/security-spiffe-token-provider:$(GIT_SHA) \
-		-t edgexfoundry/security-spiffe-token-provider:$(DOCKER_TAG) \
+		-t edge-hy/security-spiffe-token-provider:$(GIT_SHA) \
+		-t edge-hy/security-spiffe-token-provider:$(DOCKER_TAG) \
 		.
 
 vendor:
