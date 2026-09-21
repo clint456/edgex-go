@@ -9,29 +9,20 @@ import (
 	data "github.com/edgexfoundry/edgex-go/internal/core/data/embed"
 	keeper "github.com/edgexfoundry/edgex-go/internal/core/keeper/embed"
 	metadata "github.com/edgexfoundry/edgex-go/internal/core/metadata/embed"
-	proxyauth "github.com/edgexfoundry/edgex-go/internal/security/proxyauth/embed"
-	notifications "github.com/edgexfoundry/edgex-go/internal/support/notifications/embed"
-	scheduler "github.com/edgexfoundry/edgex-go/internal/support/scheduler/embed"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 )
 
 // constants relate to the postgres db table names
 const (
-	configTableName               = keeper.SchemaName + ".config"
-	eventTableName                = data.SchemaName + ".event"
-	deviceInfoTableName           = data.SchemaName + ".device_info"
-	deviceServiceTableName        = metadata.SchemaName + ".device_service"
-	deviceProfileTableName        = metadata.SchemaName + ".device_profile"
-	deviceTableName               = metadata.SchemaName + ".device"
-	provisionWatcherTableName     = metadata.SchemaName + ".provision_watcher"
-	notificationTableName         = notifications.SchemaName + ".notification"
-	readingTableName              = data.SchemaName + ".reading"
-	registryTableName             = keeper.SchemaName + ".registry"
-	scheduleActionRecordTableName = scheduler.SchemaName + ".record"
-	scheduleJobTableName          = scheduler.SchemaName + ".job"
-	subscriptionTableName         = notifications.SchemaName + ".subscription"
-	transmissionTableName         = notifications.SchemaName + ".transmission"
-	keyStoreTableName             = proxyauth.SchemaName + ".key_store"
+	configTableName           = keeper.SchemaName + ".config"
+	eventTableName            = data.SchemaName + ".event"
+	deviceInfoTableName       = data.SchemaName + ".device_info"
+	deviceServiceTableName    = metadata.SchemaName + ".device_service"
+	deviceProfileTableName    = metadata.SchemaName + ".device_profile"
+	deviceTableName           = metadata.SchemaName + ".device"
+	provisionWatcherTableName = metadata.SchemaName + ".provision_watcher"
+	readingTableName          = data.SchemaName + ".reading"
+	registryTableName         = keeper.SchemaName + ".registry"
 )
 
 // constants relate to the common db table column names
@@ -80,35 +71,15 @@ const (
 	keyCol = "key"
 )
 
-// constants relate to the schedule action record postgres db table column names
-const (
-	actionCol      = "action"
-	actionIdCol    = "action_id"
-	jobNameCol     = "job_name"
-	scheduledAtCol = "scheduled_at"
-)
-
-// constants relate to the notification postgres db table column names
-const (
-	notificationIdCol = "notification_id"
-)
-
 // constants relate to the field names in the content column
 const (
-	categoryField         = "Category"
-	categoriesField       = "Categories"
-	createdField          = "Created"
-	labelsField           = "Labels"
-	parentField           = "Parent"
-	manufacturerField     = "Manufacturer"
-	modelField            = "Model"
-	nameField             = "Name"
-	notificationIdField   = "NotificationId"
-	profileNameField      = "ProfileName"
-	receiverField         = "Receiver"
-	serviceIdField        = "ServiceId"
-	serviceNameField      = "ServiceName"
-	statusField           = "Status"
-	subscriptionNameField = "SubscriptionName"
-	acknowledgedField     = "Acknowledged"
+	createdField      = "Created"
+	labelsField       = "Labels"
+	parentField       = "Parent"
+	manufacturerField = "Manufacturer"
+	modelField        = "Model"
+	nameField         = "Name"
+	profileNameField  = "ProfileName"
+	serviceIdField    = "ServiceId"
+	serviceNameField  = "ServiceName"
 )

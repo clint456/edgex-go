@@ -6,12 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-.PHONY: build clean unittest hadolint lint test docker run sbom docker-fuzz fuzz-test-command fuzz-test-data fuzz-test-notifications
+.PHONY: build clean unittest hadolint lint test docker run sbom docker-fuzz fuzz-test-command fuzz-test-data
 
-# change the following boolean flag to include or exclude the delayed start libs for builds for most of core services except support services
+# change the following boolean flag to include or exclude the delayed start libs for builds for core services
 INCLUDE_DELAYED_START_BUILD_CORE:="false"
-# change the following boolean flag to include or exclude the delayed start libs for builds for support services exculsively
-INCLUDE_DELAYED_START_BUILD_SUPPORT:="true"
 
 # change the following boolean flag to enable or disable the Full RELRO (RELocation Read Only) for linux ELF (Executable and Linkable Format) binaries
 ENABLE_FULL_RELRO=true
@@ -25,17 +23,7 @@ DOCKERS= \
 	docker_core_metadata \
 	docker_core_command  \
 	docker_core_common_config \
-	docker_core_keeper \
-	docker_support_notifications \
-	docker_support_scheduler \
-	docker_security_proxy_auth \
-	docker_security_proxy_setup \
-	docker_security_secretstore_setup \
-	docker_security_bootstrapper \
-	docker_security_spire_server \
-	docker_security_spire_agent \
-	docker_security_spire_config \
-	docker_security_spiffe_token_provider
+	docker_core_keeper
 
 .PHONY: $(DOCKERS)
 
@@ -44,15 +32,7 @@ MICROSERVICES= \
 	cmd/core-metadata/core-metadata \
 	cmd/core-command/core-command \
 	cmd/core-common-config-bootstrapper/core-common-config-bootstrapper \
-	cmd/core-keeper/core-keeper \
-	cmd/support-notifications/support-notifications \
-	cmd/support-scheduler/support-scheduler \
-	cmd/security-proxy-auth/security-proxy-auth \
-	cmd/security-secretstore-setup/security-secretstore-setup \
-	cmd/security-file-token-provider/security-file-token-provider \
-	cmd/secrets-config/secrets-config \
-	cmd/security-bootstrapper/security-bootstrapper \
-	cmd/security-spiffe-token-provider/security-spiffe-token-provider
+	cmd/core-keeper/core-keeper
 
 .PHONY: $(MICROSERVICES)
 
@@ -81,12 +61,6 @@ NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE:=non_delayedstart
 ifeq ($(INCLUDE_DELAYED_START_BUILD_CORE),"true")
 	NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE:=
 endif
-NON_DELAYED_START_GO_BUILD_TAG_FOR_SUPPORT:=
-ifeq ($(INCLUDE_DELAYED_START_BUILD_SUPPORT),"false")
-	NON_DELAYED_START_GO_BUILD_TAG_FOR_SUPPORT:=non_delayedstart
-endif
-
-NO_MESSAGEBUS_GO_BUILD_TAG:=no_messagebus
 
 # Base docker image to speed up local builds
 LOCAL_CACHE_IMAGE_BASE=edgex-go-local-cache-base
@@ -108,18 +82,6 @@ ALPINE_MIRROR ?= mirrors.aliyun.com
 #   make docker DOCKER_BUILD_EXTRA="--network=host"
 # which works around TLS handshake timeouts caused by a bridge MTU mismatch.
 DOCKER_BUILD_EXTRA ?=
-
-# SPIRE base images (used by the three security-spire-* images).
-# ghcr.io serves image blobs from pkg-containers.githubusercontent.com, which is
-# frequently reset from mainland China ("failed to resolve source metadata ... EOF").
-# Point SPIRE_REGISTRY at a ghcr mirror to build those images, e.g.
-#   make docker SPIRE_REGISTRY=ghcr.m.daocloud.io
-# A mirror is a third party and can serve different content than ghcr.io, so only
-# use one you trust (these images are referenced by tag, not by digest).
-SPIRE_REGISTRY ?= ghcr.io
-SPIRE_VERSION ?= 1.13.3
-SPIRE_SERVER_IMAGE ?= $(SPIRE_REGISTRY)/spiffe/spire-server:$(SPIRE_VERSION)
-SPIRE_AGENT_IMAGE ?= $(SPIRE_REGISTRY)/spiffe/spire-agent:$(SPIRE_VERSION)
 
 build: $(MICROSERVICES)
 
@@ -153,44 +115,6 @@ cmd/core-common-config-bootstrapper/core-common-config-bootstrapper:
 keeper: cmd/core-keeper/core-keeper
 cmd/core-keeper/core-keeper:
 	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-keeper
-
-support: notifications scheduler
-
-notifications: cmd/support-notifications/support-notifications
-cmd/support-notifications/support-notifications:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_SUPPORT)" $(GOFLAGS) -o $@ ./cmd/support-notifications
-
-scheduler: cmd/support-scheduler/support-scheduler
-cmd/support-scheduler/support-scheduler:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_SUPPORT)" $(GOFLAGS) -o $@ ./cmd/support-scheduler
-
-proxy: cmd/security-proxy-setup/security-proxy-setup
-cmd/security-proxy-setup/security-proxy-setup:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o ./cmd/security-proxy-setup/security-proxy-setup ./cmd/security-proxy-setup
-
-authproxy: cmd/security-proxy-auth/security-proxy-auth
-cmd/security-proxy-auth/security-proxy-auth:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o ./cmd/security-proxy-auth/security-proxy-auth ./cmd/security-proxy-auth
-
-secretstore: cmd/security-secretstore-setup/security-secretstore-setup
-cmd/security-secretstore-setup/security-secretstore-setup:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o ./cmd/security-secretstore-setup/security-secretstore-setup ./cmd/security-secretstore-setup
-
-token: cmd/security-file-token-provider/security-file-token-provider
-cmd/security-file-token-provider/security-file-token-provider:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o ./cmd/security-file-token-provider/security-file-token-provider ./cmd/security-file-token-provider
-
-secrets-config: cmd/secrets-config/secrets-config
-cmd/secrets-config/secrets-config:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o ./cmd/secrets-config ./cmd/secrets-config
-
-bootstrapper: cmd/security-bootstrapper/security-bootstrapper
-cmd/security-bootstrapper/security-bootstrapper:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o ./cmd/security-bootstrapper/security-bootstrapper ./cmd/security-bootstrapper
-
-spiffetp: cmd/security-spiffe-token-provider/security-spiffe-token-provider
-cmd/security-spiffe-token-provider/security-spiffe-token-provider:
-	$(GO) build -tags "$(NO_MESSAGEBUS_GO_BUILD_TAG) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/security-spiffe-token-provider
 
 clean:
 	rm -f $(MICROSERVICES)
@@ -318,143 +242,6 @@ docker_core_keeper: docker_base
 		-t edge-hy/core-keeper:$(DOCKER_TAG) \
 		.
 
-dsupport: dnotifications dscheduler dscheduler
-
-dnotifications: docker_support_notifications
-docker_support_notifications: docker_base
-	docker build \
-		--build-arg ADD_BUILD_TAGS=$(ADD_BUILD_TAGS) \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/support-notifications/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/support-notifications:$(GIT_SHA) \
-		-t edge-hy/support-notifications:$(DOCKER_TAG) \
-		.
-
-dscheduler: docker_support_scheduler
-docker_support_scheduler: docker_base
-	docker build \
-		--build-arg ADD_BUILD_TAGS=$(ADD_BUILD_TAGS) \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/support-scheduler/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/support-scheduler:$(GIT_SHA) \
-		-t edge-hy/support-scheduler:$(DOCKER_TAG) \
-		.
-
-dproxya: docker_security_proxy_auth
-docker_security_proxy_auth: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/security-proxy-auth/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-proxy-auth:$(GIT_SHA) \
-		-t edge-hy/security-proxy-auth:$(DOCKER_TAG) \
-		.
-
-dproxys: docker_security_proxy_setup
-docker_security_proxy_setup: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/security-proxy-setup/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-proxy-setup:$(GIT_SHA) \
-		-t edge-hy/security-proxy-setup:$(DOCKER_TAG) \
-		.
-dsecretstore: docker_security_secretstore_setup
-docker_security_secretstore_setup: docker_base
-		docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/security-secretstore-setup/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-secretstore-setup:$(GIT_SHA) \
-		-t edge-hy/security-secretstore-setup:$(DOCKER_TAG) \
-		.
-
-dbootstrapper: docker_security_bootstrapper
-docker_security_bootstrapper: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/security-bootstrapper/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-bootstrapper:$(GIT_SHA) \
-		-t edge-hy/security-bootstrapper:$(DOCKER_TAG) \
-		.
-
-dspires: docker_security_spire_server
-docker_security_spire_server: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		--build-arg SPIRE_SERVER_IMAGE=$(SPIRE_SERVER_IMAGE) \
-		-f cmd/security-spire-server/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-spire-server:$(GIT_SHA) \
-		-t edge-hy/security-spire-server:$(DOCKER_TAG) \
-		.
-
-dspirea: docker_security_spire_agent
-docker_security_spire_agent: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		--build-arg SPIRE_SERVER_IMAGE=$(SPIRE_SERVER_IMAGE) \
-		--build-arg SPIRE_AGENT_IMAGE=$(SPIRE_AGENT_IMAGE) \
-		-f cmd/security-spire-agent/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-spire-agent:$(GIT_SHA) \
-		-t edge-hy/security-spire-agent:$(DOCKER_TAG) \
-		.
-
-dspirec: docker_security_spire_config
-docker_security_spire_config: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		--build-arg SPIRE_SERVER_IMAGE=$(SPIRE_SERVER_IMAGE) \
-		-f cmd/security-spire-config/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-spire-config:$(GIT_SHA) \
-		-t edge-hy/security-spire-config:$(DOCKER_TAG) \
-		.
-
-dspiffetp: docker_security_spiffe_token_provider
-docker_security_spiffe_token_provider: docker_base
-	docker build \
-		--build-arg http_proxy \
-		--build-arg https_proxy \
-		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
-		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
-		-f cmd/security-spiffe-token-provider/Dockerfile \
-		--label "git_sha=$(GIT_SHA)" \
-		-t edge-hy/security-spiffe-token-provider:$(GIT_SHA) \
-		-t edge-hy/security-spiffe-token-provider:$(DOCKER_TAG) \
-		.
-
 vendor:
 	$(GO) mod vendor
 
@@ -473,7 +260,3 @@ fuzz-test-command:
 fuzz-test-data:
 # not joining the edgex-network due to swagger file url pointing to localhost for fuzz testing in the container
 	docker run --net host --rm -v "$$PWD/fuzz_test/fuzz_results:/fuzz_results" fuzz-edgex-go:latest core-data /restler-fuzzer/openapi/core-data.yaml
-
-fuzz-test-notifications:
-# not joining the edgex-network due to swagger file url pointing to localhost for fuzz testing in the container
-	docker run --net host --rm -v "$$PWD/fuzz_test/fuzz_results:/fuzz_results" fuzz-edgex-go:latest support-notifications /restler-fuzzer/openapi/support-notifications.yaml

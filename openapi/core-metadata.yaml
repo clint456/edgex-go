@@ -4442,10 +4442,6 @@ paths:
                       Host: "edgex-core-data"
                       Port: 59880
                       Protocol: "http"
-                    Notifications:
-                      Host: "edgex-support-notifications"
-                      Port: 59860
-                      Protocol: "http"
                   Database:
                     Username: "meta"
                     Password: "password"

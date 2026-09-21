@@ -35,7 +35,7 @@ func LoadRestRoutes(r *echo.Echo, dic *di.Container, serviceName string) {
 	r.GET(common.ApiEventByDeviceNameRoute, ec.EventsByDeviceName, authenticationHook)
 	r.DELETE(common.ApiEventByDeviceNameRoute, ec.DeleteEventsByDeviceName, authenticationHook)
 	r.GET(common.ApiEventByTimeRangeRoute, ec.EventsByTimeRange, authenticationHook)
-	r.DELETE(common.ApiEventByAgeRoute, ec.DeleteEventsByAge, authenticationHook) // TODO: Add authentication to support-scheduler
+	r.DELETE(common.ApiEventByAgeRoute, ec.DeleteEventsByAge, authenticationHook)
 
 	// Readings
 	rc := dataController.NewReadingController(dic)
