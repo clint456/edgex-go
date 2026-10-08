@@ -7,7 +7,6 @@ docker/docker-compose.yml
 coverage.out
 /debug/
 *.dll
-VERSION
 __debug_bin
 sbom/bom-go-mod.spdx
 
@@ -17,6 +16,7 @@ cmd/core-common-config-bootstrapper/core-common-config-bootstrapper
 cmd/core-data/core-data
 cmd/core-keeper/core-keeper
 cmd/core-metadata/core-metadata
+cmd/support-mappings/support-mappings
 
 docs/_build/
 

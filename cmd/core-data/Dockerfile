@@ -32,10 +32,17 @@ WORKDIR /edgex-go
 
 RUN apk add --update --no-cache make git
 
-COPY go.mod vendor* ./
+COPY go-mod-bootstrap/ /go-mod-bootstrap/
+COPY go-mod-configuration/ /go-mod-configuration/
+COPY go-mod-core-contracts/ /go-mod-core-contracts/
+COPY go-mod-messaging/ /go-mod-messaging/
+COPY go-mod-registry/ /go-mod-registry/
+COPY go-mod-secrets/ /go-mod-secrets/
+
+COPY edgex-go/go.mod edgex-go/go.sum ./
 RUN [ ! -d "vendor" ] && go mod download all || echo "skipping..."
 
-COPY . .
+COPY edgex-go/ .
 RUN make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS cmd/core-data/core-data
 
 #Next image - Copy built Go binary into new workspace

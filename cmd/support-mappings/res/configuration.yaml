@@ -1,0 +1,17 @@
+Writable:
+  LogLevel: INFO
+  ChangeTopic: "edgex/support-mappings/configuration"
+
+Service:
+  Host: localhost
+  Port: 59883
+  StartupMsg: "This is the EdgeX Support Mappings Microservice"
+
+Database:
+  MaxConns: 4
+  MaxConnIdleTime: "30m"
+  MaxConnLifetime: "1h"
+
+MessageBus:
+  Optional:
+    ClientId: "support-mappings"

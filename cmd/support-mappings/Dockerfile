@@ -1,5 +1,5 @@
 #  ----------------------------------------------------------------------------------
-#  Copyright (C) 2024-2025 IOTech Ltd
+#  Copyright (C) 2025 IOTech Ltd
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #
 #  ----------------------------------------------------------------------------------
 
-# Docker image for Golang Core Keeper micro service
+# Docker image for Golang Support Mappings micro service
 ARG BUILDER_BASE=golang:1.25-alpine3.22
 FROM ${BUILDER_BASE} AS builder
 
@@ -40,7 +40,7 @@ COPY edgex-go/go.mod edgex-go/go.sum ./
 RUN [ ! -d "vendor" ] && go mod download all || echo "skipping..."
 
 COPY edgex-go/ .
-RUN make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS cmd/core-keeper/core-keeper
+RUN make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS cmd/support-mappings/support-mappings
 
 #Next image - Copy built Go binary into new workspace
 FROM alpine:3.22
@@ -50,15 +50,20 @@ ARG ALPINE_MIRROR=mirrors.aliyun.com
 RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
-      copyright='Copyright (c) 2024: IOTech'
+      copyright='Copyright (c) 2025: IOTech'
 
-ENV APP_PORT=59890
-#expose core keeper port
+ENV APP_PORT=59883
+#expose support mappings port
 EXPOSE $APP_PORT
 
 RUN apk add --update --no-cache dumb-init
-COPY --from=builder /edgex-go/Attribution.txt /
-COPY --from=builder /edgex-go/cmd/core-keeper/core-keeper /
-COPY --from=builder /edgex-go/cmd/core-keeper/res/configuration.yaml /res/configuration.yaml
+# Ensure using latest versions of all installed packages to avoid any recent CVEs
+RUN apk --no-cache upgrade
 
-ENTRYPOINT ["/core-keeper"]
+COPY --from=builder /edgex-go/Attribution.txt /
+COPY --from=builder /edgex-go/security.txt /
+COPY --from=builder /edgex-go/cmd/support-mappings/support-mappings /
+COPY --from=builder /edgex-go/cmd/support-mappings/res/configuration.yaml /res/configuration.yaml
+
+ENTRYPOINT ["/support-mappings"]
+CMD ["-cp=keeper.http://edgex-core-keeper:59890", "--registry"]

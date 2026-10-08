@@ -187,6 +187,45 @@ services:
         target: /etc/localtime
         read_only: true
         bind: {}
+  support-mappings:
+    command:
+      - --registry
+      - -cp=keeper.http://edgex-core-keeper:59890
+    container_name: edgex-support-mappings
+    depends_on:
+      core-common-config-bootstrapper:
+        condition: service_started
+        required: true
+      core-keeper:
+        condition: service_started
+        required: true
+      database:
+        condition: service_started
+        required: true
+    environment:
+      EDGEX_SECURITY_SECRET_STORE: "false"
+      SERVICE_HOST: edgex-support-mappings
+    hostname: edgex-support-mappings
+    image: edge-hy/support-mappings:4.0.3-dev
+    networks:
+      edgex-network: null
+    ports:
+      - mode: ingress
+        host_ip: 0.0.0.0
+        target: 59883
+        published: "59883"
+        protocol: tcp
+    read_only: true
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    user: 2002:2001
+    volumes:
+      - type: bind
+        source: /etc/localtime
+        target: /etc/localtime
+        read_only: true
+        bind: {}
   database:
     container_name: edgex-postgres
     environment:
@@ -244,7 +283,7 @@ services:
       EDGEX_SECURITY_SECRET_STORE: "false"
       SERVICE_HOST: edgex-ui-go
     hostname: edgex-ui-go
-    image: edge-hy/edgex-ui:4.0.3-dev
+    image: nexus3.edgexfoundry.org:10004/edgex-ui:latest
     networks:
       edgex-network: null
     ports:

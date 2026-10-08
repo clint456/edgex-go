@@ -23,7 +23,8 @@ DOCKERS= \
 	docker_core_metadata \
 	docker_core_command  \
 	docker_core_common_config \
-	docker_core_keeper
+	docker_core_keeper \
+	docker_support_mappings
 
 .PHONY: $(DOCKERS)
 
@@ -32,7 +33,8 @@ MICROSERVICES= \
 	cmd/core-metadata/core-metadata \
 	cmd/core-command/core-command \
 	cmd/core-common-config-bootstrapper/core-common-config-bootstrapper \
-	cmd/core-keeper/core-keeper
+	cmd/core-keeper/core-keeper \
+	cmd/support-mappings/support-mappings
 
 .PHONY: $(MICROSERVICES)
 
@@ -116,6 +118,10 @@ keeper: cmd/core-keeper/core-keeper
 cmd/core-keeper/core-keeper:
 	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-keeper
 
+support-mappings: cmd/support-mappings/support-mappings
+cmd/support-mappings/support-mappings:
+	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/support-mappings
+
 clean:
 	rm -f $(MICROSERVICES)
 
@@ -149,8 +155,13 @@ docker-noziti:
 clean_docker_base:
 	docker rmi -f $(LOCAL_CACHE_IMAGE) $(LOCAL_CACHE_IMAGE_BASE) 
 
+# Docker builds use the workspace root (the parent directory) as the build
+# context so the local `replace ../go-mod-*` directives resolve inside the
+# containers. That root is not a git repository, so materialize its
+# .dockerignore from the tracked copy before building.
 docker_base:
 	echo "Building local cache image";\
+	cp .dockerignore ../.dockerignore; \
 	DOCKERFILE=$$(mktemp); \
 	{ \
 		echo "FROM golang:$(GO_VERSION)-alpine"; \
@@ -159,7 +170,13 @@ docker_base:
 		fi; \
 		echo "RUN apk add --update --no-cache make git"; \
 		echo "WORKDIR /edgex-go"; \
-		echo "COPY go.mod go.sum ./"; \
+		echo "COPY edgex-go/go.mod edgex-go/go.sum ./"; \
+		echo "COPY go-mod-bootstrap/ /go-mod-bootstrap/"; \
+		echo "COPY go-mod-configuration/ /go-mod-configuration/"; \
+		echo "COPY go-mod-core-contracts/ /go-mod-core-contracts/"; \
+		echo "COPY go-mod-messaging/ /go-mod-messaging/"; \
+		echo "COPY go-mod-registry/ /go-mod-registry/"; \
+		echo "COPY go-mod-secrets/ /go-mod-secrets/"; \
 		echo "ENV GOPROXY=$(GOPROXY) GOSUMDB=$(GOSUMDB) GOTOOLCHAIN=local"; \
 		echo "RUN go mod download || (echo 'retry 1'; sleep 5; go mod download) || (echo 'retry 2'; sleep 10; go mod download)"; \
 	} > $$DOCKERFILE; \
@@ -167,7 +184,7 @@ docker_base:
 	docker build $(DOCKER_BUILD_EXTRA) \
 		--build-arg http_proxy --build-arg https_proxy \
 		--build-arg HTTP_PROXY --build-arg HTTPS_PROXY \
-		-t $(LOCAL_CACHE_IMAGE) -f $$DOCKERFILE .; \
+		-t $(LOCAL_CACHE_IMAGE) -f $$DOCKERFILE ..; \
 	status=$$?; rm -f $$DOCKERFILE; exit $$status
 
 dcore: dmetadata ddata dcommand
@@ -184,7 +201,7 @@ docker_core_metadata: docker_base
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-metadata:$(GIT_SHA) \
 		-t edge-hy/core-metadata:$(DOCKER_TAG) \
-		.
+		..
 
 ddata: docker_core_data
 docker_core_data: docker_base
@@ -198,7 +215,7 @@ docker_core_data: docker_base
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-data:$(GIT_SHA) \
 		-t edge-hy/core-data:$(DOCKER_TAG) \
-		.
+		..
 
 dcommand: docker_core_command
 docker_core_command: docker_base
@@ -212,7 +229,7 @@ docker_core_command: docker_base
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-command:$(GIT_SHA) \
 		-t edge-hy/core-command:$(DOCKER_TAG) \
-		.
+		..
 
 dcommon-config: docker_core_common_config
 docker_core_common_config: docker_base
@@ -226,7 +243,7 @@ docker_core_common_config: docker_base
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-common-config-bootstrapper:$(GIT_SHA) \
 		-t edge-hy/core-common-config-bootstrapper:$(DOCKER_TAG) \
-		.
+		..
 
 dkeeper: docker_core_keeper
 docker_core_keeper: docker_base
@@ -240,7 +257,21 @@ docker_core_keeper: docker_base
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-keeper:$(GIT_SHA) \
 		-t edge-hy/core-keeper:$(DOCKER_TAG) \
-		.
+		..
+
+dsupport-mappings: docker_support_mappings
+docker_support_mappings: docker_base
+		docker build \
+			--build-arg ADD_BUILD_TAGS=$(ADD_BUILD_TAGS) \
+			--build-arg http_proxy \
+			--build-arg https_proxy \
+			--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
+			--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+			-f cmd/support-mappings/Dockerfile \
+			--label "git_sha=$(GIT_SHA)" \
+			-t edge-hy/support-mappings:$(GIT_SHA) \
+			-t edge-hy/support-mappings:$(DOCKER_TAG) \
+			..
 
 vendor:
 	$(GO) mod vendor

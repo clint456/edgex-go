@@ -1,2 +1,27 @@
-docs
-.git
+# Docker build ignore rules for the edgex-go project.
+#
+# Docker builds use the workspace root (the parent of this repository) as their
+# build context so that the local `replace ../go-mod-*` directives resolve inside
+# the containers. The workspace root is not a git repository, so `make docker`
+# copies this file to ../.dockerignore before invoking `docker build`.
+
+**/.git
+**/.git/**
+
+# Unrelated sibling projects that are not part of the edgex-go build.
+edge-ui
+north-sdk-go
+
+# Build output / scratch directories.
+edgex-go/bin
+edgex-go/sbom
+edgex-go/coverage.out
+edgex-go/fuzz_test/fuzz_results
+
+# Compiled service binaries (rebuilt inside the builder stage).
+edgex-go/cmd/core-command/core-command
+edgex-go/cmd/core-common-config-bootstrapper/core-common-config-bootstrapper
+edgex-go/cmd/core-data/core-data
+edgex-go/cmd/core-keeper/core-keeper
+edgex-go/cmd/core-metadata/core-metadata
+edgex-go/cmd/support-mappings/support-mappings
