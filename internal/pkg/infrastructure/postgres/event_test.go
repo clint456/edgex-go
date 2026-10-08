@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/postgres/mocks"
+	"github.com/clint456/edgex-go/internal/pkg/infrastructure/postgres/mocks"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
 	"github.com/jackc/pgx/v5"

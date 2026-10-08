@@ -9,12 +9,12 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/application"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/constants"
-	kpContrUtils "github.com/edgexfoundry/edgex-go/internal/core/keeper/utils"
-	edgexIO "github.com/edgexfoundry/edgex-go/internal/io"
-	"github.com/edgexfoundry/edgex-go/internal/pkg"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils"
+	"github.com/clint456/edgex-go/internal/core/keeper/application"
+	"github.com/clint456/edgex-go/internal/core/keeper/constants"
+	kpContrUtils "github.com/clint456/edgex-go/internal/core/keeper/utils"
+	edgexIO "github.com/clint456/edgex-go/internal/io"
+	"github.com/clint456/edgex-go/internal/pkg"
+	"github.com/clint456/edgex-go/internal/pkg/utils"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

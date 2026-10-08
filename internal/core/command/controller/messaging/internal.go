@@ -23,7 +23,7 @@ import (
 
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/command/container"
+	"github.com/clint456/edgex-go/internal/core/command/container"
 )
 
 // SubscribeCommandRequests subscribes command requests from EdgeX service (e.g., Application Service)

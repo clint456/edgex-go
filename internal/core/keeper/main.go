@@ -17,13 +17,13 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 
-	"github.com/edgexfoundry/edgex-go"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/constants"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/embed"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/registry"
-	pkgHandlers "github.com/edgexfoundry/edgex-go/internal/pkg/bootstrap/handlers"
+	"github.com/clint456/edgex-go"
+	"github.com/clint456/edgex-go/internal/core/keeper/config"
+	"github.com/clint456/edgex-go/internal/core/keeper/constants"
+	"github.com/clint456/edgex-go/internal/core/keeper/container"
+	"github.com/clint456/edgex-go/internal/core/keeper/embed"
+	"github.com/clint456/edgex-go/internal/core/keeper/registry"
+	pkgHandlers "github.com/clint456/edgex-go/internal/pkg/bootstrap/handlers"
 
 	"github.com/labstack/echo/v4"
 )

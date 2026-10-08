@@ -28,12 +28,12 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 
-	"github.com/edgexfoundry/edgex-go"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/application"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/embed"
-	pkgHandlers "github.com/edgexfoundry/edgex-go/internal/pkg/bootstrap/handlers"
+	"github.com/clint456/edgex-go"
+	"github.com/clint456/edgex-go/internal/core/data/application"
+	"github.com/clint456/edgex-go/internal/core/data/config"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/embed"
+	pkgHandlers "github.com/clint456/edgex-go/internal/pkg/bootstrap/handlers"
 
 	"github.com/labstack/echo/v4"
 )

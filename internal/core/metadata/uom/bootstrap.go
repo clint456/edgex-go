@@ -11,7 +11,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/file"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/startup"

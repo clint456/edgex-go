@@ -31,9 +31,9 @@ import (
 	internalMessagingMocks "github.com/edgexfoundry/go-mod-messaging/v4/messaging/mocks"
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/command/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/command/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/command/controller/messaging/mocks"
+	"github.com/clint456/edgex-go/internal/core/command/config"
+	"github.com/clint456/edgex-go/internal/core/command/container"
+	"github.com/clint456/edgex-go/internal/core/command/controller/messaging/mocks"
 )
 
 const (

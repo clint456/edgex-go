@@ -11,7 +11,7 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/container"
+	"github.com/clint456/edgex-go/internal/core/keeper/container"
 )
 
 func AddRegistration(r models.Registration, dic *di.Container) errors.EdgeX {

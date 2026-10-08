@@ -7,8 +7,8 @@ package application
 
 import (
 	"context"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/dtos"

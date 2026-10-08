@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/constants"
+	"github.com/clint456/edgex-go/internal/core/keeper/constants"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 )

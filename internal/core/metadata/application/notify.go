@@ -18,7 +18,7 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
 )
 
 // validateDeviceCallback invoke device service's validation function for validating new or updated device

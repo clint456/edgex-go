@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	dbModels "github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/models"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	dbModels "github.com/clint456/edgex-go/internal/pkg/infrastructure/models"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

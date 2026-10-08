@@ -13,7 +13,7 @@ import (
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
-	pgClient "github.com/edgexfoundry/edgex-go/internal/pkg/db/postgres"
+	pgClient "github.com/clint456/edgex-go/internal/pkg/db/postgres"
 )
 
 // getValidOffsetAndLimit returns the valid or default offset and limit from the given parameters

@@ -19,12 +19,12 @@ package metadata
 import (
 	"context"
 
-	"github.com/edgexfoundry/edgex-go"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/embed"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/uom"
-	pkgHandlers "github.com/edgexfoundry/edgex-go/internal/pkg/bootstrap/handlers"
+	"github.com/clint456/edgex-go"
+	"github.com/clint456/edgex-go/internal/core/metadata/config"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/embed"
+	"github.com/clint456/edgex-go/internal/core/metadata/uom"
+	pkgHandlers "github.com/clint456/edgex-go/internal/pkg/bootstrap/handlers"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 

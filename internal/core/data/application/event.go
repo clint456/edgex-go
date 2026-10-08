@@ -20,10 +20,10 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/query"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/query"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/pkg/utils"
 
 	"github.com/google/uuid"
 )

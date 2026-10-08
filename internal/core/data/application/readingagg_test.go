@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/infrastructure/interfaces"
-	dbMock "github.com/edgexfoundry/edgex-go/internal/core/data/infrastructure/interfaces/mocks"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/mocks"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/query"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/infrastructure/interfaces"
+	dbMock "github.com/clint456/edgex-go/internal/core/data/infrastructure/interfaces/mocks"
+	"github.com/clint456/edgex-go/internal/core/data/mocks"
+	"github.com/clint456/edgex-go/internal/core/data/query"
 
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"

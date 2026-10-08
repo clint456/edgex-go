@@ -14,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/constants"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/infrastructure/interfaces/mocks"
+	"github.com/clint456/edgex-go/internal/core/keeper/constants"
+	"github.com/clint456/edgex-go/internal/core/keeper/container"
+	"github.com/clint456/edgex-go/internal/core/keeper/infrastructure/interfaces/mocks"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

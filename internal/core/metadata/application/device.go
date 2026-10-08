@@ -31,10 +31,10 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/infrastructure/interfaces"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/infrastructure/interfaces"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/pkg/utils"
 )
 
 // the suggested minimum duration for auto event interval

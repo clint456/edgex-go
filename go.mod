@@ -1,4 +1,4 @@
-module github.com/edgexfoundry/edgex-go
+module github.com/clint456/edgex-go
 
 go 1.25.0
 

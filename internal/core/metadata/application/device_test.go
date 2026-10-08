@@ -9,10 +9,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/infrastructure/interfaces/mocks"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/core/metadata/config"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/infrastructure/interfaces/mocks"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

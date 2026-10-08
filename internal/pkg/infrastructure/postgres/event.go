@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	pgClient "github.com/edgexfoundry/edgex-go/internal/pkg/db/postgres"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	pgClient "github.com/clint456/edgex-go/internal/pkg/db/postgres"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v4/models"

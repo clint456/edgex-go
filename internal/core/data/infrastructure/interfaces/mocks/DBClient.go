@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	infrastructuremodels "github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/models"
+	infrastructuremodels "github.com/clint456/edgex-go/internal/pkg/infrastructure/models"
 	errors "github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
 	mock "github.com/stretchr/testify/mock"

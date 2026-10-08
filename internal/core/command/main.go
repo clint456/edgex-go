@@ -30,10 +30,10 @@ import (
 	bootstrapConfig "github.com/edgexfoundry/go-mod-bootstrap/v4/config"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 
-	"github.com/edgexfoundry/edgex-go"
-	"github.com/edgexfoundry/edgex-go/internal/core/command/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/command/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/command/controller/messaging"
+	"github.com/clint456/edgex-go"
+	"github.com/clint456/edgex-go/internal/core/command/config"
+	"github.com/clint456/edgex-go/internal/core/command/container"
+	"github.com/clint456/edgex-go/internal/core/command/controller/messaging"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 

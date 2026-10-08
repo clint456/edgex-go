@@ -6,7 +6,7 @@
 package interfaces
 
 import (
-	"github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/models"
+	"github.com/clint456/edgex-go/internal/pkg/infrastructure/models"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v4/models"

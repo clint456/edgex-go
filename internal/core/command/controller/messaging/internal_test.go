@@ -27,8 +27,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/command/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/command/container"
+	"github.com/clint456/edgex-go/internal/core/command/config"
+	"github.com/clint456/edgex-go/internal/core/command/container"
 )
 
 var expectedResponseTopicPrefix = "edgex/response"

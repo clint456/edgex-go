@@ -5,9 +5,9 @@
 
 package redis
 
-import dataInterfaces "github.com/edgexfoundry/edgex-go/internal/core/data/infrastructure/interfaces"
-import keeperInterfaces "github.com/edgexfoundry/edgex-go/internal/core/keeper/infrastructure/interfaces"
-import metadataInterfaces "github.com/edgexfoundry/edgex-go/internal/core/metadata/infrastructure/interfaces"
+import dataInterfaces "github.com/clint456/edgex-go/internal/core/data/infrastructure/interfaces"
+import keeperInterfaces "github.com/clint456/edgex-go/internal/core/keeper/infrastructure/interfaces"
+import metadataInterfaces "github.com/clint456/edgex-go/internal/core/metadata/infrastructure/interfaces"
 
 // Check the implementation of Redis satisfies the DB client
 var _ dataInterfaces.DBClient = &Client{}

@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils/crypto/interfaces"
+	"github.com/clint456/edgex-go/internal/pkg/utils/crypto/interfaces"
 	bootstrapInterfaces "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/interfaces"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-secrets/v4/pkg"

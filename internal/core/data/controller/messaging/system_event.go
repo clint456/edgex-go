@@ -9,8 +9,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/application"
-	dataContainer "github.com/edgexfoundry/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/application"
+	dataContainer "github.com/clint456/edgex-go/internal/core/data/container"
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"

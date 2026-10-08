@@ -6,9 +6,9 @@
 package postgres
 
 import (
-	dataInterfaces "github.com/edgexfoundry/edgex-go/internal/core/data/infrastructure/interfaces"
-	keeperInterfaces "github.com/edgexfoundry/edgex-go/internal/core/keeper/infrastructure/interfaces"
-	metadataInterfaces "github.com/edgexfoundry/edgex-go/internal/core/metadata/infrastructure/interfaces"
+	dataInterfaces "github.com/clint456/edgex-go/internal/core/data/infrastructure/interfaces"
+	keeperInterfaces "github.com/clint456/edgex-go/internal/core/keeper/infrastructure/interfaces"
+	metadataInterfaces "github.com/clint456/edgex-go/internal/core/metadata/infrastructure/interfaces"
 )
 
 // Check the implementation of Postgres satisfies the DB client

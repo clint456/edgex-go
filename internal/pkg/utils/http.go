@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/pkg"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"

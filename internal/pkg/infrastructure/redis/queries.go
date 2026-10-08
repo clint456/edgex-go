@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	pkgCommon "github.com/edgexfoundry/edgex-go/internal/pkg/common"
+	pkgCommon "github.com/clint456/edgex-go/internal/pkg/common"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"

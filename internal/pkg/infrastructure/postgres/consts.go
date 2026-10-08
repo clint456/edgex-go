@@ -6,9 +6,9 @@
 package postgres
 
 import (
-	data "github.com/edgexfoundry/edgex-go/internal/core/data/embed"
-	keeper "github.com/edgexfoundry/edgex-go/internal/core/keeper/embed"
-	metadata "github.com/edgexfoundry/edgex-go/internal/core/metadata/embed"
+	data "github.com/clint456/edgex-go/internal/core/data/embed"
+	keeper "github.com/clint456/edgex-go/internal/core/keeper/embed"
+	metadata "github.com/clint456/edgex-go/internal/core/metadata/embed"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 )
 

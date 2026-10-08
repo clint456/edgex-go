@@ -6,8 +6,8 @@
 package mocks
 
 import (
-	"github.com/edgexfoundry/edgex-go/internal/core/data/config"
-	dataContainer "github.com/edgexfoundry/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/config"
+	dataContainer "github.com/clint456/edgex-go/internal/core/data/container"
 	"github.com/edgexfoundry/go-mod-messaging/v4/messaging/mocks"
 	"github.com/stretchr/testify/mock"
 

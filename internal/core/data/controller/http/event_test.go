@@ -27,11 +27,11 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/application"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	dbMock "github.com/edgexfoundry/edgex-go/internal/core/data/infrastructure/interfaces/mocks"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/mocks"
+	"github.com/clint456/edgex-go/internal/core/data/application"
+	"github.com/clint456/edgex-go/internal/core/data/config"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	dbMock "github.com/clint456/edgex-go/internal/core/data/infrastructure/interfaces/mocks"
+	"github.com/clint456/edgex-go/internal/core/data/mocks"
 
 	"github.com/labstack/echo/v4"
 )

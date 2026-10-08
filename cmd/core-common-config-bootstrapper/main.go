@@ -17,7 +17,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/common_config"
+	"github.com/clint456/edgex-go/internal/core/common_config"
 )
 
 func main() {

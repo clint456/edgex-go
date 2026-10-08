@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	bootstrapInterfaces "github.com/edgexfoundry/edgex-go/internal/pkg/bootstrap/interfaces"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/db"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/postgres"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/redis"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/interfaces"
+	bootstrapInterfaces "github.com/clint456/edgex-go/internal/pkg/bootstrap/interfaces"
+	"github.com/clint456/edgex-go/internal/pkg/db"
+	"github.com/clint456/edgex-go/internal/pkg/infrastructure/postgres"
+	"github.com/clint456/edgex-go/internal/pkg/infrastructure/redis"
+	"github.com/clint456/edgex-go/internal/pkg/interfaces"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/secret"

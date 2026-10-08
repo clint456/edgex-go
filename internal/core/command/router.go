@@ -7,8 +7,8 @@
 package command
 
 import (
-	"github.com/edgexfoundry/edgex-go"
-	commandController "github.com/edgexfoundry/edgex-go/internal/core/command/controller/http"
+	"github.com/clint456/edgex-go"
+	commandController "github.com/clint456/edgex-go/internal/core/command/controller/http"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/controller"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/handlers"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

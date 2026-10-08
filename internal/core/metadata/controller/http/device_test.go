@@ -20,8 +20,8 @@ import (
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
-	dbMock "github.com/edgexfoundry/edgex-go/internal/core/metadata/infrastructure/interfaces/mocks"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
+	dbMock "github.com/clint456/edgex-go/internal/core/metadata/infrastructure/interfaces/mocks"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

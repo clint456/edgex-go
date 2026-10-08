@@ -19,7 +19,7 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg/db"
+	"github.com/clint456/edgex-go/internal/pkg/db"
 )
 
 const defaultDBName = "edgex_db"

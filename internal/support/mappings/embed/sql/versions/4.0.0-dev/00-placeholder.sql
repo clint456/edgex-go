@@ -1,0 +1,2 @@
+-- Keep the baseline migration directory available to the PostgreSQL table manager.
+-- The initial mappings schema is created by sql/idempotent.

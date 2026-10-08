@@ -8,11 +8,11 @@ package http
 import (
 	"net/http"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/application"
-	"github.com/edgexfoundry/edgex-go/internal/io"
-	"github.com/edgexfoundry/edgex-go/internal/pkg"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils"
+	"github.com/clint456/edgex-go/internal/core/metadata/application"
+	"github.com/clint456/edgex-go/internal/io"
+	"github.com/clint456/edgex-go/internal/pkg"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/pkg/utils"
 
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

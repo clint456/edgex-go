@@ -18,7 +18,7 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/container"
+	"github.com/clint456/edgex-go/internal/core/keeper/container"
 )
 
 type Registry struct {

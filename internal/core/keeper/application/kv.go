@@ -8,9 +8,9 @@ package application
 import (
 	"context"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/utils"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
+	"github.com/clint456/edgex-go/internal/core/keeper/container"
+	"github.com/clint456/edgex-go/internal/core/keeper/utils"
+	"github.com/clint456/edgex-go/internal/pkg/correlation"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

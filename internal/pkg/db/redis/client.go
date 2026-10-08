@@ -23,7 +23,7 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg/db"
+	"github.com/clint456/edgex-go/internal/pkg/db"
 )
 
 var currClient *Client // a singleton so Readings can be de-referenced

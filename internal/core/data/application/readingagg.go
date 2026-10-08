@@ -6,9 +6,9 @@
 package application
 
 import (
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/infrastructure/interfaces"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/query"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/infrastructure/interfaces"
+	"github.com/clint456/edgex-go/internal/core/data/query"
 
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/dtos"

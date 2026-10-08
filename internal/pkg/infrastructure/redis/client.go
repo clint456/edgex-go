@@ -13,8 +13,8 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg/db"
-	redisClient "github.com/edgexfoundry/edgex-go/internal/pkg/db/redis"
+	"github.com/clint456/edgex-go/internal/pkg/db"
+	redisClient "github.com/clint456/edgex-go/internal/pkg/db/redis"
 
 	"github.com/google/uuid"
 )

@@ -16,10 +16,10 @@ import (
 	responseDTO "github.com/edgexfoundry/go-mod-core-contracts/v4/dtos/responses"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/command/application"
-	commandContainer "github.com/edgexfoundry/edgex-go/internal/core/command/container"
-	"github.com/edgexfoundry/edgex-go/internal/pkg"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils"
+	"github.com/clint456/edgex-go/internal/core/command/application"
+	commandContainer "github.com/clint456/edgex-go/internal/core/command/container"
+	"github.com/clint456/edgex-go/internal/pkg"
+	"github.com/clint456/edgex-go/internal/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )

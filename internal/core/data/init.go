@@ -21,11 +21,11 @@ import (
 	"context"
 	"sync"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/data/application"
-	dataCache "github.com/edgexfoundry/edgex-go/internal/core/data/cache"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/data/controller/messaging"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/cache"
+	"github.com/clint456/edgex-go/internal/core/data/application"
+	dataCache "github.com/clint456/edgex-go/internal/core/data/cache"
+	"github.com/clint456/edgex-go/internal/core/data/container"
+	"github.com/clint456/edgex-go/internal/core/data/controller/messaging"
+	"github.com/clint456/edgex-go/internal/pkg/cache"
 
 	bootstrapContainer "github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/startup"

@@ -14,7 +14,7 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 	"github.com/gomodule/redigo/redis"
 
-	pkgCommon "github.com/edgexfoundry/edgex-go/internal/pkg/common"
+	pkgCommon "github.com/clint456/edgex-go/internal/pkg/common"
 )
 
 const RegistrationCollection = "kp|r"

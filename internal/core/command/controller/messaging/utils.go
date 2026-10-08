@@ -20,7 +20,7 @@ import (
 
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/command/application"
+	"github.com/clint456/edgex-go/internal/core/command/application"
 )
 
 // retrieveServiceNameByDevice validates the existence of device and device service,

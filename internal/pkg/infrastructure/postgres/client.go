@@ -13,8 +13,8 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/clients/logger"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
-	"github.com/edgexfoundry/edgex-go/internal/pkg/db"
-	postgresClient "github.com/edgexfoundry/edgex-go/internal/pkg/db/postgres"
+	"github.com/clint456/edgex-go/internal/pkg/db"
+	postgresClient "github.com/clint456/edgex-go/internal/pkg/db/postgres"
 )
 
 type Client struct {

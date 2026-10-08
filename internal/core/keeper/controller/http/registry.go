@@ -17,12 +17,12 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/dtos/responses"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/application"
-	"github.com/edgexfoundry/edgex-go/internal/core/keeper/constants"
-	httpUtils "github.com/edgexfoundry/edgex-go/internal/core/keeper/utils"
-	"github.com/edgexfoundry/edgex-go/internal/io"
-	"github.com/edgexfoundry/edgex-go/internal/pkg"
-	"github.com/edgexfoundry/edgex-go/internal/pkg/utils"
+	"github.com/clint456/edgex-go/internal/core/keeper/application"
+	"github.com/clint456/edgex-go/internal/core/keeper/constants"
+	httpUtils "github.com/clint456/edgex-go/internal/core/keeper/utils"
+	"github.com/clint456/edgex-go/internal/io"
+	"github.com/clint456/edgex-go/internal/pkg"
+	"github.com/clint456/edgex-go/internal/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )

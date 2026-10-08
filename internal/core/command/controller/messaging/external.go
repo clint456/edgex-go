@@ -21,7 +21,7 @@ import (
 
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/command/container"
+	"github.com/clint456/edgex-go/internal/core/command/container"
 )
 
 // defaultMaxConcurrentExternalCommands caps in-flight external MQTT command requests so a single

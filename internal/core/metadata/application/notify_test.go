@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/config"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/config"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
 	bootstrapConfig "github.com/edgexfoundry/go-mod-bootstrap/v4/config"
 	mocks2 "github.com/edgexfoundry/go-mod-core-contracts/v4/clients/logger/mocks"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"

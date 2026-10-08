@@ -20,8 +20,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/container"
-	"github.com/edgexfoundry/edgex-go/internal/core/metadata/utils"
+	"github.com/clint456/edgex-go/internal/core/metadata/container"
+	"github.com/clint456/edgex-go/internal/core/metadata/utils"
 
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/startup"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"

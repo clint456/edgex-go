@@ -16,8 +16,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	pkgCommon "github.com/edgexfoundry/edgex-go/internal/pkg/common"
-	pgClient "github.com/edgexfoundry/edgex-go/internal/pkg/db/postgres"
+	pkgCommon "github.com/clint456/edgex-go/internal/pkg/common"
+	pgClient "github.com/clint456/edgex-go/internal/pkg/db/postgres"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 )

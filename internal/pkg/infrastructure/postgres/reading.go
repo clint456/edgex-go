@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"strings"
 
-	pgClient "github.com/edgexfoundry/edgex-go/internal/pkg/db/postgres"
-	dbModels "github.com/edgexfoundry/edgex-go/internal/pkg/infrastructure/postgres/models"
+	pgClient "github.com/clint456/edgex-go/internal/pkg/db/postgres"
+	dbModels "github.com/clint456/edgex-go/internal/pkg/infrastructure/postgres/models"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 	model "github.com/edgexfoundry/go-mod-core-contracts/v4/models"

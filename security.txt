@@ -8,7 +8,7 @@ Contact: mailto:security-issues@lists.edgexfoundry.org
 
 Preferred-Languages: en
 
-Canonical: https://github.com/edgexfoundry/edgex-go/blob/main/security.txt
+Canonical: https://github.com/clint456/edgex-go/blob/main/security.txt
 
 Policy: https://wiki.edgexfoundry.org/display/FA/Security
 
