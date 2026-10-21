@@ -53,13 +53,13 @@ func (cc *CommandController) AllCommands(c echo.Context) error {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceCoreCommandsResponse("", "", http.StatusOK, totalCount, commands)
+	response := responseDTO.NewMultiNodeCoreCommandsResponse("", "", http.StatusOK, totalCount, commands)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	// encode and send out the response
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (cc *CommandController) CommandsByDeviceName(c echo.Context) error {
+func (cc *CommandController) CommandsByNodeName(c echo.Context) error {
 	lc := container.LoggingClientFrom(cc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -67,12 +67,12 @@ func (cc *CommandController) CommandsByDeviceName(c echo.Context) error {
 
 	// URL parameters
 	name := c.Param(common.Name)
-	deviceCoreCommand, err := application.CommandsByDeviceName(name, cc.dic)
+	nodeCoreCommand, err := application.CommandsByNodeName(name, cc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewDeviceCoreCommandResponse("", "", http.StatusOK, deviceCoreCommand)
+	response := responseDTO.NewNodeCoreCommandResponse("", "", http.StatusOK, nodeCoreCommand)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	// encode and send out the response
 	return pkg.EncodeAndWriteResponse(response, w, lc)
@@ -97,7 +97,7 @@ func (cc *CommandController) IssueGetCommandByName(c echo.Context) error {
 	ctx := r.Context()
 
 	// URL parameters
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 	commandName := c.Param(common.Command)
 
 	// Query params
@@ -107,7 +107,7 @@ func (cc *CommandController) IssueGetCommandByName(c echo.Context) error {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response, err := application.IssueGetCommandByName(deviceName, commandName, queryParams, cc.dic)
+	response, err := application.IssueGetCommandByName(nodeName, commandName, queryParams, cc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -128,7 +128,7 @@ func (cc *CommandController) IssueSetCommandByName(c echo.Context) error {
 	ctx := r.Context()
 
 	// URL parameters
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 	commandName := c.Param(common.Command)
 	// Query params
 	queryParams := r.URL.RawQuery
@@ -138,7 +138,7 @@ func (cc *CommandController) IssueSetCommandByName(c echo.Context) error {
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	response, err := application.IssueSetCommandByName(deviceName, commandName, queryParams, settings, cc.dic)
+	response, err := application.IssueSetCommandByName(nodeName, commandName, queryParams, settings, cc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}

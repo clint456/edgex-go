@@ -15,26 +15,26 @@ type DBClient struct {
 	mock.Mock
 }
 
-// AddDevice provides a mock function with given fields: d
-func (_m *DBClient) AddDevice(d models.Device) (models.Device, errors.EdgeX) {
+// AddNode provides a mock function with given fields: d
+func (_m *DBClient) AddNode(d models.Node) (models.Node, errors.EdgeX) {
 	ret := _m.Called(d)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AddDevice")
+		panic("no return value specified for AddNode")
 	}
 
-	var r0 models.Device
+	var r0 models.Node
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(models.Device) (models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(models.Node) (models.Node, errors.EdgeX)); ok {
 		return rf(d)
 	}
-	if rf, ok := ret.Get(0).(func(models.Device) models.Device); ok {
+	if rf, ok := ret.Get(0).(func(models.Node) models.Node); ok {
 		r0 = rf(d)
 	} else {
-		r0 = ret.Get(0).(models.Device)
+		r0 = ret.Get(0).(models.Node)
 	}
 
-	if rf, ok := ret.Get(1).(func(models.Device) errors.EdgeX); ok {
+	if rf, ok := ret.Get(1).(func(models.Node) errors.EdgeX); ok {
 		r1 = rf(d)
 	} else {
 		if ret.Get(1) != nil {
@@ -45,26 +45,26 @@ func (_m *DBClient) AddDevice(d models.Device) (models.Device, errors.EdgeX) {
 	return r0, r1
 }
 
-// AddDeviceProfile provides a mock function with given fields: e
-func (_m *DBClient) AddDeviceProfile(e models.DeviceProfile) (models.DeviceProfile, errors.EdgeX) {
+// AddProfile provides a mock function with given fields: e
+func (_m *DBClient) AddProfile(e models.Profile) (models.Profile, errors.EdgeX) {
 	ret := _m.Called(e)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AddDeviceProfile")
+		panic("no return value specified for AddProfile")
 	}
 
-	var r0 models.DeviceProfile
+	var r0 models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(models.DeviceProfile) (models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(models.Profile) (models.Profile, errors.EdgeX)); ok {
 		return rf(e)
 	}
-	if rf, ok := ret.Get(0).(func(models.DeviceProfile) models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(models.Profile) models.Profile); ok {
 		r0 = rf(e)
 	} else {
-		r0 = ret.Get(0).(models.DeviceProfile)
+		r0 = ret.Get(0).(models.Profile)
 	}
 
-	if rf, ok := ret.Get(1).(func(models.DeviceProfile) errors.EdgeX); ok {
+	if rf, ok := ret.Get(1).(func(models.Profile) errors.EdgeX); ok {
 		r1 = rf(e)
 	} else {
 		if ret.Get(1) != nil {
@@ -75,26 +75,26 @@ func (_m *DBClient) AddDeviceProfile(e models.DeviceProfile) (models.DeviceProfi
 	return r0, r1
 }
 
-// AddDeviceService provides a mock function with given fields: ds
-func (_m *DBClient) AddDeviceService(ds models.DeviceService) (models.DeviceService, errors.EdgeX) {
+// AddNodeService provides a mock function with given fields: ds
+func (_m *DBClient) AddNodeService(ds models.NodeService) (models.NodeService, errors.EdgeX) {
 	ret := _m.Called(ds)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AddDeviceService")
+		panic("no return value specified for AddNodeService")
 	}
 
-	var r0 models.DeviceService
+	var r0 models.NodeService
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(models.DeviceService) (models.DeviceService, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(models.NodeService) (models.NodeService, errors.EdgeX)); ok {
 		return rf(ds)
 	}
-	if rf, ok := ret.Get(0).(func(models.DeviceService) models.DeviceService); ok {
+	if rf, ok := ret.Get(0).(func(models.NodeService) models.NodeService); ok {
 		r0 = rf(ds)
 	} else {
-		r0 = ret.Get(0).(models.DeviceService)
+		r0 = ret.Get(0).(models.NodeService)
 	}
 
-	if rf, ok := ret.Get(1).(func(models.DeviceService) errors.EdgeX); ok {
+	if rf, ok := ret.Get(1).(func(models.NodeService) errors.EdgeX); ok {
 		r1 = rf(ds)
 	} else {
 		if ret.Get(1) != nil {
@@ -135,24 +135,24 @@ func (_m *DBClient) AddProvisionWatcher(pw models.ProvisionWatcher) (models.Prov
 	return r0, r1
 }
 
-// AllDeviceProfiles provides a mock function with given fields: offset, limit, labels
-func (_m *DBClient) AllDeviceProfiles(offset int, limit int, labels []string) ([]models.DeviceProfile, errors.EdgeX) {
+// AllProfiles provides a mock function with given fields: offset, limit, labels
+func (_m *DBClient) AllProfiles(offset int, limit int, labels []string) ([]models.Profile, errors.EdgeX) {
 	ret := _m.Called(offset, limit, labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllDeviceProfiles")
+		panic("no return value specified for AllProfiles")
 	}
 
-	var r0 []models.DeviceProfile
+	var r0 []models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, []string) ([]models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, []string) ([]models.Profile, errors.EdgeX)); ok {
 		return rf(offset, limit, labels)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, []string) []models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(int, int, []string) []models.Profile); ok {
 		r0 = rf(offset, limit, labels)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.DeviceProfile)
+			r0 = ret.Get(0).([]models.Profile)
 		}
 	}
 
@@ -167,24 +167,24 @@ func (_m *DBClient) AllDeviceProfiles(offset int, limit int, labels []string) ([
 	return r0, r1
 }
 
-// AllDeviceServices provides a mock function with given fields: offset, limit, labels
-func (_m *DBClient) AllDeviceServices(offset int, limit int, labels []string) ([]models.DeviceService, errors.EdgeX) {
+// AllNodeServices provides a mock function with given fields: offset, limit, labels
+func (_m *DBClient) AllNodeServices(offset int, limit int, labels []string) ([]models.NodeService, errors.EdgeX) {
 	ret := _m.Called(offset, limit, labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllDeviceServices")
+		panic("no return value specified for AllNodeServices")
 	}
 
-	var r0 []models.DeviceService
+	var r0 []models.NodeService
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, []string) ([]models.DeviceService, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, []string) ([]models.NodeService, errors.EdgeX)); ok {
 		return rf(offset, limit, labels)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, []string) []models.DeviceService); ok {
+	if rf, ok := ret.Get(0).(func(int, int, []string) []models.NodeService); ok {
 		r0 = rf(offset, limit, labels)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.DeviceService)
+			r0 = ret.Get(0).([]models.NodeService)
 		}
 	}
 
@@ -199,24 +199,24 @@ func (_m *DBClient) AllDeviceServices(offset int, limit int, labels []string) ([
 	return r0, r1
 }
 
-// AllDevices provides a mock function with given fields: offset, limit, labels
-func (_m *DBClient) AllDevices(offset int, limit int, labels []string) ([]models.Device, errors.EdgeX) {
+// AllNodes provides a mock function with given fields: offset, limit, labels
+func (_m *DBClient) AllNodes(offset int, limit int, labels []string) ([]models.Node, errors.EdgeX) {
 	ret := _m.Called(offset, limit, labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllDevices")
+		panic("no return value specified for AllNodes")
 	}
 
-	var r0 []models.Device
+	var r0 []models.Node
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, []string) ([]models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, []string) ([]models.Node, errors.EdgeX)); ok {
 		return rf(offset, limit, labels)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, []string) []models.Device); ok {
+	if rf, ok := ret.Get(0).(func(int, int, []string) []models.Node); ok {
 		r0 = rf(offset, limit, labels)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Device)
+			r0 = ret.Get(0).([]models.Node)
 		}
 	}
 
@@ -268,12 +268,12 @@ func (_m *DBClient) CloseSession() {
 	_m.Called()
 }
 
-// DeleteDeviceById provides a mock function with given fields: id
-func (_m *DBClient) DeleteDeviceById(id string) errors.EdgeX {
+// DeleteNodeById provides a mock function with given fields: id
+func (_m *DBClient) DeleteNodeById(id string) errors.EdgeX {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteDeviceById")
+		panic("no return value specified for DeleteNodeById")
 	}
 
 	var r0 errors.EdgeX
@@ -288,12 +288,12 @@ func (_m *DBClient) DeleteDeviceById(id string) errors.EdgeX {
 	return r0
 }
 
-// DeleteDeviceByName provides a mock function with given fields: name
-func (_m *DBClient) DeleteDeviceByName(name string) errors.EdgeX {
+// DeleteNodeByName provides a mock function with given fields: name
+func (_m *DBClient) DeleteNodeByName(name string) errors.EdgeX {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteDeviceByName")
+		panic("no return value specified for DeleteNodeByName")
 	}
 
 	var r0 errors.EdgeX
@@ -308,12 +308,12 @@ func (_m *DBClient) DeleteDeviceByName(name string) errors.EdgeX {
 	return r0
 }
 
-// DeleteDeviceProfileById provides a mock function with given fields: id
-func (_m *DBClient) DeleteDeviceProfileById(id string) errors.EdgeX {
+// DeleteProfileById provides a mock function with given fields: id
+func (_m *DBClient) DeleteProfileById(id string) errors.EdgeX {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteDeviceProfileById")
+		panic("no return value specified for DeleteProfileById")
 	}
 
 	var r0 errors.EdgeX
@@ -328,12 +328,12 @@ func (_m *DBClient) DeleteDeviceProfileById(id string) errors.EdgeX {
 	return r0
 }
 
-// DeleteDeviceProfileByName provides a mock function with given fields: name
-func (_m *DBClient) DeleteDeviceProfileByName(name string) errors.EdgeX {
+// DeleteProfileByName provides a mock function with given fields: name
+func (_m *DBClient) DeleteProfileByName(name string) errors.EdgeX {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteDeviceProfileByName")
+		panic("no return value specified for DeleteProfileByName")
 	}
 
 	var r0 errors.EdgeX
@@ -348,12 +348,12 @@ func (_m *DBClient) DeleteDeviceProfileByName(name string) errors.EdgeX {
 	return r0
 }
 
-// DeleteDeviceServiceById provides a mock function with given fields: id
-func (_m *DBClient) DeleteDeviceServiceById(id string) errors.EdgeX {
+// DeleteNodeServiceById provides a mock function with given fields: id
+func (_m *DBClient) DeleteNodeServiceById(id string) errors.EdgeX {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteDeviceServiceById")
+		panic("no return value specified for DeleteNodeServiceById")
 	}
 
 	var r0 errors.EdgeX
@@ -368,12 +368,12 @@ func (_m *DBClient) DeleteDeviceServiceById(id string) errors.EdgeX {
 	return r0
 }
 
-// DeleteDeviceServiceByName provides a mock function with given fields: name
-func (_m *DBClient) DeleteDeviceServiceByName(name string) errors.EdgeX {
+// DeleteNodeServiceByName provides a mock function with given fields: name
+func (_m *DBClient) DeleteNodeServiceByName(name string) errors.EdgeX {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteDeviceServiceByName")
+		panic("no return value specified for DeleteNodeServiceByName")
 	}
 
 	var r0 errors.EdgeX
@@ -408,23 +408,23 @@ func (_m *DBClient) DeleteProvisionWatcherByName(name string) errors.EdgeX {
 	return r0
 }
 
-// DeviceById provides a mock function with given fields: id
-func (_m *DBClient) DeviceById(id string) (models.Device, errors.EdgeX) {
+// NodeById provides a mock function with given fields: id
+func (_m *DBClient) NodeById(id string) (models.Node, errors.EdgeX) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceById")
+		panic("no return value specified for NodeById")
 	}
 
-	var r0 models.Device
+	var r0 models.Node
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string) (models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string) (models.Node, errors.EdgeX)); ok {
 		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(string) models.Device); ok {
+	if rf, ok := ret.Get(0).(func(string) models.Node); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(models.Device)
+		r0 = ret.Get(0).(models.Node)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) errors.EdgeX); ok {
@@ -438,23 +438,23 @@ func (_m *DBClient) DeviceById(id string) (models.Device, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceByName provides a mock function with given fields: name
-func (_m *DBClient) DeviceByName(name string) (models.Device, errors.EdgeX) {
+// NodeByName provides a mock function with given fields: name
+func (_m *DBClient) NodeByName(name string) (models.Node, errors.EdgeX) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceByName")
+		panic("no return value specified for NodeByName")
 	}
 
-	var r0 models.Device
+	var r0 models.Node
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string) (models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string) (models.Node, errors.EdgeX)); ok {
 		return rf(name)
 	}
-	if rf, ok := ret.Get(0).(func(string) models.Device); ok {
+	if rf, ok := ret.Get(0).(func(string) models.Node); ok {
 		r0 = rf(name)
 	} else {
-		r0 = ret.Get(0).(models.Device)
+		r0 = ret.Get(0).(models.Node)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) errors.EdgeX); ok {
@@ -468,12 +468,12 @@ func (_m *DBClient) DeviceByName(name string) (models.Device, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceCountByLabels provides a mock function with given fields: labels
-func (_m *DBClient) DeviceCountByLabels(labels []string) (int64, errors.EdgeX) {
+// NodeCountByLabels provides a mock function with given fields: labels
+func (_m *DBClient) NodeCountByLabels(labels []string) (int64, errors.EdgeX) {
 	ret := _m.Called(labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceCountByLabels")
+		panic("no return value specified for NodeCountByLabels")
 	}
 
 	var r0 int64
@@ -498,12 +498,12 @@ func (_m *DBClient) DeviceCountByLabels(labels []string) (int64, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceCountByProfileName provides a mock function with given fields: profileName
-func (_m *DBClient) DeviceCountByProfileName(profileName string) (int64, errors.EdgeX) {
+// NodeCountByProfileName provides a mock function with given fields: profileName
+func (_m *DBClient) NodeCountByProfileName(profileName string) (int64, errors.EdgeX) {
 	ret := _m.Called(profileName)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceCountByProfileName")
+		panic("no return value specified for NodeCountByProfileName")
 	}
 
 	var r0 int64
@@ -528,12 +528,12 @@ func (_m *DBClient) DeviceCountByProfileName(profileName string) (int64, errors.
 	return r0, r1
 }
 
-// DeviceCountByServiceName provides a mock function with given fields: serviceName
-func (_m *DBClient) DeviceCountByServiceName(serviceName string) (int64, errors.EdgeX) {
+// NodeCountByServiceName provides a mock function with given fields: serviceName
+func (_m *DBClient) NodeCountByServiceName(serviceName string) (int64, errors.EdgeX) {
 	ret := _m.Called(serviceName)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceCountByServiceName")
+		panic("no return value specified for NodeCountByServiceName")
 	}
 
 	var r0 int64
@@ -558,12 +558,12 @@ func (_m *DBClient) DeviceCountByServiceName(serviceName string) (int64, errors.
 	return r0, r1
 }
 
-// DeviceIdExists provides a mock function with given fields: id
-func (_m *DBClient) DeviceIdExists(id string) (bool, errors.EdgeX) {
+// NodeIdExists provides a mock function with given fields: id
+func (_m *DBClient) NodeIdExists(id string) (bool, errors.EdgeX) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceIdExists")
+		panic("no return value specified for NodeIdExists")
 	}
 
 	var r0 bool
@@ -588,12 +588,12 @@ func (_m *DBClient) DeviceIdExists(id string) (bool, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceNameExists provides a mock function with given fields: name
-func (_m *DBClient) DeviceNameExists(name string) (bool, errors.EdgeX) {
+// NodeNameExists provides a mock function with given fields: name
+func (_m *DBClient) NodeNameExists(name string) (bool, errors.EdgeX) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceNameExists")
+		panic("no return value specified for NodeNameExists")
 	}
 
 	var r0 bool
@@ -618,23 +618,23 @@ func (_m *DBClient) DeviceNameExists(name string) (bool, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceProfileById provides a mock function with given fields: id
-func (_m *DBClient) DeviceProfileById(id string) (models.DeviceProfile, errors.EdgeX) {
+// ProfileById provides a mock function with given fields: id
+func (_m *DBClient) ProfileById(id string) (models.Profile, errors.EdgeX) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileById")
+		panic("no return value specified for ProfileById")
 	}
 
-	var r0 models.DeviceProfile
+	var r0 models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string) (models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string) (models.Profile, errors.EdgeX)); ok {
 		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(string) models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(string) models.Profile); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(models.DeviceProfile)
+		r0 = ret.Get(0).(models.Profile)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) errors.EdgeX); ok {
@@ -648,23 +648,23 @@ func (_m *DBClient) DeviceProfileById(id string) (models.DeviceProfile, errors.E
 	return r0, r1
 }
 
-// DeviceProfileByName provides a mock function with given fields: name
-func (_m *DBClient) DeviceProfileByName(name string) (models.DeviceProfile, errors.EdgeX) {
+// ProfileByName provides a mock function with given fields: name
+func (_m *DBClient) ProfileByName(name string) (models.Profile, errors.EdgeX) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileByName")
+		panic("no return value specified for ProfileByName")
 	}
 
-	var r0 models.DeviceProfile
+	var r0 models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string) (models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string) (models.Profile, errors.EdgeX)); ok {
 		return rf(name)
 	}
-	if rf, ok := ret.Get(0).(func(string) models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(string) models.Profile); ok {
 		r0 = rf(name)
 	} else {
-		r0 = ret.Get(0).(models.DeviceProfile)
+		r0 = ret.Get(0).(models.Profile)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) errors.EdgeX); ok {
@@ -678,12 +678,12 @@ func (_m *DBClient) DeviceProfileByName(name string) (models.DeviceProfile, erro
 	return r0, r1
 }
 
-// DeviceProfileCountByLabels provides a mock function with given fields: labels
-func (_m *DBClient) DeviceProfileCountByLabels(labels []string) (int64, errors.EdgeX) {
+// ProfileCountByLabels provides a mock function with given fields: labels
+func (_m *DBClient) ProfileCountByLabels(labels []string) (int64, errors.EdgeX) {
 	ret := _m.Called(labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileCountByLabels")
+		panic("no return value specified for ProfileCountByLabels")
 	}
 
 	var r0 int64
@@ -708,12 +708,12 @@ func (_m *DBClient) DeviceProfileCountByLabels(labels []string) (int64, errors.E
 	return r0, r1
 }
 
-// DeviceProfileCountByManufacturer provides a mock function with given fields: manufacturer
-func (_m *DBClient) DeviceProfileCountByManufacturer(manufacturer string) (int64, errors.EdgeX) {
+// ProfileCountByManufacturer provides a mock function with given fields: manufacturer
+func (_m *DBClient) ProfileCountByManufacturer(manufacturer string) (int64, errors.EdgeX) {
 	ret := _m.Called(manufacturer)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileCountByManufacturer")
+		panic("no return value specified for ProfileCountByManufacturer")
 	}
 
 	var r0 int64
@@ -738,12 +738,12 @@ func (_m *DBClient) DeviceProfileCountByManufacturer(manufacturer string) (int64
 	return r0, r1
 }
 
-// DeviceProfileCountByManufacturerAndModel provides a mock function with given fields: manufacturer, model
-func (_m *DBClient) DeviceProfileCountByManufacturerAndModel(manufacturer string, model string) (int64, errors.EdgeX) {
+// ProfileCountByManufacturerAndModel provides a mock function with given fields: manufacturer, model
+func (_m *DBClient) ProfileCountByManufacturerAndModel(manufacturer string, model string) (int64, errors.EdgeX) {
 	ret := _m.Called(manufacturer, model)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileCountByManufacturerAndModel")
+		panic("no return value specified for ProfileCountByManufacturerAndModel")
 	}
 
 	var r0 int64
@@ -768,12 +768,12 @@ func (_m *DBClient) DeviceProfileCountByManufacturerAndModel(manufacturer string
 	return r0, r1
 }
 
-// DeviceProfileCountByModel provides a mock function with given fields: model
-func (_m *DBClient) DeviceProfileCountByModel(model string) (int64, errors.EdgeX) {
+// ProfileCountByModel provides a mock function with given fields: model
+func (_m *DBClient) ProfileCountByModel(model string) (int64, errors.EdgeX) {
 	ret := _m.Called(model)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileCountByModel")
+		panic("no return value specified for ProfileCountByModel")
 	}
 
 	var r0 int64
@@ -798,12 +798,12 @@ func (_m *DBClient) DeviceProfileCountByModel(model string) (int64, errors.EdgeX
 	return r0, r1
 }
 
-// DeviceProfileNameExists provides a mock function with given fields: name
-func (_m *DBClient) DeviceProfileNameExists(name string) (bool, errors.EdgeX) {
+// ProfileNameExists provides a mock function with given fields: name
+func (_m *DBClient) ProfileNameExists(name string) (bool, errors.EdgeX) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfileNameExists")
+		panic("no return value specified for ProfileNameExists")
 	}
 
 	var r0 bool
@@ -828,24 +828,24 @@ func (_m *DBClient) DeviceProfileNameExists(name string) (bool, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceProfilesByManufacturer provides a mock function with given fields: offset, limit, manufacturer
-func (_m *DBClient) DeviceProfilesByManufacturer(offset int, limit int, manufacturer string) ([]models.DeviceProfile, errors.EdgeX) {
+// ProfilesByManufacturer provides a mock function with given fields: offset, limit, manufacturer
+func (_m *DBClient) ProfilesByManufacturer(offset int, limit int, manufacturer string) ([]models.Profile, errors.EdgeX) {
 	ret := _m.Called(offset, limit, manufacturer)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfilesByManufacturer")
+		panic("no return value specified for ProfilesByManufacturer")
 	}
 
-	var r0 []models.DeviceProfile
+	var r0 []models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.Profile, errors.EdgeX)); ok {
 		return rf(offset, limit, manufacturer)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, string) []models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) []models.Profile); ok {
 		r0 = rf(offset, limit, manufacturer)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.DeviceProfile)
+			r0 = ret.Get(0).([]models.Profile)
 		}
 	}
 
@@ -860,24 +860,24 @@ func (_m *DBClient) DeviceProfilesByManufacturer(offset int, limit int, manufact
 	return r0, r1
 }
 
-// DeviceProfilesByManufacturerAndModel provides a mock function with given fields: offset, limit, manufacturer, model
-func (_m *DBClient) DeviceProfilesByManufacturerAndModel(offset int, limit int, manufacturer string, model string) ([]models.DeviceProfile, errors.EdgeX) {
+// ProfilesByManufacturerAndModel provides a mock function with given fields: offset, limit, manufacturer, model
+func (_m *DBClient) ProfilesByManufacturerAndModel(offset int, limit int, manufacturer string, model string) ([]models.Profile, errors.EdgeX) {
 	ret := _m.Called(offset, limit, manufacturer, model)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfilesByManufacturerAndModel")
+		panic("no return value specified for ProfilesByManufacturerAndModel")
 	}
 
-	var r0 []models.DeviceProfile
+	var r0 []models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, string, string) ([]models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string, string) ([]models.Profile, errors.EdgeX)); ok {
 		return rf(offset, limit, manufacturer, model)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, string, string) []models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string, string) []models.Profile); ok {
 		r0 = rf(offset, limit, manufacturer, model)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.DeviceProfile)
+			r0 = ret.Get(0).([]models.Profile)
 		}
 	}
 
@@ -892,24 +892,24 @@ func (_m *DBClient) DeviceProfilesByManufacturerAndModel(offset int, limit int, 
 	return r0, r1
 }
 
-// DeviceProfilesByModel provides a mock function with given fields: offset, limit, model
-func (_m *DBClient) DeviceProfilesByModel(offset int, limit int, model string) ([]models.DeviceProfile, errors.EdgeX) {
+// ProfilesByModel provides a mock function with given fields: offset, limit, model
+func (_m *DBClient) ProfilesByModel(offset int, limit int, model string) ([]models.Profile, errors.EdgeX) {
 	ret := _m.Called(offset, limit, model)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceProfilesByModel")
+		panic("no return value specified for ProfilesByModel")
 	}
 
-	var r0 []models.DeviceProfile
+	var r0 []models.Profile
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.DeviceProfile, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.Profile, errors.EdgeX)); ok {
 		return rf(offset, limit, model)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, string) []models.DeviceProfile); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) []models.Profile); ok {
 		r0 = rf(offset, limit, model)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.DeviceProfile)
+			r0 = ret.Get(0).([]models.Profile)
 		}
 	}
 
@@ -924,23 +924,23 @@ func (_m *DBClient) DeviceProfilesByModel(offset int, limit int, model string) (
 	return r0, r1
 }
 
-// DeviceServiceById provides a mock function with given fields: id
-func (_m *DBClient) DeviceServiceById(id string) (models.DeviceService, errors.EdgeX) {
+// NodeServiceById provides a mock function with given fields: id
+func (_m *DBClient) NodeServiceById(id string) (models.NodeService, errors.EdgeX) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceServiceById")
+		panic("no return value specified for NodeServiceById")
 	}
 
-	var r0 models.DeviceService
+	var r0 models.NodeService
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string) (models.DeviceService, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string) (models.NodeService, errors.EdgeX)); ok {
 		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(string) models.DeviceService); ok {
+	if rf, ok := ret.Get(0).(func(string) models.NodeService); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(models.DeviceService)
+		r0 = ret.Get(0).(models.NodeService)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) errors.EdgeX); ok {
@@ -954,23 +954,23 @@ func (_m *DBClient) DeviceServiceById(id string) (models.DeviceService, errors.E
 	return r0, r1
 }
 
-// DeviceServiceByName provides a mock function with given fields: name
-func (_m *DBClient) DeviceServiceByName(name string) (models.DeviceService, errors.EdgeX) {
+// NodeServiceByName provides a mock function with given fields: name
+func (_m *DBClient) NodeServiceByName(name string) (models.NodeService, errors.EdgeX) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceServiceByName")
+		panic("no return value specified for NodeServiceByName")
 	}
 
-	var r0 models.DeviceService
+	var r0 models.NodeService
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string) (models.DeviceService, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string) (models.NodeService, errors.EdgeX)); ok {
 		return rf(name)
 	}
-	if rf, ok := ret.Get(0).(func(string) models.DeviceService); ok {
+	if rf, ok := ret.Get(0).(func(string) models.NodeService); ok {
 		r0 = rf(name)
 	} else {
-		r0 = ret.Get(0).(models.DeviceService)
+		r0 = ret.Get(0).(models.NodeService)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) errors.EdgeX); ok {
@@ -984,12 +984,12 @@ func (_m *DBClient) DeviceServiceByName(name string) (models.DeviceService, erro
 	return r0, r1
 }
 
-// DeviceServiceCountByLabels provides a mock function with given fields: labels
-func (_m *DBClient) DeviceServiceCountByLabels(labels []string) (int64, errors.EdgeX) {
+// NodeServiceCountByLabels provides a mock function with given fields: labels
+func (_m *DBClient) NodeServiceCountByLabels(labels []string) (int64, errors.EdgeX) {
 	ret := _m.Called(labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceServiceCountByLabels")
+		panic("no return value specified for NodeServiceCountByLabels")
 	}
 
 	var r0 int64
@@ -1014,12 +1014,12 @@ func (_m *DBClient) DeviceServiceCountByLabels(labels []string) (int64, errors.E
 	return r0, r1
 }
 
-// DeviceServiceNameExists provides a mock function with given fields: name
-func (_m *DBClient) DeviceServiceNameExists(name string) (bool, errors.EdgeX) {
+// NodeServiceNameExists provides a mock function with given fields: name
+func (_m *DBClient) NodeServiceNameExists(name string) (bool, errors.EdgeX) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceServiceNameExists")
+		panic("no return value specified for NodeServiceNameExists")
 	}
 
 	var r0 bool
@@ -1044,18 +1044,18 @@ func (_m *DBClient) DeviceServiceNameExists(name string) (bool, errors.EdgeX) {
 	return r0, r1
 }
 
-// DeviceTree provides a mock function with given fields: parent, levels, offset, limit, labels
-func (_m *DBClient) DeviceTree(parent string, levels int, offset int, limit int, labels []string) (int64, []models.Device, errors.EdgeX) {
+// NodeTree provides a mock function with given fields: parent, levels, offset, limit, labels
+func (_m *DBClient) NodeTree(parent string, levels int, offset int, limit int, labels []string) (int64, []models.Node, errors.EdgeX) {
 	ret := _m.Called(parent, levels, offset, limit, labels)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeviceTree")
+		panic("no return value specified for NodeTree")
 	}
 
 	var r0 int64
-	var r1 []models.Device
+	var r1 []models.Node
 	var r2 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(string, int, int, int, []string) (int64, []models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(string, int, int, int, []string) (int64, []models.Node, errors.EdgeX)); ok {
 		return rf(parent, levels, offset, limit, labels)
 	}
 	if rf, ok := ret.Get(0).(func(string, int, int, int, []string) int64); ok {
@@ -1064,11 +1064,11 @@ func (_m *DBClient) DeviceTree(parent string, levels int, offset int, limit int,
 		r0 = ret.Get(0).(int64)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int, int, int, []string) []models.Device); ok {
+	if rf, ok := ret.Get(1).(func(string, int, int, int, []string) []models.Node); ok {
 		r1 = rf(parent, levels, offset, limit, labels)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]models.Device)
+			r1 = ret.Get(1).([]models.Node)
 		}
 	}
 
@@ -1083,24 +1083,24 @@ func (_m *DBClient) DeviceTree(parent string, levels int, offset int, limit int,
 	return r0, r1, r2
 }
 
-// DevicesByProfileName provides a mock function with given fields: offset, limit, profileName
-func (_m *DBClient) DevicesByProfileName(offset int, limit int, profileName string) ([]models.Device, errors.EdgeX) {
+// NodesByProfileName provides a mock function with given fields: offset, limit, profileName
+func (_m *DBClient) NodesByProfileName(offset int, limit int, profileName string) ([]models.Node, errors.EdgeX) {
 	ret := _m.Called(offset, limit, profileName)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DevicesByProfileName")
+		panic("no return value specified for NodesByProfileName")
 	}
 
-	var r0 []models.Device
+	var r0 []models.Node
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.Node, errors.EdgeX)); ok {
 		return rf(offset, limit, profileName)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, string) []models.Device); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) []models.Node); ok {
 		r0 = rf(offset, limit, profileName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Device)
+			r0 = ret.Get(0).([]models.Node)
 		}
 	}
 
@@ -1115,24 +1115,24 @@ func (_m *DBClient) DevicesByProfileName(offset int, limit int, profileName stri
 	return r0, r1
 }
 
-// DevicesByServiceName provides a mock function with given fields: offset, limit, name
-func (_m *DBClient) DevicesByServiceName(offset int, limit int, name string) ([]models.Device, errors.EdgeX) {
+// NodesByServiceName provides a mock function with given fields: offset, limit, name
+func (_m *DBClient) NodesByServiceName(offset int, limit int, name string) ([]models.Node, errors.EdgeX) {
 	ret := _m.Called(offset, limit, name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DevicesByServiceName")
+		panic("no return value specified for NodesByServiceName")
 	}
 
-	var r0 []models.Device
+	var r0 []models.Node
 	var r1 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.Device, errors.EdgeX)); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) ([]models.Node, errors.EdgeX)); ok {
 		return rf(offset, limit, name)
 	}
-	if rf, ok := ret.Get(0).(func(int, int, string) []models.Device); ok {
+	if rf, ok := ret.Get(0).(func(int, int, string) []models.Node); ok {
 		r0 = rf(offset, limit, name)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Device)
+			r0 = ret.Get(0).([]models.Node)
 		}
 	}
 
@@ -1391,16 +1391,16 @@ func (_m *DBClient) ProvisionWatchersByServiceName(offset int, limit int, name s
 	return r0, r1
 }
 
-// UpdateDevice provides a mock function with given fields: d
-func (_m *DBClient) UpdateDevice(d models.Device) errors.EdgeX {
+// UpdateNode provides a mock function with given fields: d
+func (_m *DBClient) UpdateNode(d models.Node) errors.EdgeX {
 	ret := _m.Called(d)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateDevice")
+		panic("no return value specified for UpdateNode")
 	}
 
 	var r0 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(models.Device) errors.EdgeX); ok {
+	if rf, ok := ret.Get(0).(func(models.Node) errors.EdgeX); ok {
 		r0 = rf(d)
 	} else {
 		if ret.Get(0) != nil {
@@ -1411,16 +1411,16 @@ func (_m *DBClient) UpdateDevice(d models.Device) errors.EdgeX {
 	return r0
 }
 
-// UpdateDeviceProfile provides a mock function with given fields: e
-func (_m *DBClient) UpdateDeviceProfile(e models.DeviceProfile) errors.EdgeX {
+// UpdateProfile provides a mock function with given fields: e
+func (_m *DBClient) UpdateProfile(e models.Profile) errors.EdgeX {
 	ret := _m.Called(e)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateDeviceProfile")
+		panic("no return value specified for UpdateProfile")
 	}
 
 	var r0 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(models.DeviceProfile) errors.EdgeX); ok {
+	if rf, ok := ret.Get(0).(func(models.Profile) errors.EdgeX); ok {
 		r0 = rf(e)
 	} else {
 		if ret.Get(0) != nil {
@@ -1431,16 +1431,16 @@ func (_m *DBClient) UpdateDeviceProfile(e models.DeviceProfile) errors.EdgeX {
 	return r0
 }
 
-// UpdateDeviceService provides a mock function with given fields: ds
-func (_m *DBClient) UpdateDeviceService(ds models.DeviceService) errors.EdgeX {
+// UpdateNodeService provides a mock function with given fields: ds
+func (_m *DBClient) UpdateNodeService(ds models.NodeService) errors.EdgeX {
 	ret := _m.Called(ds)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateDeviceService")
+		panic("no return value specified for UpdateNodeService")
 	}
 
 	var r0 errors.EdgeX
-	if rf, ok := ret.Get(0).(func(models.DeviceService) errors.EdgeX); ok {
+	if rf, ok := ret.Get(0).(func(models.NodeService) errors.EdgeX); ok {
 		r0 = rf(ds)
 	} else {
 		if ret.Get(0) != nil {

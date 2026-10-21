@@ -14,22 +14,22 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/models"
 )
 
-func checkCapacityWithNewDevice(d models.Device, dic *di.Container) errors.EdgeX {
+func checkCapacityWithNewNode(d models.Node, dic *di.Container) errors.EdgeX {
 	config := container.ConfigurationFrom(dic.Get)
 	dbClient := container.DBClientFrom(dic.Get)
 	lock := container.CapacityCheckLockFrom(dic.Get)
 	lock.Lock()
 	defer lock.Unlock()
 
-	if config.Writable.MaxDevices > 0 {
-		deviceCount, err := dbClient.DeviceCountByLabels(nil)
+	if config.Writable.MaxNodes > 0 {
+		nodeCount, err := dbClient.NodeCountByLabels(nil)
 		if err != nil {
-			return errors.NewCommonEdgeX(errors.Kind(err), "query device count failed", err)
+			return errors.NewCommonEdgeX(errors.Kind(err), "query node count failed", err)
 		}
-		if deviceCount+1 > int64(config.Writable.MaxDevices) {
+		if nodeCount+1 > int64(config.Writable.MaxNodes) {
 			return errors.NewCommonEdgeX(
 				errors.KindContractInvalid,
-				fmt.Sprintf("the existing total number of device is '%d', add device '%s' will exceed the maximum limitation '%d'", deviceCount, d.Name, config.Writable.MaxDevices), nil)
+				fmt.Sprintf("the existing total number of node is '%d', add node '%s' will exceed the maximum limitation '%d'", nodeCount, d.Name, config.Writable.MaxNodes), nil)
 		}
 	}
 	if config.Writable.MaxResources > 0 {
@@ -83,7 +83,7 @@ func checkResourceCapacityByExistingAndNewProfile(oldProfileName, newProfileName
 	return nil
 }
 
-func checkResourceCapacityByUpdateProfile(profile models.DeviceProfile, dic *di.Container) errors.EdgeX {
+func checkResourceCapacityByUpdateProfile(profile models.Profile, dic *di.Container) errors.EdgeX {
 	config := container.ConfigurationFrom(dic.Get)
 	dbClient := container.DBClientFrom(dic.Get)
 	lock := container.CapacityCheckLockFrom(dic.Get)
@@ -103,7 +103,7 @@ func checkResourceCapacityByUpdateProfile(profile models.DeviceProfile, dic *di.
 		if err != nil {
 			return errors.NewCommonEdgeX(errors.Kind(err), "query existing profile resource count failed", err)
 		}
-		newProfileResourceCount := int64(len(profile.DeviceResources))
+		newProfileResourceCount := int64(len(profile.Resources))
 		count := totalInUseResourceCount - existingProfileResourceCount + newProfileResourceCount
 		if count > int64(config.Writable.MaxResources) {
 			return errors.NewCommonEdgeX(
@@ -116,7 +116,7 @@ func checkResourceCapacityByUpdateProfile(profile models.DeviceProfile, dic *di.
 	return nil
 }
 
-func checkResourceCapacityByNewResource(profileName string, resource models.DeviceResource, dic *di.Container) errors.EdgeX {
+func checkResourceCapacityByNewResource(profileName string, resource models.Resource, dic *di.Container) errors.EdgeX {
 	config := container.ConfigurationFrom(dic.Get)
 	dbClient := container.DBClientFrom(dic.Get)
 	lock := container.CapacityCheckLockFrom(dic.Get)
@@ -148,9 +148,9 @@ func resourceCountByProfile(profileName string, dic *di.Container) (int64, error
 		return 0, nil
 	}
 	dbClient := container.DBClientFrom(dic.Get)
-	profile, err := dbClient.DeviceProfileByName(profileName)
+	profile, err := dbClient.ProfileByName(profileName)
 	if err != nil {
 		return 0, errors.NewCommonEdgeX(errors.Kind(err), "count resource number failed", err)
 	}
-	return int64(len(profile.DeviceResources)), nil
+	return int64(len(profile.Resources)), nil
 }

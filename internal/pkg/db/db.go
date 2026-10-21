@@ -23,7 +23,7 @@ var (
 	ErrUnsupportedDatabase = errors.New("unsupported database type")
 	ErrInvalidObjectId     = errors.New("invalid object ID")
 	ErrNotUnique           = errors.New("resource already exists")
-	ErrCommandStillInUse   = errors.New("command is still in use by device profiles")
+	ErrCommandStillInUse   = errors.New("command is still in use by node profiles")
 	ErrSlugEmpty           = errors.New("slug is nil or empty")
 	ErrNameEmpty           = errors.New("name is required")
 )

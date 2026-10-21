@@ -39,9 +39,9 @@ import (
 var expectedEventId = uuid.New().String()
 
 var testReading = dtos.BaseReading{
-	DeviceName:   TestDeviceName,
-	ResourceName: TestDeviceResourceName,
-	ProfileName:  TestDeviceProfileName,
+	NodeName:     TestNodeName,
+	ResourceName: TestResourceName,
+	ProfileName:  TestProfileName,
 	Origin:       TestOriginTime,
 	ValueType:    common.ValueTypeUint8,
 	SimpleReading: dtos.SimpleReading{
@@ -57,8 +57,8 @@ var testAddEvent = requests.AddEventRequest{
 	Event: dtos.Event{
 		Versionable: commonDTO.NewVersionable(),
 		Id:          expectedEventId,
-		DeviceName:  TestDeviceName,
-		ProfileName: TestDeviceProfileName,
+		NodeName:    TestNodeName,
+		ProfileName: TestProfileName,
 		SourceName:  TestSourceName,
 		Origin:      TestOriginTime,
 		Readings:    []dtos.BaseReading{testReading},
@@ -69,9 +69,9 @@ var persistedReading = models.SimpleReading{
 	BaseReading: models.BaseReading{
 		Id:           ExampleUUID,
 		Origin:       TestOriginTime,
-		DeviceName:   TestDeviceName,
-		ResourceName: TestDeviceResourceName,
-		ProfileName:  TestDeviceProfileName,
+		NodeName:     TestNodeName,
+		ResourceName: TestResourceName,
+		ProfileName:  TestProfileName,
 		ValueType:    common.ValueTypeUint8,
 	},
 	Value: TestReadingValue,
@@ -79,8 +79,8 @@ var persistedReading = models.SimpleReading{
 
 var persistedEvent = models.Event{
 	Id:          expectedEventId,
-	DeviceName:  TestDeviceName,
-	ProfileName: TestDeviceProfileName,
+	NodeName:    TestNodeName,
+	ProfileName: TestProfileName,
 	Origin:      TestOriginTime,
 	Readings:    []models.Reading{persistedReading},
 }
@@ -130,8 +130,8 @@ func TestAddEvent(t *testing.T) {
 	noEventID.Event.Id = ""
 	badEventID := validRequest
 	badEventID.Event.Id = "DIWNI09320"
-	noEventDevice := validRequest
-	noEventDevice.Event.DeviceName = ""
+	noEventNode := validRequest
+	noEventNode.Event.NodeName = ""
 	noEventProfile := validRequest
 	noEventProfile.Event.ProfileName = ""
 	noEventOrigin := validRequest
@@ -141,9 +141,9 @@ func TestAddEvent(t *testing.T) {
 
 	noReading := validRequest
 	noReading.Event.Readings = []dtos.BaseReading{}
-	noReadingDevice := validRequest
-	noReadingDevice.Event.Readings = []dtos.BaseReading{testReading}
-	noReadingDevice.Event.Readings[0].DeviceName = ""
+	noReadingNode := validRequest
+	noReadingNode.Event.Readings = []dtos.BaseReading{testReading}
+	noReadingNode.Event.Readings[0].NodeName = ""
 	noReadingResourceName := validRequest
 	noReadingResourceName.Event.Readings = []dtos.BaseReading{testReading}
 	noReadingResourceName.Event.Readings[0].ResourceName = ""
@@ -165,9 +165,9 @@ func TestAddEvent(t *testing.T) {
 	noSimpleValue.Event.Readings[0].Value = ""
 	noBinaryValue := validRequest
 	noBinaryValue.Event.Readings = []dtos.BaseReading{{
-		DeviceName:   TestDeviceName,
-		ResourceName: TestDeviceResourceName,
-		ProfileName:  TestDeviceProfileName,
+		NodeName:     TestNodeName,
+		ResourceName: TestResourceName,
+		ProfileName:  TestProfileName,
 		Origin:       TestOriginTime,
 		ValueType:    common.ValueTypeBinary,
 		BinaryReading: dtos.BinaryReading{
@@ -177,9 +177,9 @@ func TestAddEvent(t *testing.T) {
 	}}
 	noBinaryMediaType := validRequest
 	noBinaryMediaType.Event.Readings = []dtos.BaseReading{{
-		DeviceName:   TestDeviceName,
-		ResourceName: TestDeviceResourceName,
-		ProfileName:  TestDeviceProfileName,
+		NodeName:     TestNodeName,
+		ResourceName: TestResourceName,
+		ProfileName:  TestProfileName,
 		Origin:       TestOriginTime,
 		ValueType:    common.ValueTypeBinary,
 		BinaryReading: dtos.BinaryReading{
@@ -193,50 +193,50 @@ func TestAddEvent(t *testing.T) {
 		Request            requests.AddEventRequest
 		RequestContentType string
 		ProfileName        string
-		DeviceName         string
+		NodeName           string
 		ErrorExpected      bool
 		ExpectedStatusCode int
 	}{
-		{"Valid - AddEventRequest JSON", validRequest, common.ContentTypeJSON, validRequest.Event.ProfileName, validRequest.Event.DeviceName, false, http.StatusCreated},
-		{"Valid - No RequestId JSON", noRequestId, common.ContentTypeJSON, noRequestId.Event.ProfileName, noRequestId.Event.DeviceName, false, http.StatusCreated},
-		{"Invalid - Bad RequestId JSON", badRequestId, common.ContentTypeJSON, badRequestId.Event.ProfileName, badRequestId.Event.DeviceName, true, http.StatusBadRequest},
+		{"Valid - AddEventRequest JSON", validRequest, common.ContentTypeJSON, validRequest.Event.ProfileName, validRequest.Event.NodeName, false, http.StatusCreated},
+		{"Valid - No RequestId JSON", noRequestId, common.ContentTypeJSON, noRequestId.Event.ProfileName, noRequestId.Event.NodeName, false, http.StatusCreated},
+		{"Invalid - Bad RequestId JSON", badRequestId, common.ContentTypeJSON, badRequestId.Event.ProfileName, badRequestId.Event.NodeName, true, http.StatusBadRequest},
 		{"Invalid - No Event JSON", noEvent, common.ContentTypeJSON, "", "", true, http.StatusBadRequest},
-		{"Invalid - No Event Id JSON", noEventID, common.ContentTypeJSON, noEventID.Event.ProfileName, noEventID.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - Bad Event Id JSON", badEventID, common.ContentTypeJSON, badEventID.Event.ProfileName, badEventID.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event DeviceName JSON", noEventDevice, common.ContentTypeJSON, noEventDevice.Event.ProfileName, noEventDevice.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event ProfileName JSON", noEventProfile, common.ContentTypeJSON, noEventProfile.Event.ProfileName, noEventProfile.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event SourceName JSON", noEventSourceName, common.ContentTypeJSON, noEventSourceName.Event.ProfileName, noEventProfile.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event Origin JSON", noEventOrigin, common.ContentTypeJSON, noEventOrigin.Event.ProfileName, noEventOrigin.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading JSON", noReading, common.ContentTypeJSON, noReading.Event.ProfileName, noReading.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading DeviceName JSON", noReadingDevice, common.ContentTypeJSON, noReadingDevice.Event.ProfileName, noReadingDevice.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading ResourceName JSON", noReadingResourceName, common.ContentTypeJSON, noReadingResourceName.Event.ProfileName, noReadingResourceName.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading ProfileName JSON", noReadingProfileName, common.ContentTypeJSON, noReadingProfileName.Event.ProfileName, noReadingProfileName.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading Origin JSON", noReadingOrigin, common.ContentTypeJSON, noReadingOrigin.Event.ProfileName, noReadingOrigin.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading ValueType JSON", noReadingValueType, common.ContentTypeJSON, noReadingValueType.Event.ProfileName, noReadingValueType.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - Invalid Reading ValueType JSON", invalidReadingInvalidValueType, common.ContentTypeJSON, invalidReadingInvalidValueType.Event.ProfileName, invalidReadingInvalidValueType.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No SimpleReading Value JSON", noSimpleValue, common.ContentTypeJSON, noSimpleValue.Event.ProfileName, noSimpleValue.Event.DeviceName, true, http.StatusBadRequest},
-		{"Valid - No BinaryReading BinaryValue JSON", noBinaryValue, common.ContentTypeJSON, noBinaryValue.Event.ProfileName, noBinaryValue.Event.DeviceName, false, http.StatusCreated},
-		{"Invalid - No BinaryReading MediaType JSON", noBinaryMediaType, common.ContentTypeJSON, noBinaryMediaType.Event.ProfileName, noBinaryMediaType.Event.DeviceName, true, http.StatusBadRequest},
-		{"Valid - AddEventRequest CBOR", validRequest, common.ContentTypeCBOR, validRequest.Event.ProfileName, validRequest.Event.DeviceName, false, http.StatusCreated},
-		{"Valid - No RequestId CBOR", noRequestId, common.ContentTypeCBOR, noRequestId.Event.ProfileName, noRequestId.Event.DeviceName, false, http.StatusCreated},
-		{"Invalid - Bad RequestId CBOR", badRequestId, common.ContentTypeCBOR, badRequestId.Event.ProfileName, badRequestId.Event.DeviceName, true, http.StatusBadRequest},
+		{"Invalid - No Event Id JSON", noEventID, common.ContentTypeJSON, noEventID.Event.ProfileName, noEventID.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - Bad Event Id JSON", badEventID, common.ContentTypeJSON, badEventID.Event.ProfileName, badEventID.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event NodeName JSON", noEventNode, common.ContentTypeJSON, noEventNode.Event.ProfileName, noEventNode.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event ProfileName JSON", noEventProfile, common.ContentTypeJSON, noEventProfile.Event.ProfileName, noEventProfile.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event SourceName JSON", noEventSourceName, common.ContentTypeJSON, noEventSourceName.Event.ProfileName, noEventProfile.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event Origin JSON", noEventOrigin, common.ContentTypeJSON, noEventOrigin.Event.ProfileName, noEventOrigin.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading JSON", noReading, common.ContentTypeJSON, noReading.Event.ProfileName, noReading.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading NodeName JSON", noReadingNode, common.ContentTypeJSON, noReadingNode.Event.ProfileName, noReadingNode.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading ResourceName JSON", noReadingResourceName, common.ContentTypeJSON, noReadingResourceName.Event.ProfileName, noReadingResourceName.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading ProfileName JSON", noReadingProfileName, common.ContentTypeJSON, noReadingProfileName.Event.ProfileName, noReadingProfileName.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading Origin JSON", noReadingOrigin, common.ContentTypeJSON, noReadingOrigin.Event.ProfileName, noReadingOrigin.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading ValueType JSON", noReadingValueType, common.ContentTypeJSON, noReadingValueType.Event.ProfileName, noReadingValueType.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - Invalid Reading ValueType JSON", invalidReadingInvalidValueType, common.ContentTypeJSON, invalidReadingInvalidValueType.Event.ProfileName, invalidReadingInvalidValueType.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No SimpleReading Value JSON", noSimpleValue, common.ContentTypeJSON, noSimpleValue.Event.ProfileName, noSimpleValue.Event.NodeName, true, http.StatusBadRequest},
+		{"Valid - No BinaryReading BinaryValue JSON", noBinaryValue, common.ContentTypeJSON, noBinaryValue.Event.ProfileName, noBinaryValue.Event.NodeName, false, http.StatusCreated},
+		{"Invalid - No BinaryReading MediaType JSON", noBinaryMediaType, common.ContentTypeJSON, noBinaryMediaType.Event.ProfileName, noBinaryMediaType.Event.NodeName, true, http.StatusBadRequest},
+		{"Valid - AddEventRequest CBOR", validRequest, common.ContentTypeCBOR, validRequest.Event.ProfileName, validRequest.Event.NodeName, false, http.StatusCreated},
+		{"Valid - No RequestId CBOR", noRequestId, common.ContentTypeCBOR, noRequestId.Event.ProfileName, noRequestId.Event.NodeName, false, http.StatusCreated},
+		{"Invalid - Bad RequestId CBOR", badRequestId, common.ContentTypeCBOR, badRequestId.Event.ProfileName, badRequestId.Event.NodeName, true, http.StatusBadRequest},
 		{"Invalid - No Event CBOR", noEvent, common.ContentTypeCBOR, "", "", true, http.StatusBadRequest},
-		{"Invalid - No Event Id CBOR", noEventID, common.ContentTypeCBOR, noEventID.Event.ProfileName, noEventID.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - Bad Event Id CBOR", badEventID, common.ContentTypeCBOR, badEventID.Event.ProfileName, badEventID.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event DeviceName CBOR", noEventDevice, common.ContentTypeCBOR, noEventDevice.Event.ProfileName, noEventDevice.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event ProfileName CBOR", noEventProfile, common.ContentTypeCBOR, noEventProfile.Event.ProfileName, noEventProfile.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event SourceName CBOR", noEventSourceName, common.ContentTypeCBOR, noEventSourceName.Event.ProfileName, noEventProfile.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Event Origin CBOR", noEventOrigin, common.ContentTypeCBOR, noEventOrigin.Event.ProfileName, noEventOrigin.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading CBOR", noReading, common.ContentTypeCBOR, noReading.Event.ProfileName, noReading.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading DeviceName CBOR", noReadingDevice, common.ContentTypeCBOR, noReadingDevice.Event.ProfileName, noReadingDevice.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading ResourceName CBOR", noReadingResourceName, common.ContentTypeCBOR, noReadingResourceName.Event.ProfileName, noReadingResourceName.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading ProfileName CBOR", noReadingProfileName, common.ContentTypeCBOR, noReadingProfileName.Event.ProfileName, noReadingProfileName.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading Origin CBOR", noReadingOrigin, common.ContentTypeCBOR, noReadingOrigin.Event.ProfileName, noReadingOrigin.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No Reading ValueType CBOR", noReadingValueType, common.ContentTypeCBOR, noReadingValueType.Event.ProfileName, noReadingValueType.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - Invalid Reading ValueType CBOR", invalidReadingInvalidValueType, common.ContentTypeCBOR, invalidReadingInvalidValueType.Event.ProfileName, invalidReadingInvalidValueType.Event.DeviceName, true, http.StatusBadRequest},
-		{"Invalid - No SimpleReading Value CBOR", noSimpleValue, common.ContentTypeCBOR, noSimpleValue.Event.ProfileName, noSimpleValue.Event.DeviceName, true, http.StatusBadRequest},
-		{"Valid - No BinaryReading BinaryValue CBOR", noBinaryValue, common.ContentTypeCBOR, noBinaryValue.Event.ProfileName, noBinaryValue.Event.DeviceName, false, http.StatusCreated},
-		{"Invalid - No BinaryReading MediaType CBOR", noBinaryMediaType, common.ContentTypeCBOR, noBinaryMediaType.Event.ProfileName, noBinaryMediaType.Event.DeviceName, true, http.StatusBadRequest},
+		{"Invalid - No Event Id CBOR", noEventID, common.ContentTypeCBOR, noEventID.Event.ProfileName, noEventID.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - Bad Event Id CBOR", badEventID, common.ContentTypeCBOR, badEventID.Event.ProfileName, badEventID.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event NodeName CBOR", noEventNode, common.ContentTypeCBOR, noEventNode.Event.ProfileName, noEventNode.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event ProfileName CBOR", noEventProfile, common.ContentTypeCBOR, noEventProfile.Event.ProfileName, noEventProfile.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event SourceName CBOR", noEventSourceName, common.ContentTypeCBOR, noEventSourceName.Event.ProfileName, noEventProfile.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Event Origin CBOR", noEventOrigin, common.ContentTypeCBOR, noEventOrigin.Event.ProfileName, noEventOrigin.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading CBOR", noReading, common.ContentTypeCBOR, noReading.Event.ProfileName, noReading.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading NodeName CBOR", noReadingNode, common.ContentTypeCBOR, noReadingNode.Event.ProfileName, noReadingNode.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading ResourceName CBOR", noReadingResourceName, common.ContentTypeCBOR, noReadingResourceName.Event.ProfileName, noReadingResourceName.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading ProfileName CBOR", noReadingProfileName, common.ContentTypeCBOR, noReadingProfileName.Event.ProfileName, noReadingProfileName.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading Origin CBOR", noReadingOrigin, common.ContentTypeCBOR, noReadingOrigin.Event.ProfileName, noReadingOrigin.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No Reading ValueType CBOR", noReadingValueType, common.ContentTypeCBOR, noReadingValueType.Event.ProfileName, noReadingValueType.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - Invalid Reading ValueType CBOR", invalidReadingInvalidValueType, common.ContentTypeCBOR, invalidReadingInvalidValueType.Event.ProfileName, invalidReadingInvalidValueType.Event.NodeName, true, http.StatusBadRequest},
+		{"Invalid - No SimpleReading Value CBOR", noSimpleValue, common.ContentTypeCBOR, noSimpleValue.Event.ProfileName, noSimpleValue.Event.NodeName, true, http.StatusBadRequest},
+		{"Valid - No BinaryReading BinaryValue CBOR", noBinaryValue, common.ContentTypeCBOR, noBinaryValue.Event.ProfileName, noBinaryValue.Event.NodeName, false, http.StatusCreated},
+		{"Invalid - No BinaryReading MediaType CBOR", noBinaryMediaType, common.ContentTypeCBOR, noBinaryMediaType.Event.ProfileName, noBinaryMediaType.Event.NodeName, true, http.StatusBadRequest},
 	}
 
 	for _, testCase := range tests {
@@ -246,14 +246,14 @@ func TestAddEvent(t *testing.T) {
 			require.NoError(t, err)
 
 			reader := strings.NewReader(string(byteData))
-			req, err := http.NewRequest(http.MethodPost, common.ApiEventServiceNameProfileNameDeviceNameSourceNameRoute, reader)
+			req, err := http.NewRequest(http.MethodPost, common.ApiEventServiceNameProfileNameNodeNameSourceNameRoute, reader)
 			req.Header.Set(common.ContentType, testCase.RequestContentType)
 			require.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			c.SetParamNames(common.ServiceName, common.ProfileName, common.DeviceName, common.SourceName)
-			c.SetParamValues(TestServiceName, testCase.ProfileName, testCase.DeviceName, testCase.Request.Event.SourceName)
+			c.SetParamNames(common.ServiceName, common.ProfileName, common.NodeName, common.SourceName)
+			c.SetParamValues(TestServiceName, testCase.ProfileName, testCase.NodeName, testCase.Request.Event.SourceName)
 			err = ec.AddEvent(c)
 			require.NoError(t, err)
 
@@ -285,9 +285,9 @@ func TestAddEventSize(t *testing.T) {
 	TestReadingLargeBinaryValue := make([]byte, 26000000)
 	largeBinaryRequest := validRequest
 	largeBinaryRequest.Event.Readings = []dtos.BaseReading{{
-		DeviceName:   TestDeviceName,
-		ResourceName: TestDeviceResourceName,
-		ProfileName:  TestDeviceProfileName,
+		NodeName:     TestNodeName,
+		ResourceName: TestResourceName,
+		ProfileName:  TestProfileName,
 		Origin:       TestOriginTime,
 		ValueType:    common.ValueTypeBinary,
 		BinaryReading: dtos.BinaryReading{
@@ -336,14 +336,14 @@ func TestAddEventSize(t *testing.T) {
 			require.NoError(t, err)
 
 			reader := strings.NewReader(string(byteData))
-			req, err := http.NewRequest(http.MethodPost, common.ApiEventServiceNameProfileNameDeviceNameSourceNameRoute, reader)
+			req, err := http.NewRequest(http.MethodPost, common.ApiEventServiceNameProfileNameNodeNameSourceNameRoute, reader)
 			req.Header.Set(common.ContentType, testCase.RequestContentType)
 			require.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			c.SetParamNames(common.ServiceName, common.ProfileName, common.DeviceName, common.SourceName)
-			c.SetParamValues(TestServiceName, validRequest.Event.ProfileName, validRequest.Event.DeviceName, validRequest.Event.SourceName)
+			c.SetParamNames(common.ServiceName, common.ProfileName, common.NodeName, common.SourceName)
+			c.SetParamValues(TestServiceName, validRequest.Event.ProfileName, validRequest.Event.NodeName, validRequest.Event.SourceName)
 			err = ec.AddEvent(c)
 			require.NoError(t, err)
 
@@ -533,11 +533,11 @@ func TestEventTotalCount(t *testing.T) {
 	assert.Equal(t, expectedEventCount, actualResponse.Count, "Event count in the response body is not expected")
 }
 
-func TestEventCountByDeviceName(t *testing.T) {
+func TestEventCountByNodeName(t *testing.T) {
 	expectedEventCount := int64(656672)
-	deviceName := "deviceA"
+	nodeName := "nodeA"
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("EventCountByDeviceName", deviceName).Return(expectedEventCount, nil)
+	dbClientMock.On("EventCountByNodeName", nodeName).Return(expectedEventCount, nil)
 
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
@@ -552,14 +552,14 @@ func TestEventCountByDeviceName(t *testing.T) {
 	ec := NewEventController(dic)
 
 	e := echo.New()
-	req, err := http.NewRequest(http.MethodGet, common.ApiEventCountByDeviceNameRoute, http.NoBody)
+	req, err := http.NewRequest(http.MethodGet, common.ApiEventCountByNodeNameRoute, http.NoBody)
 	require.NoError(t, err)
 
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(req, recorder)
 	c.SetParamNames(common.Name)
-	c.SetParamValues(deviceName)
-	err = ec.EventCountByDeviceName(c)
+	c.SetParamValues(nodeName)
+	err = ec.EventCountByNodeName(c)
 	require.NoError(t, err)
 
 	var actualResponse commonDTO.CountResponse
@@ -572,10 +572,10 @@ func TestEventCountByDeviceName(t *testing.T) {
 	assert.Equal(t, expectedEventCount, actualResponse.Count, "Event count in the response body is not expected")
 }
 
-func TestDeleteEventsByDeviceName(t *testing.T) {
-	deviceName := "deviceA"
+func TestDeleteEventsByNodeName(t *testing.T) {
+	nodeName := "nodeA"
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeleteEventsByDeviceName", deviceName).Return(nil)
+	dbClientMock.On("DeleteEventsByNodeName", nodeName).Return(nil)
 
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
@@ -590,14 +590,14 @@ func TestDeleteEventsByDeviceName(t *testing.T) {
 	ec := NewEventController(dic)
 
 	e := echo.New()
-	req, err := http.NewRequest(http.MethodDelete, common.ApiEventByDeviceNameRoute, http.NoBody)
+	req, err := http.NewRequest(http.MethodDelete, common.ApiEventByNodeNameRoute, http.NoBody)
 	require.NoError(t, err)
 
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(req, recorder)
 	c.SetParamNames(common.Name)
-	c.SetParamValues(deviceName)
-	err = ec.DeleteEventsByDeviceName(c)
+	c.SetParamValues(nodeName)
+	err = ec.DeleteEventsByNodeName(c)
 	require.NoError(t, err)
 
 	var actualResponse commonDTO.BaseResponse
@@ -691,29 +691,29 @@ func TestAllEvents(t *testing.T) {
 	}
 }
 
-func TestAllEventsByDeviceName(t *testing.T) {
-	testDeviceA := "testDeviceA"
-	testDeviceB := "testDeviceB"
-	event1WithDeviceA := persistedEvent
-	event1WithDeviceA.DeviceName = testDeviceA
-	event2WithDeviceA := persistedEvent
-	event2WithDeviceA.DeviceName = testDeviceA
-	event3WithDeviceB := persistedEvent
-	event3WithDeviceB.DeviceName = testDeviceB
+func TestAllEventsByNodeName(t *testing.T) {
+	testNodeA := "testNodeA"
+	testNodeB := "testNodeB"
+	event1WithNodeA := persistedEvent
+	event1WithNodeA.NodeName = testNodeA
+	event2WithNodeA := persistedEvent
+	event2WithNodeA.NodeName = testNodeA
+	event3WithNodeB := persistedEvent
+	event3WithNodeB.NodeName = testNodeB
 
-	events := []models.Event{event1WithDeviceA, event2WithDeviceA, event3WithDeviceB}
-	totalCountDeviceA := int64(2)
-	totalCountDeviceB := int64(1)
+	events := []models.Event{event1WithNodeA, event2WithNodeA, event3WithNodeB}
+	totalCountNodeA := int64(2)
+	totalCountNodeB := int64(1)
 
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("EventCountByDeviceName", testDeviceA).Return(totalCountDeviceA, nil)
-	dbClientMock.On("EventCountByDeviceName", testDeviceB).Return(totalCountDeviceB, nil)
-	dbClientMock.On("EventsByDeviceName", 0, 5, testDeviceA).Return([]models.Event{events[0], events[1]}, nil)
-	dbClientMock.On("EventsByDeviceName", 0, 5, testDeviceB).Return([]models.Event{events[2]}, nil)
-	dbClientMock.On("EventsByDeviceName", 1, 1, testDeviceA).Return([]models.Event{events[1]}, nil)
-	dbClientMock.On("EventsByDeviceName", -1, 1, testDeviceA).Return([]models.Event{events[1]}, nil)
-	dbClientMock.On("EventsByDeviceName", 4, 1, testDeviceB).Return([]models.Event{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
+	dbClientMock.On("EventCountByNodeName", testNodeA).Return(totalCountNodeA, nil)
+	dbClientMock.On("EventCountByNodeName", testNodeB).Return(totalCountNodeB, nil)
+	dbClientMock.On("EventsByNodeName", 0, 5, testNodeA).Return([]models.Event{events[0], events[1]}, nil)
+	dbClientMock.On("EventsByNodeName", 0, 5, testNodeB).Return([]models.Event{events[2]}, nil)
+	dbClientMock.On("EventsByNodeName", 1, 1, testNodeA).Return([]models.Event{events[1]}, nil)
+	dbClientMock.On("EventsByNodeName", -1, 1, testNodeA).Return([]models.Event{events[1]}, nil)
+	dbClientMock.On("EventsByNodeName", 4, 1, testNodeB).Return([]models.Event{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
 	app := application.NewCoreDataApp(dic)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
@@ -730,23 +730,23 @@ func TestAllEventsByDeviceName(t *testing.T) {
 		name               string
 		offset             string
 		limit              string
-		deviceName         string
+		nodeName           string
 		errorExpected      bool
 		expectedCount      int
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get events with deviceName - deviceA", "0", "5", testDeviceA, false, 2, totalCountDeviceA, http.StatusOK},
-		{"Valid - get events with deviceName - deviceB", "0", "5", testDeviceB, false, 1, totalCountDeviceB, http.StatusOK},
-		{"Valid - get events with offset and no labels", "1", "1", testDeviceA, false, 1, totalCountDeviceA, http.StatusOK},
-		{"Valid - set offset -1 to skip total count", "-1", "1", testDeviceA, false, 1, 0, http.StatusOK},
-		{"Invalid - offset out of range", "4", "1", testDeviceB, true, 0, 0, http.StatusRequestedRangeNotSatisfiable},
-		{"Invalid - get events without deviceName", "0", "10", "", true, 0, 0, http.StatusBadRequest},
+		{"Valid - get events with nodeName - nodeA", "0", "5", testNodeA, false, 2, totalCountNodeA, http.StatusOK},
+		{"Valid - get events with nodeName - nodeB", "0", "5", testNodeB, false, 1, totalCountNodeB, http.StatusOK},
+		{"Valid - get events with offset and no labels", "1", "1", testNodeA, false, 1, totalCountNodeA, http.StatusOK},
+		{"Valid - set offset -1 to skip total count", "-1", "1", testNodeA, false, 1, 0, http.StatusOK},
+		{"Invalid - offset out of range", "4", "1", testNodeB, true, 0, 0, http.StatusRequestedRangeNotSatisfiable},
+		{"Invalid - get events without nodeName", "0", "10", "", true, 0, 0, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiEventByDeviceNameRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiEventByNodeNameRoute, http.NoBody)
 			query := req.URL.Query()
 			query.Add(common.Offset, testCase.offset)
 			query.Add(common.Limit, testCase.limit)
@@ -757,8 +757,8 @@ func TestAllEventsByDeviceName(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name)
-			c.SetParamValues(testCase.deviceName)
-			err = ec.EventsByDeviceName(c)
+			c.SetParamValues(testCase.nodeName)
+			err = ec.EventsByNodeName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -777,7 +777,7 @@ func TestAllEventsByDeviceName(t *testing.T) {
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Events), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Events), "Node count not as expected")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
@@ -859,7 +859,7 @@ func TestAllEventsByTimeRange(t *testing.T) {
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Events), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Events), "Node count not as expected")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
@@ -923,7 +923,7 @@ func TestDeleteEventsByAge(t *testing.T) {
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Events), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Events), "Node count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
 		})

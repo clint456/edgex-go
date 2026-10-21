@@ -13,14 +13,14 @@
 全量查询
 按NorthDeiceName查询
 按NorthProfileName查询
-按SouthDeviceName查询
+按SouthNodeName查询
 按SouthProfileName查询
 2.添加单条映射
 3.更新已有映射
 4.删除映射
 按NorthDeiceName删除
 按NorthProfileName删除
-按SouthDeviceName删除
+按SouthNodeName删除
 按SouthProfileName删除
 5.映射配置变更监听
 ******************************************************************************

@@ -38,7 +38,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testDeviceLabels = []string{"MODBUS", "TEMP"}
+var testNodeLabels = []string{"MODBUS", "TEMP"}
 
 var testProperties = map[string]any{
 	"TestProperty1": "property1",
@@ -46,7 +46,7 @@ var testProperties = map[string]any{
 	"TestProperty3": 123.45,
 }
 
-func buildTestDeviceRequest() requests.AddDeviceRequest {
+func buildTestNodeRequest() requests.AddNodeRequest {
 	var testAutoEvents = []dtos.AutoEvent{
 		{SourceName: "TestResource", Interval: "300ms", OnChange: true},
 	}
@@ -57,19 +57,19 @@ func buildTestDeviceRequest() requests.AddDeviceRequest {
 			"UnitID":  "1",
 		},
 	}
-	var testAddDeviceReq = requests.AddDeviceRequest{
+	var testAddNodeReq = requests.AddNodeRequest{
 		BaseRequest: commonDTO.BaseRequest{
 			RequestId:   ExampleUUID,
 			Versionable: commonDTO.NewVersionable(),
 		},
-		Device: dtos.Device{
+		Node: dtos.Node{
 			Id:             ExampleUUID,
-			Name:           TestDeviceName,
-			ServiceName:    TestDeviceServiceName,
-			ProfileName:    TestDeviceProfileName,
+			Name:           TestNodeName,
+			ServiceName:    TestNodeServiceName,
+			ProfileName:    TestProfileName,
 			AdminState:     models.Locked,
 			OperatingState: models.Up,
-			Labels:         testDeviceLabels,
+			Labels:         testNodeLabels,
 			Location:       "{40lat;45long}",
 			AutoEvents:     testAutoEvents,
 			Protocols:      testProtocols,
@@ -77,15 +77,15 @@ func buildTestDeviceRequest() requests.AddDeviceRequest {
 		},
 	}
 
-	return testAddDeviceReq
+	return testAddNodeReq
 }
 
-func buildTestUpdateDeviceRequest() requests.UpdateDeviceRequest {
+func buildTestUpdateNodeRequest() requests.UpdateNodeRequest {
 	testUUID := ExampleUUID
-	testName := TestDeviceName
+	testName := TestNodeName
 	testDescription := TestDescription
-	testServiceName := TestDeviceServiceName
-	testProfileName := TestDeviceProfileName
+	testServiceName := TestNodeServiceName
+	testProfileName := TestProfileName
 	testAdminState := models.Unlocked
 	testOperatingState := models.Up
 	var testAutoEvents = []dtos.AutoEvent{
@@ -98,12 +98,12 @@ func buildTestUpdateDeviceRequest() requests.UpdateDeviceRequest {
 			"UnitID":  "1",
 		},
 	}
-	var testUpdateDeviceReq = requests.UpdateDeviceRequest{
+	var testUpdateNodeReq = requests.UpdateNodeRequest{
 		BaseRequest: commonDTO.BaseRequest{
 			RequestId:   ExampleUUID,
 			Versionable: commonDTO.NewVersionable(),
 		},
-		Device: dtos.UpdateDevice{
+		Node: dtos.UpdateNode{
 			Id:             &testUUID,
 			Name:           &testName,
 			Description:    &testDescription,
@@ -119,108 +119,108 @@ func buildTestUpdateDeviceRequest() requests.UpdateDeviceRequest {
 		},
 	}
 
-	return testUpdateDeviceReq
+	return testUpdateNodeReq
 }
 
-func TestAddDevice(t *testing.T) {
-	testDevice := buildTestDeviceRequest()
-	deviceModel := dtos.ToDeviceModel(testDevice.Device)
+func TestAddNode(t *testing.T) {
+	testNode := buildTestNodeRequest()
+	nodeModel := dtos.ToNodeModel(testNode.Node)
 	expectedRequestId := ExampleUUID
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
 
-	valid := testDevice
-	dbClientMock.On("DeviceServiceNameExists", deviceModel.ServiceName).Return(true, nil)
-	dbClientMock.On("DeviceNameExists", deviceModel.Name).Return(false, nil)
-	dbClientMock.On("AddDevice", deviceModel).Return(deviceModel, nil)
-	dbClientMock.On("DeviceProfileByName", mock.Anything).Return(models.DeviceProfile{Name: "test-profile", DeviceResources: []models.DeviceResource{{Name: "TestResource"}}}, nil)
+	valid := testNode
+	dbClientMock.On("NodeServiceNameExists", nodeModel.ServiceName).Return(true, nil)
+	dbClientMock.On("NodeNameExists", nodeModel.Name).Return(false, nil)
+	dbClientMock.On("AddNode", nodeModel).Return(nodeModel, nil)
+	dbClientMock.On("ProfileByName", mock.Anything).Return(models.Profile{Name: "test-profile", Resources: []models.Resource{{Name: "TestResource"}}}, nil)
 
-	validForceAdd := testDevice
-	validForceAdd.Device.Name = "forceAdd"
-	forceAddDm := dtos.ToDeviceModel(validForceAdd.Device)
-	dbClientMock.On("DeviceNameExists", validForceAdd.Device.Name).Return(true, nil)
-	dbClientMock.On("DeviceByName", validForceAdd.Device.Name).Return(forceAddDm, nil)
-	dbClientMock.On("UpdateDevice", forceAddDm).Return(nil)
+	validForceAdd := testNode
+	validForceAdd.Node.Name = "forceAdd"
+	forceAddDm := dtos.ToNodeModel(validForceAdd.Node)
+	dbClientMock.On("NodeNameExists", validForceAdd.Node.Name).Return(true, nil)
+	dbClientMock.On("NodeByName", validForceAdd.Node.Name).Return(forceAddDm, nil)
+	dbClientMock.On("UpdateNode", forceAddDm).Return(nil)
 
-	notFoundProfile := testDevice
-	notFoundProfile.Device.ProfileName = "notFoundProfile"
-	notFoundProfileDeviceModel := requests.AddDeviceReqToDeviceModels([]requests.AddDeviceRequest{notFoundProfile})[0]
-	dbClientMock.On("AddDevice", notFoundProfileDeviceModel).Return(notFoundProfileDeviceModel,
-		edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, fmt.Sprintf("device profile '%s' does not exists",
-			notFoundProfile.Device.ProfileName), nil))
+	notFoundProfile := testNode
+	notFoundProfile.Node.ProfileName = "notFoundProfile"
+	notFoundProfileNodeModel := requests.AddNodeReqToNodeModels([]requests.AddNodeRequest{notFoundProfile})[0]
+	dbClientMock.On("AddNode", notFoundProfileNodeModel).Return(notFoundProfileNodeModel,
+		edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, fmt.Sprintf("node profile '%s' does not exists",
+			notFoundProfile.Node.ProfileName), nil))
 
-	notFoundService := testDevice
-	notFoundService.Device.ServiceName = "notFoundService"
-	notFoundServiceDeviceModel := requests.AddDeviceReqToDeviceModels([]requests.AddDeviceRequest{notFoundService})[0]
-	dbClientMock.On("DeviceServiceNameExists", notFoundService.Device.ServiceName).Return(false, nil)
-	dbClientMock.On("AddDevice", notFoundServiceDeviceModel).Return(notFoundServiceDeviceModel,
-		edgexErr.NewCommonEdgeX(edgexErr.KindContractInvalid, fmt.Sprintf("device service '%s' does not exists", notFoundService.Device.ServiceName), nil))
+	notFoundService := testNode
+	notFoundService.Node.ServiceName = "notFoundService"
+	notFoundServiceNodeModel := requests.AddNodeReqToNodeModels([]requests.AddNodeRequest{notFoundService})[0]
+	dbClientMock.On("NodeServiceNameExists", notFoundService.Node.ServiceName).Return(false, nil)
+	dbClientMock.On("AddNode", notFoundServiceNodeModel).Return(notFoundServiceNodeModel,
+		edgexErr.NewCommonEdgeX(edgexErr.KindContractInvalid, fmt.Sprintf("node service '%s' does not exists", notFoundService.Node.ServiceName), nil))
 
-	noName := testDevice
-	noName.Device.Name = ""
-	noAdminState := testDevice
-	noAdminState.Device.AdminState = ""
-	noOperatingState := testDevice
-	noOperatingState.Device.OperatingState = ""
-	invalidAdminState := testDevice
-	invalidAdminState.Device.AdminState = "invalidAdminState"
-	invalidOperatingState := testDevice
-	invalidOperatingState.Device.OperatingState = "invalidOperatingState"
-	noServiceName := testDevice
-	noServiceName.Device.ServiceName = ""
-	noProfileName := testDevice
-	noProfileName.Device.ProfileName = ""
-	np := dtos.ToDeviceModel(noProfileName.Device)
-	dbClientMock.On("AddDevice", np).Return(np, nil)
+	noName := testNode
+	noName.Node.Name = ""
+	noAdminState := testNode
+	noAdminState.Node.AdminState = ""
+	noOperatingState := testNode
+	noOperatingState.Node.OperatingState = ""
+	invalidAdminState := testNode
+	invalidAdminState.Node.AdminState = "invalidAdminState"
+	invalidOperatingState := testNode
+	invalidOperatingState.Node.OperatingState = "invalidOperatingState"
+	noServiceName := testNode
+	noServiceName.Node.ServiceName = ""
+	noProfileName := testNode
+	noProfileName.Node.ProfileName = ""
+	np := dtos.ToNodeModel(noProfileName.Node)
+	dbClientMock.On("AddNode", np).Return(np, nil)
 	noProfileAndAutoEvents := noProfileName
-	noProfileAndAutoEvents.Device.AutoEvents = []dtos.AutoEvent{}
-	dm := dtos.ToDeviceModel(noProfileAndAutoEvents.Device)
-	dbClientMock.On("AddDevice", dm).Return(dm, nil)
-	noProtocols := testDevice
-	noProtocols.Device.Protocols = nil
-	emptyProtocols := testDevice
-	emptyProtocols.Device.Protocols = map[string]dtos.ProtocolProperties{}
-	emptyProtocolsModel := dtos.ToDeviceModel(emptyProtocols.Device)
-	dbClientMock.On("AddDevice", emptyProtocolsModel).Return(emptyProtocolsModel, nil)
-	invalidProtocols := testDevice
-	invalidProtocols.Device.Protocols = map[string]dtos.ProtocolProperties{"others": {}}
-	ownParent := testDevice
-	ownParent.Device.Parent = ownParent.Device.Name
+	noProfileAndAutoEvents.Node.AutoEvents = []dtos.AutoEvent{}
+	dm := dtos.ToNodeModel(noProfileAndAutoEvents.Node)
+	dbClientMock.On("AddNode", dm).Return(dm, nil)
+	noProtocols := testNode
+	noProtocols.Node.Protocols = nil
+	emptyProtocols := testNode
+	emptyProtocols.Node.Protocols = map[string]dtos.ProtocolProperties{}
+	emptyProtocolsModel := dtos.ToNodeModel(emptyProtocols.Node)
+	dbClientMock.On("AddNode", emptyProtocolsModel).Return(emptyProtocolsModel, nil)
+	invalidProtocols := testNode
+	invalidProtocols.Node.Protocols = map[string]dtos.ProtocolProperties{"others": {}}
+	ownParent := testNode
+	ownParent.Node.Parent = ownParent.Node.Name
 
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 	tests := []struct {
 		name                 string
-		request              []requests.AddDeviceRequest
+		request              []requests.AddNodeRequest
 		expectedStatusCode   int
 		expectedResponseCode int
 		expectedValidation   bool
 		expectedSystemEvent  bool
 		forceAdd             bool
 	}{
-		{"Valid", []requests.AddDeviceRequest{valid}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
-		{"Valid - bypassValidation", []requests.AddDeviceRequest{valid}, http.StatusMultiStatus, http.StatusCreated, false, true, false},
-		{"Valid - no profile name and no auto events", []requests.AddDeviceRequest{noProfileAndAutoEvents}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
-		{"Invalid - not found profile", []requests.AddDeviceRequest{notFoundProfile}, http.StatusMultiStatus, http.StatusNotFound, true, false, false},
-		{"Invalid - no name", []requests.AddDeviceRequest{noName}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Invalid - no adminState", []requests.AddDeviceRequest{noAdminState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Invalid - no operatingState", []requests.AddDeviceRequest{noOperatingState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Invalid - invalid adminState", []requests.AddDeviceRequest{invalidAdminState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Invalid - invalid operatingState", []requests.AddDeviceRequest{invalidOperatingState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Invalid - no service name", []requests.AddDeviceRequest{noServiceName}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Valid - no profile name", []requests.AddDeviceRequest{noProfileName}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
-		{"Invalid - no protocols", []requests.AddDeviceRequest{noProtocols}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
-		{"Valid - empty protocols", []requests.AddDeviceRequest{emptyProtocols}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
-		{"Invalid - invalid protocols", []requests.AddDeviceRequest{invalidProtocols}, http.StatusMultiStatus, http.StatusInternalServerError, true, false, false},
-		{"Invalid - not found device service", []requests.AddDeviceRequest{notFoundService}, http.StatusMultiStatus, http.StatusBadRequest, false, false, false},
-		{"Invalid - device service unavailable", []requests.AddDeviceRequest{valid}, http.StatusMultiStatus, http.StatusServiceUnavailable, true, false, false},
-		{"Valid - force add device", []requests.AddDeviceRequest{validForceAdd}, http.StatusMultiStatus, http.StatusCreated, false, true, true},
-		{"Invalid - own parent", []requests.AddDeviceRequest{ownParent}, http.StatusMultiStatus, http.StatusBadRequest, false, false, false},
+		{"Valid", []requests.AddNodeRequest{valid}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
+		{"Valid - bypassValidation", []requests.AddNodeRequest{valid}, http.StatusMultiStatus, http.StatusCreated, false, true, false},
+		{"Valid - no profile name and no auto events", []requests.AddNodeRequest{noProfileAndAutoEvents}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
+		{"Invalid - not found profile", []requests.AddNodeRequest{notFoundProfile}, http.StatusMultiStatus, http.StatusNotFound, true, false, false},
+		{"Invalid - no name", []requests.AddNodeRequest{noName}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Invalid - no adminState", []requests.AddNodeRequest{noAdminState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Invalid - no operatingState", []requests.AddNodeRequest{noOperatingState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Invalid - invalid adminState", []requests.AddNodeRequest{invalidAdminState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Invalid - invalid operatingState", []requests.AddNodeRequest{invalidOperatingState}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Invalid - no service name", []requests.AddNodeRequest{noServiceName}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Valid - no profile name", []requests.AddNodeRequest{noProfileName}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
+		{"Invalid - no protocols", []requests.AddNodeRequest{noProtocols}, http.StatusBadRequest, http.StatusBadRequest, false, false, false},
+		{"Valid - empty protocols", []requests.AddNodeRequest{emptyProtocols}, http.StatusMultiStatus, http.StatusCreated, true, true, false},
+		{"Invalid - invalid protocols", []requests.AddNodeRequest{invalidProtocols}, http.StatusMultiStatus, http.StatusInternalServerError, true, false, false},
+		{"Invalid - not found node service", []requests.AddNodeRequest{notFoundService}, http.StatusMultiStatus, http.StatusBadRequest, false, false, false},
+		{"Invalid - node service unavailable", []requests.AddNodeRequest{valid}, http.StatusMultiStatus, http.StatusServiceUnavailable, true, false, false},
+		{"Valid - force add node", []requests.AddNodeRequest{validForceAdd}, http.StatusMultiStatus, http.StatusCreated, false, true, true},
+		{"Invalid - own parent", []requests.AddNodeRequest{ownParent}, http.StatusMultiStatus, http.StatusBadRequest, false, false, false},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -265,7 +265,7 @@ func TestAddDevice(t *testing.T) {
 			})
 
 			reader := strings.NewReader(string(jsonData))
-			req, err := http.NewRequest(http.MethodPost, common.ApiDeviceRoute, reader)
+			req, err := http.NewRequest(http.MethodPost, common.ApiNodeRoute, reader)
 			require.NoError(t, err)
 
 			if !testCase.expectedValidation {
@@ -283,7 +283,7 @@ func TestAddDevice(t *testing.T) {
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			handler := controller.AddDevice
+			handler := controller.AddNode
 			err = handler(c)
 			if testCase.expectedStatusCode == http.StatusMultiStatus {
 				var res []commonDTO.BaseResponse
@@ -320,45 +320,45 @@ func TestAddDevice(t *testing.T) {
 	}
 }
 
-func TestDeleteDeviceByName(t *testing.T) {
-	device := dtos.ToDeviceModel(buildTestDeviceRequest().Device)
+func TestDeleteNodeByName(t *testing.T) {
+	node := dtos.ToNodeModel(buildTestNodeRequest().Node)
 	noName := ""
 	notFoundName := "notFoundName"
-	deviceParent := device
-	deviceParent.Name = "someOtherName"
+	nodeParent := node
+	nodeParent.Name = "someOtherName"
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceTree", device.Name, 1, 0, 1, []string(nil)).Return(int64(0), nil, nil)
-	dbClientMock.On("DeleteDeviceByName", device.Name).Return(nil)
-	dbClientMock.On("DeleteDeviceByName", notFoundName).Return(edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "device doesn't exist in the database", nil))
-	dbClientMock.On("DeviceByName", notFoundName).Return(device, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "device doesn't exist in the database", nil))
-	dbClientMock.On("DeviceByName", device.Name).Return(device, nil)
-	dbClientMock.On("DeviceByName", deviceParent.Name).Return(device, nil)
-	dbClientMock.On("DeviceTree", deviceParent.Name, 1, 0, 1, []string(nil)).Return(int64(1), []models.Device{device}, nil)
+	dbClientMock.On("NodeTree", node.Name, 1, 0, 1, []string(nil)).Return(int64(0), nil, nil)
+	dbClientMock.On("DeleteNodeByName", node.Name).Return(nil)
+	dbClientMock.On("DeleteNodeByName", notFoundName).Return(edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "node doesn't exist in the database", nil))
+	dbClientMock.On("NodeByName", notFoundName).Return(node, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "node doesn't exist in the database", nil))
+	dbClientMock.On("NodeByName", node.Name).Return(node, nil)
+	dbClientMock.On("NodeByName", nodeParent.Name).Return(node, nil)
+	dbClientMock.On("NodeTree", nodeParent.Name, 1, 0, 1, []string(nil)).Return(int64(1), []models.Node{node}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
 
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	require.NotNil(t, controller)
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		expectedStatusCode int
 	}{
-		{"Valid - delete device by name", device.Name, http.StatusOK},
+		{"Valid - delete node by name", node.Name, http.StatusOK},
 		{"Invalid - name parameter is empty", noName, http.StatusBadRequest},
-		{"Invalid - device not found by name", notFoundName, http.StatusNotFound},
-		{"Invalid - device has children", deviceParent.Name, http.StatusConflict},
+		{"Invalid - node not found by name", notFoundName, http.StatusNotFound},
+		{"Invalid - node has children", nodeParent.Name, http.StatusConflict},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			reqPath := fmt.Sprintf("%s/%s", common.ApiDeviceByNameRoute, testCase.deviceName)
+			reqPath := fmt.Sprintf("%s/%s", common.ApiNodeByNameRoute, testCase.nodeName)
 			req, err := http.NewRequest(http.MethodGet, reqPath, http.NoBody)
 			require.NoError(t, err)
 
@@ -366,9 +366,9 @@ func TestDeleteDeviceByName(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name)
-			c.SetParamValues(testCase.deviceName)
+			c.SetParamValues(testCase.nodeName)
 
-			err = controller.DeleteDeviceByName(c)
+			err = controller.DeleteNodeByName(c)
 			require.NoError(t, err)
 			var res commonDTO.BaseResponse
 			err = json.Unmarshal(recorder.Body.Bytes(), &res)
@@ -387,34 +387,34 @@ func TestDeleteDeviceByName(t *testing.T) {
 	}
 }
 
-func TestAllDeviceByServiceName(t *testing.T) {
-	device := dtos.ToDeviceModel(buildTestDeviceRequest().Device)
+func TestAllNodeByServiceName(t *testing.T) {
+	node := dtos.ToNodeModel(buildTestNodeRequest().Node)
 	testServiceA := "testServiceA"
 	testServiceB := "testServiceB"
-	device1WithServiceA := device
-	device1WithServiceA.ServiceName = testServiceA
-	device2WithServiceA := device
-	device2WithServiceA.ServiceName = testServiceA
-	device3WithServiceB := device
-	device3WithServiceB.ServiceName = testServiceB
+	node1WithServiceA := node
+	node1WithServiceA.ServiceName = testServiceA
+	node2WithServiceA := node
+	node2WithServiceA.ServiceName = testServiceA
+	node3WithServiceB := node
+	node3WithServiceB.ServiceName = testServiceB
 
-	devices := []models.Device{device1WithServiceA, device2WithServiceA, device3WithServiceB}
+	nodes := []models.Node{node1WithServiceA, node2WithServiceA, node3WithServiceB}
 	expectedTotalCountServiceA := int64(2)
 	expectedTotalCountServiceB := int64(1)
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceCountByServiceName", testServiceA).Return(expectedTotalCountServiceA, nil)
-	dbClientMock.On("DeviceCountByServiceName", testServiceB).Return(expectedTotalCountServiceB, nil)
-	dbClientMock.On("DevicesByServiceName", 0, 5, testServiceA).Return([]models.Device{devices[0], devices[1]}, nil)
-	dbClientMock.On("DevicesByServiceName", 1, 1, testServiceA).Return([]models.Device{devices[1]}, nil)
-	dbClientMock.On("DevicesByServiceName", 4, 1, testServiceB).Return([]models.Device{}, edgexErr.NewCommonEdgeX(edgexErr.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
+	dbClientMock.On("NodeCountByServiceName", testServiceA).Return(expectedTotalCountServiceA, nil)
+	dbClientMock.On("NodeCountByServiceName", testServiceB).Return(expectedTotalCountServiceB, nil)
+	dbClientMock.On("NodesByServiceName", 0, 5, testServiceA).Return([]models.Node{nodes[0], nodes[1]}, nil)
+	dbClientMock.On("NodesByServiceName", 1, 1, testServiceA).Return([]models.Node{nodes[1]}, nil)
+	dbClientMock.On("NodesByServiceName", 4, 1, testServiceB).Return([]models.Node{}, edgexErr.NewCommonEdgeX(edgexErr.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
@@ -427,15 +427,15 @@ func TestAllDeviceByServiceName(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get devices with serviceName", "0", "5", testServiceA, false, 2, expectedTotalCountServiceA, http.StatusOK},
-		{"Valid - get devices with offset and no labels", "1", "1", testServiceA, false, 1, expectedTotalCountServiceA, http.StatusOK},
+		{"Valid - get nodes with serviceName", "0", "5", testServiceA, false, 2, expectedTotalCountServiceA, http.StatusOK},
+		{"Valid - get nodes with offset and no labels", "1", "1", testServiceA, false, 1, expectedTotalCountServiceA, http.StatusOK},
 		{"Invalid - offset out of range", "4", "1", testServiceB, true, 0, 0, http.StatusRequestedRangeNotSatisfiable},
-		{"Invalid - get devices without serviceName", "0", "10", "", true, 0, 0, http.StatusBadRequest},
+		{"Invalid - get nodes without serviceName", "0", "10", "", true, 0, 0, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiDeviceByServiceNameRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiNodeByServiceNameRoute, http.NoBody)
 			query := req.URL.Query()
 			query.Add(common.Offset, testCase.offset)
 			query.Add(common.Limit, testCase.limit)
@@ -448,7 +448,7 @@ func TestAllDeviceByServiceName(t *testing.T) {
 			c.SetParamNames(common.Name)
 			c.SetParamValues(testCase.serviceName)
 
-			err = controller.DevicesByServiceName(c)
+			err = controller.NodesByServiceName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -461,13 +461,13 @@ func TestAllDeviceByServiceName(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.MultiDevicesResponse
+				var res responseDTO.MultiNodesResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Devices), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Nodes), "Node count not as expected")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
@@ -475,38 +475,38 @@ func TestAllDeviceByServiceName(t *testing.T) {
 	}
 }
 
-func TestDeviceNameExists(t *testing.T) {
-	testName := TestDeviceName
+func TestNodeNameExists(t *testing.T) {
+	testName := TestNodeName
 	notFoundName := "notFoundName"
 	emptyName := ""
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceNameExists", testName).Return(true, nil)
-	dbClientMock.On("DeviceNameExists", notFoundName).Return(false, nil)
+	dbClientMock.On("NodeNameExists", testName).Return(true, nil)
+	dbClientMock.On("NodeNameExists", notFoundName).Return(false, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
 
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		errorExpected      bool
 		expectedStatusCode int
 	}{
-		{"Valid - check device by name", testName, false, http.StatusOK},
+		{"Valid - check node by name", testName, false, http.StatusOK},
 		{"Invalid - name parameter is empty", emptyName, true, http.StatusBadRequest},
-		{"Invalid - device not found by name", notFoundName, false, http.StatusNotFound},
+		{"Invalid - node not found by name", notFoundName, false, http.StatusNotFound},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			reqPath := fmt.Sprintf("%s/%s", common.ApiDeviceNameExistsRoute, testCase.deviceName)
+			reqPath := fmt.Sprintf("%s/%s", common.ApiNodeNameExistsRoute, testCase.nodeName)
 			req, err := http.NewRequest(http.MethodGet, reqPath, http.NoBody)
 			require.NoError(t, err)
 
@@ -514,9 +514,9 @@ func TestDeviceNameExists(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name)
-			c.SetParamValues(testCase.deviceName)
+			c.SetParamValues(testCase.nodeName)
 
-			err = controller.DeviceNameExists(c)
+			err = controller.NodeNameExists(c)
 			require.NoError(t, err)
 			var res commonDTO.BaseResponse
 			err = json.Unmarshal(recorder.Body.Bytes(), &res)
@@ -535,128 +535,128 @@ func TestDeviceNameExists(t *testing.T) {
 	}
 }
 
-func TestPatchDevice(t *testing.T) {
+func TestPatchNode(t *testing.T) {
 	expectedRequestId := ExampleUUID
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	testReq := buildTestUpdateDeviceRequest()
-	dsModels := models.Device{
-		Id:             *testReq.Device.Id,
-		Name:           *testReq.Device.Name,
-		Description:    *testReq.Device.Description,
-		Labels:         testReq.Device.Labels,
-		AdminState:     models.AdminState(*testReq.Device.AdminState),
-		OperatingState: models.OperatingState(*testReq.Device.OperatingState),
-		Location:       testReq.Device.Location,
-		ServiceName:    *testReq.Device.ServiceName,
-		ProfileName:    *testReq.Device.ProfileName,
-		AutoEvents:     dtos.ToAutoEventModels(testReq.Device.AutoEvents),
-		Protocols:      dtos.ToProtocolModels(testReq.Device.Protocols),
+	testReq := buildTestUpdateNodeRequest()
+	dsModels := models.Node{
+		Id:             *testReq.Node.Id,
+		Name:           *testReq.Node.Name,
+		Description:    *testReq.Node.Description,
+		Labels:         testReq.Node.Labels,
+		AdminState:     models.AdminState(*testReq.Node.AdminState),
+		OperatingState: models.OperatingState(*testReq.Node.OperatingState),
+		Location:       testReq.Node.Location,
+		ServiceName:    *testReq.Node.ServiceName,
+		ProfileName:    *testReq.Node.ProfileName,
+		AutoEvents:     dtos.ToAutoEventModels(testReq.Node.AutoEvents),
+		Protocols:      dtos.ToProtocolModels(testReq.Node.Protocols),
 		Properties:     testProperties,
 	}
 
 	valid := testReq
-	dbClientMock.On("DeviceServiceNameExists", *valid.Device.ServiceName).Return(true, nil)
-	dbClientMock.On("DeviceById", *valid.Device.Id).Return(dsModels, nil)
-	dbClientMock.On("UpdateDevice", dsModels).Return(nil)
-	dbClientMock.On("DeviceProfileByName", mock.Anything).Return(models.DeviceProfile{Name: "test-profile", DeviceResources: []models.DeviceResource{{Name: "TestResource"}}}, nil)
+	dbClientMock.On("NodeServiceNameExists", *valid.Node.ServiceName).Return(true, nil)
+	dbClientMock.On("NodeById", *valid.Node.Id).Return(dsModels, nil)
+	dbClientMock.On("UpdateNode", dsModels).Return(nil)
+	dbClientMock.On("ProfileByName", mock.Anything).Return(models.Profile{Name: "test-profile", Resources: []models.Resource{{Name: "TestResource"}}}, nil)
 
 	validWithNoReqID := testReq
 	validWithNoReqID.RequestId = ""
 	validWithNoId := testReq
-	validWithNoId.Device.Id = nil
-	dbClientMock.On("DeviceByName", *validWithNoId.Device.Name).Return(dsModels, nil)
+	validWithNoId.Node.Id = nil
+	dbClientMock.On("NodeByName", *validWithNoId.Node.Name).Return(dsModels, nil)
 	validWithNoName := testReq
-	validWithNoName.Device.Name = nil
+	validWithNoName.Node.Name = nil
 
 	invalidId := testReq
 	invalidUUID := "invalidUUID"
-	invalidId.Device.Id = &invalidUUID
+	invalidId.Node.Id = &invalidUUID
 
 	emptyString := ""
 	emptyId := testReq
-	emptyId.Device.Id = &emptyString
-	emptyId.Device.Name = nil
+	emptyId.Node.Id = &emptyString
+	emptyId.Node.Name = nil
 	emptyName := testReq
-	emptyName.Device.Id = nil
-	emptyName.Device.Name = &emptyString
+	emptyName.Node.Id = nil
+	emptyName.Node.Name = &emptyString
 
 	emptyProfile := testReq
-	emptyProfile.Device.ProfileName = &emptyString
+	emptyProfile.Node.ProfileName = &emptyString
 	dm := dsModels
-	dm.ProfileName = *emptyProfile.Device.ProfileName
-	dbClientMock.On("UpdateDevice", dm).Return(nil)
+	dm.ProfileName = *emptyProfile.Node.ProfileName
+	dbClientMock.On("UpdateNode", dm).Return(nil)
 
 	invalidProtocols := testReq
-	invalidProtocols.Device.Protocols = map[string]dtos.ProtocolProperties{"others": {}}
+	invalidProtocols.Node.Protocols = map[string]dtos.ProtocolProperties{"others": {}}
 
 	invalidNoIdAndName := testReq
-	invalidNoIdAndName.Device.Id = nil
-	invalidNoIdAndName.Device.Name = nil
+	invalidNoIdAndName.Node.Id = nil
+	invalidNoIdAndName.Node.Name = nil
 
 	invalidNotFoundId := testReq
-	invalidNotFoundId.Device.Name = nil
+	invalidNotFoundId.Node.Name = nil
 	notFoundId := "12345678-1111-1234-5678-de9dac3fb9bc"
-	invalidNotFoundId.Device.Id = &notFoundId
+	invalidNotFoundId.Node.Id = &notFoundId
 	notFoundIdError := edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, fmt.Sprintf("%s doesn't exist in the database", notFoundId), nil)
-	dbClientMock.On("DeviceById", *invalidNotFoundId.Device.Id).Return(dsModels, notFoundIdError)
+	dbClientMock.On("NodeById", *invalidNotFoundId.Node.Id).Return(dsModels, notFoundIdError)
 
 	invalidNotFoundName := testReq
-	invalidNotFoundName.Device.Id = nil
+	invalidNotFoundName.Node.Id = nil
 	notFoundName := "notFoundName"
-	invalidNotFoundName.Device.Name = &notFoundName
+	invalidNotFoundName.Node.Name = &notFoundName
 	notFoundNameError := edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, fmt.Sprintf("%s doesn't exist in the database", notFoundName), nil)
-	dbClientMock.On("DeviceByName", *invalidNotFoundName.Device.Name).Return(dsModels, notFoundNameError)
+	dbClientMock.On("NodeByName", *invalidNotFoundName.Node.Name).Return(dsModels, notFoundNameError)
 
 	notFoundServiceName := "notFoundService"
 	notFoundService := testReq
-	notFoundService.Device.ServiceName = &notFoundServiceName
-	dbClientMock.On("DeviceServiceNameExists", *notFoundService.Device.ServiceName).Return(false, nil)
+	notFoundService.Node.ServiceName = &notFoundServiceName
+	dbClientMock.On("NodeServiceNameExists", *notFoundService.Node.ServiceName).Return(false, nil)
 
 	notFoundProfileName := "notFoundProfile"
 	notFoundProfile := testReq
-	notFoundProfile.Device.ProfileName = &notFoundProfileName
-	notFoundProfileDeviceModel := dsModels
-	notFoundProfileDeviceModel.ProfileName = notFoundProfileName
-	dbClientMock.On("UpdateDevice", notFoundProfileDeviceModel).Return(
+	notFoundProfile.Node.ProfileName = &notFoundProfileName
+	notFoundProfileNodeModel := dsModels
+	notFoundProfileNodeModel.ProfileName = notFoundProfileName
+	dbClientMock.On("UpdateNode", notFoundProfileNodeModel).Return(
 		edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist,
-			fmt.Sprintf("device profile '%s' does not exists", notFoundProfileName), nil))
+			fmt.Sprintf("node profile '%s' does not exists", notFoundProfileName), nil))
 
 	ownParent := testReq
-	ownParent.Device.Parent = ownParent.Device.Name
+	ownParent.Node.Parent = ownParent.Node.Name
 
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	require.NotNil(t, controller)
 	tests := []struct {
 		name                 string
-		request              []requests.UpdateDeviceRequest
+		request              []requests.UpdateNodeRequest
 		expectedStatusCode   int
 		expectedResponseCode int
 		expectedValidation   bool
 		expectedSystemEvent  bool
 	}{
-		{"Valid", []requests.UpdateDeviceRequest{valid}, http.StatusMultiStatus, http.StatusOK, true, true},
-		{"Valid - no requestId", []requests.UpdateDeviceRequest{validWithNoReqID}, http.StatusMultiStatus, http.StatusOK, true, true},
-		{"Valid - no id", []requests.UpdateDeviceRequest{validWithNoId}, http.StatusMultiStatus, http.StatusOK, true, true},
-		{"Valid - no name", []requests.UpdateDeviceRequest{validWithNoName}, http.StatusMultiStatus, http.StatusOK, true, true},
-		{"Valid - bypassValidation", []requests.UpdateDeviceRequest{valid}, http.StatusMultiStatus, http.StatusOK, false, true},
-		{"Invalid - invalid id", []requests.UpdateDeviceRequest{invalidId}, http.StatusBadRequest, http.StatusBadRequest, false, false},
-		{"Invalid - empty id", []requests.UpdateDeviceRequest{emptyId}, http.StatusBadRequest, http.StatusBadRequest, false, false},
-		{"Invalid - empty name", []requests.UpdateDeviceRequest{emptyName}, http.StatusBadRequest, http.StatusBadRequest, false, false},
-		{"Invalid - no id and name", []requests.UpdateDeviceRequest{invalidNoIdAndName}, http.StatusBadRequest, http.StatusBadRequest, false, false},
-		{"Invalid - not found id", []requests.UpdateDeviceRequest{invalidNotFoundId}, http.StatusMultiStatus, http.StatusNotFound, false, false},
-		{"Invalid - not found name", []requests.UpdateDeviceRequest{invalidNotFoundName}, http.StatusMultiStatus, http.StatusNotFound, false, false},
-		{"Invalid - not found profile", []requests.UpdateDeviceRequest{notFoundProfile}, http.StatusMultiStatus, http.StatusNotFound, true, false},
-		{"Invalid - invalid protocols", []requests.UpdateDeviceRequest{invalidProtocols}, http.StatusMultiStatus, http.StatusInternalServerError, true, false},
-		{"Invalid - not found device service", []requests.UpdateDeviceRequest{notFoundService}, http.StatusMultiStatus, http.StatusBadRequest, false, false},
-		{"Invalid - device service unavailable", []requests.UpdateDeviceRequest{valid}, http.StatusMultiStatus, http.StatusServiceUnavailable, true, false},
-		{"Valid - empty profile", []requests.UpdateDeviceRequest{emptyProfile}, http.StatusMultiStatus, http.StatusOK, true, true},
-		{"Invalid - own parent", []requests.UpdateDeviceRequest{ownParent}, http.StatusMultiStatus, http.StatusBadRequest, false, false}}
+		{"Valid", []requests.UpdateNodeRequest{valid}, http.StatusMultiStatus, http.StatusOK, true, true},
+		{"Valid - no requestId", []requests.UpdateNodeRequest{validWithNoReqID}, http.StatusMultiStatus, http.StatusOK, true, true},
+		{"Valid - no id", []requests.UpdateNodeRequest{validWithNoId}, http.StatusMultiStatus, http.StatusOK, true, true},
+		{"Valid - no name", []requests.UpdateNodeRequest{validWithNoName}, http.StatusMultiStatus, http.StatusOK, true, true},
+		{"Valid - bypassValidation", []requests.UpdateNodeRequest{valid}, http.StatusMultiStatus, http.StatusOK, false, true},
+		{"Invalid - invalid id", []requests.UpdateNodeRequest{invalidId}, http.StatusBadRequest, http.StatusBadRequest, false, false},
+		{"Invalid - empty id", []requests.UpdateNodeRequest{emptyId}, http.StatusBadRequest, http.StatusBadRequest, false, false},
+		{"Invalid - empty name", []requests.UpdateNodeRequest{emptyName}, http.StatusBadRequest, http.StatusBadRequest, false, false},
+		{"Invalid - no id and name", []requests.UpdateNodeRequest{invalidNoIdAndName}, http.StatusBadRequest, http.StatusBadRequest, false, false},
+		{"Invalid - not found id", []requests.UpdateNodeRequest{invalidNotFoundId}, http.StatusMultiStatus, http.StatusNotFound, false, false},
+		{"Invalid - not found name", []requests.UpdateNodeRequest{invalidNotFoundName}, http.StatusMultiStatus, http.StatusNotFound, false, false},
+		{"Invalid - not found profile", []requests.UpdateNodeRequest{notFoundProfile}, http.StatusMultiStatus, http.StatusNotFound, true, false},
+		{"Invalid - invalid protocols", []requests.UpdateNodeRequest{invalidProtocols}, http.StatusMultiStatus, http.StatusInternalServerError, true, false},
+		{"Invalid - not found node service", []requests.UpdateNodeRequest{notFoundService}, http.StatusMultiStatus, http.StatusBadRequest, false, false},
+		{"Invalid - node service unavailable", []requests.UpdateNodeRequest{valid}, http.StatusMultiStatus, http.StatusServiceUnavailable, true, false},
+		{"Valid - empty profile", []requests.UpdateNodeRequest{emptyProfile}, http.StatusMultiStatus, http.StatusOK, true, true},
+		{"Invalid - own parent", []requests.UpdateNodeRequest{ownParent}, http.StatusMultiStatus, http.StatusBadRequest, false, false}}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
@@ -700,7 +700,7 @@ func TestPatchDevice(t *testing.T) {
 			})
 
 			reader := strings.NewReader(string(jsonData))
-			req, err := http.NewRequest(http.MethodPatch, common.ApiDeviceRoute, reader)
+			req, err := http.NewRequest(http.MethodPatch, common.ApiNodeRoute, reader)
 			require.NoError(t, err)
 
 			if !testCase.expectedValidation {
@@ -712,7 +712,7 @@ func TestPatchDevice(t *testing.T) {
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			err = controller.PatchDevice(c)
+			err = controller.PatchNode(c)
 			require.NoError(t, err)
 
 			if testCase.expectedStatusCode == http.StatusMultiStatus {
@@ -751,27 +751,27 @@ func TestPatchDevice(t *testing.T) {
 
 }
 
-func TestAllDevices(t *testing.T) {
-	device := dtos.ToDeviceModel(buildTestDeviceRequest().Device)
-	devices := []models.Device{device, device, device}
-	expectedDeviceTotalCount := int64(len(devices))
+func TestAllNodes(t *testing.T) {
+	node := dtos.ToNodeModel(buildTestNodeRequest().Node)
+	nodes := []models.Node{node, node, node}
+	expectedNodeTotalCount := int64(len(nodes))
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceCountByLabels", []string(nil)).Return(expectedDeviceTotalCount, nil)
-	dbClientMock.On("DeviceCountByLabels", testDeviceLabels).Return(expectedDeviceTotalCount, nil)
-	dbClientMock.On("AllDevices", 0, 10, []string(nil)).Return(devices, nil)
-	dbClientMock.On("AllDevices", 0, 5, testDeviceLabels).Return([]models.Device{devices[0], devices[1]}, nil)
-	dbClientMock.On("AllDevices", 1, 2, []string(nil)).Return([]models.Device{devices[1], devices[2]}, nil)
-	dbClientMock.On("AllDevices", 4, 1, testDeviceLabels).Return([]models.Device{}, edgexErr.NewCommonEdgeX(edgexErr.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
-	dbClientMock.On("DeviceTree", "foo", 4, 0, 10, []string(nil)).Return(expectedDeviceTotalCount, devices, nil)
-	dbClientMock.On("DeviceTree", "foo", math.MaxInt32, 0, 10, testDeviceLabels).Return(expectedDeviceTotalCount, devices, nil)
+	dbClientMock.On("NodeCountByLabels", []string(nil)).Return(expectedNodeTotalCount, nil)
+	dbClientMock.On("NodeCountByLabels", testNodeLabels).Return(expectedNodeTotalCount, nil)
+	dbClientMock.On("AllNodes", 0, 10, []string(nil)).Return(nodes, nil)
+	dbClientMock.On("AllNodes", 0, 5, testNodeLabels).Return([]models.Node{nodes[0], nodes[1]}, nil)
+	dbClientMock.On("AllNodes", 1, 2, []string(nil)).Return([]models.Node{nodes[1], nodes[2]}, nil)
+	dbClientMock.On("AllNodes", 4, 1, testNodeLabels).Return([]models.Node{}, edgexErr.NewCommonEdgeX(edgexErr.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
+	dbClientMock.On("NodeTree", "foo", 4, 0, 10, []string(nil)).Return(expectedNodeTotalCount, nodes, nil)
+	dbClientMock.On("NodeTree", "foo", math.MaxInt32, 0, 10, testNodeLabels).Return(expectedNodeTotalCount, nodes, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
@@ -786,18 +786,18 @@ func TestAllDevices(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get devices without labels", "0", "10", "", "", "", false, 3, expectedDeviceTotalCount, http.StatusOK},
-		{"Valid - get devices with labels", "0", "5", strings.Join(testDeviceLabels, ","), "", "", false, 2, expectedDeviceTotalCount, http.StatusOK},
-		{"Valid - get devices with offset and no labels", "1", "2", "", "", "", false, 2, expectedDeviceTotalCount, http.StatusOK},
-		{"Invalid - offset out of range", "4", "1", strings.Join(testDeviceLabels, ","), "", "", true, 0, expectedDeviceTotalCount, http.StatusRequestedRangeNotSatisfiable},
-		{"Valid - get tree without labels", "0", "10", "", "foo", "4", false, 3, expectedDeviceTotalCount, http.StatusOK},
-		{"Valid - get tree with labels", "0", "10", strings.Join(testDeviceLabels, ","), "foo", "-1", false, 3, expectedDeviceTotalCount, http.StatusOK},
-		{"Invalid - maxLevels bad integer", "4", "1", strings.Join(testDeviceLabels, ","), "foo", "bar", true, 0, 0, http.StatusBadRequest},
+		{"Valid - get nodes without labels", "0", "10", "", "", "", false, 3, expectedNodeTotalCount, http.StatusOK},
+		{"Valid - get nodes with labels", "0", "5", strings.Join(testNodeLabels, ","), "", "", false, 2, expectedNodeTotalCount, http.StatusOK},
+		{"Valid - get nodes with offset and no labels", "1", "2", "", "", "", false, 2, expectedNodeTotalCount, http.StatusOK},
+		{"Invalid - offset out of range", "4", "1", strings.Join(testNodeLabels, ","), "", "", true, 0, expectedNodeTotalCount, http.StatusRequestedRangeNotSatisfiable},
+		{"Valid - get tree without labels", "0", "10", "", "foo", "4", false, 3, expectedNodeTotalCount, http.StatusOK},
+		{"Valid - get tree with labels", "0", "10", strings.Join(testNodeLabels, ","), "foo", "-1", false, 3, expectedNodeTotalCount, http.StatusOK},
+		{"Invalid - maxLevels bad integer", "4", "1", strings.Join(testNodeLabels, ","), "foo", "bar", true, 0, 0, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiAllDeviceRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiAllNodeRoute, http.NoBody)
 			query := req.URL.Query()
 			query.Add(common.Offset, testCase.offset)
 			query.Add(common.Limit, testCase.limit)
@@ -816,7 +816,7 @@ func TestAllDevices(t *testing.T) {
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			err = controller.AllDevices(c)
+			err = controller.AllNodes(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -829,13 +829,13 @@ func TestAllDevices(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.MultiDevicesResponse
+				var res responseDTO.MultiNodesResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Devices), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Nodes), "Node count not as expected")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
@@ -843,38 +843,38 @@ func TestAllDevices(t *testing.T) {
 	}
 }
 
-func TestDeviceByName(t *testing.T) {
-	device := dtos.ToDeviceModel(buildTestDeviceRequest().Device)
+func TestNodeByName(t *testing.T) {
+	node := dtos.ToNodeModel(buildTestNodeRequest().Node)
 	emptyName := ""
 	notFoundName := "notFoundName"
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceByName", device.Name).Return(device, nil)
-	dbClientMock.On("DeviceByName", notFoundName).Return(models.Device{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "device doesn't exist in the database", nil))
+	dbClientMock.On("NodeByName", node.Name).Return(node, nil)
+	dbClientMock.On("NodeByName", notFoundName).Return(models.Node{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "node doesn't exist in the database", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
 
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		errorExpected      bool
 		expectedStatusCode int
 	}{
-		{"Valid - find device by name", device.Name, false, http.StatusOK},
+		{"Valid - find node by name", node.Name, false, http.StatusOK},
 		{"Invalid - name parameter is empty", emptyName, true, http.StatusBadRequest},
-		{"Invalid - device not found by name", notFoundName, true, http.StatusNotFound},
+		{"Invalid - node not found by name", notFoundName, true, http.StatusNotFound},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			reqPath := fmt.Sprintf("%s/%s", common.ApiDeviceByNameRoute, testCase.deviceName)
+			reqPath := fmt.Sprintf("%s/%s", common.ApiNodeByNameRoute, testCase.nodeName)
 			req, err := http.NewRequest(http.MethodGet, reqPath, http.NoBody)
 			require.NoError(t, err)
 
@@ -882,9 +882,9 @@ func TestDeviceByName(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name)
-			c.SetParamValues(testCase.deviceName)
+			c.SetParamValues(testCase.nodeName)
 
-			err = controller.DeviceByName(c)
+			err = controller.NodeByName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -897,51 +897,51 @@ func TestDeviceByName(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.DeviceResponse
+				var res responseDTO.NodeResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.deviceName, res.Device.Name, "Name not as expected")
+				assert.Equal(t, testCase.nodeName, res.Node.Name, "Name not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
 		})
 	}
 }
 
-func TestDeviceById(t *testing.T) {
-	device := dtos.ToDeviceModel(buildTestDeviceRequest().Device)
+func TestNodeById(t *testing.T) {
+	node := dtos.ToNodeModel(buildTestNodeRequest().Node)
 	emptyId := ""
 	notFoundId := "00000000-0000-0000-0000-000000000000"
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceById", device.Id).Return(device, nil)
-	dbClientMock.On("DeviceById", notFoundId).Return(models.Device{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "device doesn't exist in the database", nil))
+	dbClientMock.On("NodeById", node.Id).Return(node, nil)
+	dbClientMock.On("NodeById", notFoundId).Return(models.Node{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "node doesn't exist in the database", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
 
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name               string
-		deviceId           string
+		nodeId             string
 		errorExpected      bool
 		expectedStatusCode int
 	}{
-		{"Valid - find device by id", device.Id, false, http.StatusOK},
+		{"Valid - find node by id", node.Id, false, http.StatusOK},
 		{"Invalid - id parameter is empty", emptyId, true, http.StatusBadRequest},
-		{"Invalid - device not found by id", notFoundId, true, http.StatusNotFound},
+		{"Invalid - node not found by id", notFoundId, true, http.StatusNotFound},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			reqPath := fmt.Sprintf("%s/%s/%s", common.ApiDeviceRoute, common.Id, testCase.deviceId)
+			reqPath := fmt.Sprintf("%s/%s/%s", common.ApiNodeRoute, common.Id, testCase.nodeId)
 			req, err := http.NewRequest(http.MethodGet, reqPath, http.NoBody)
 			require.NoError(t, err)
 
@@ -949,9 +949,9 @@ func TestDeviceById(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Id)
-			c.SetParamValues(testCase.deviceId)
+			c.SetParamValues(testCase.nodeId)
 
-			err = controller.DeviceById(c)
+			err = controller.NodeById(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -964,47 +964,47 @@ func TestDeviceById(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.DeviceResponse
+				var res responseDTO.NodeResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.deviceId, res.Device.Id, "Id not as expected")
+				assert.Equal(t, testCase.nodeId, res.Node.Id, "Id not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
 		})
 	}
 }
 
-func TestDevicesByProfileName(t *testing.T) {
-	device := dtos.ToDeviceModel(buildTestDeviceRequest().Device)
+func TestNodesByProfileName(t *testing.T) {
+	node := dtos.ToNodeModel(buildTestNodeRequest().Node)
 	testProfileA := "testProfileA"
 	testProfileB := "testServiceB"
-	device1WithProfileA := device
-	device1WithProfileA.ProfileName = testProfileA
-	device2WithProfileA := device
-	device2WithProfileA.ProfileName = testProfileA
-	device3WithProfileB := device
-	device3WithProfileB.ProfileName = testProfileB
+	node1WithProfileA := node
+	node1WithProfileA.ProfileName = testProfileA
+	node2WithProfileA := node
+	node2WithProfileA.ProfileName = testProfileA
+	node3WithProfileB := node
+	node3WithProfileB.ProfileName = testProfileB
 
-	devices := []models.Device{device1WithProfileA, device2WithProfileA, device3WithProfileB}
+	nodes := []models.Node{node1WithProfileA, node2WithProfileA, node3WithProfileB}
 	expectedTotalCountProfileA := int64(2)
 	expectedTotalCountProfileB := int64(1)
 
 	dic := mockDic()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("DeviceCountByProfileName", testProfileA).Return(expectedTotalCountProfileA, nil)
-	dbClientMock.On("DeviceCountByProfileName", testProfileB).Return(expectedTotalCountProfileB, nil)
-	dbClientMock.On("DevicesByProfileName", 0, 5, testProfileA).Return([]models.Device{devices[0], devices[1]}, nil)
-	dbClientMock.On("DevicesByProfileName", 1, 1, testProfileA).Return([]models.Device{devices[1]}, nil)
-	dbClientMock.On("DevicesByProfileName", 4, 1, testProfileB).Return([]models.Device{}, edgexErr.NewCommonEdgeX(edgexErr.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
+	dbClientMock.On("NodeCountByProfileName", testProfileA).Return(expectedTotalCountProfileA, nil)
+	dbClientMock.On("NodeCountByProfileName", testProfileB).Return(expectedTotalCountProfileB, nil)
+	dbClientMock.On("NodesByProfileName", 0, 5, testProfileA).Return([]models.Node{nodes[0], nodes[1]}, nil)
+	dbClientMock.On("NodesByProfileName", 1, 1, testProfileA).Return([]models.Node{nodes[1]}, nil)
+	dbClientMock.On("NodesByProfileName", 4, 1, testProfileB).Return([]models.Node{}, edgexErr.NewCommonEdgeX(edgexErr.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceController(dic)
+	controller := NewNodeController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
@@ -1017,15 +1017,15 @@ func TestDevicesByProfileName(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get devices with profileName", "0", "5", testProfileA, false, 2, expectedTotalCountProfileA, http.StatusOK},
-		{"Valid - get devices with offset and limit", "1", "1", testProfileA, false, 1, expectedTotalCountProfileA, http.StatusOK},
+		{"Valid - get nodes with profileName", "0", "5", testProfileA, false, 2, expectedTotalCountProfileA, http.StatusOK},
+		{"Valid - get nodes with offset and limit", "1", "1", testProfileA, false, 1, expectedTotalCountProfileA, http.StatusOK},
 		{"Invalid - offset out of range", "4", "1", testProfileB, true, 0, 0, http.StatusRequestedRangeNotSatisfiable},
-		{"Invalid - get devices without profileName", "0", "10", "", true, 0, 0, http.StatusBadRequest},
+		{"Invalid - get nodes without profileName", "0", "10", "", true, 0, 0, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiDeviceByProfileNameRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiNodeByProfileNameRoute, http.NoBody)
 			query := req.URL.Query()
 			query.Add(common.Offset, testCase.offset)
 			query.Add(common.Limit, testCase.limit)
@@ -1037,7 +1037,7 @@ func TestDevicesByProfileName(t *testing.T) {
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name)
 			c.SetParamValues(testCase.profileName)
-			err = controller.DevicesByProfileName(c)
+			err = controller.NodesByProfileName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -1050,13 +1050,13 @@ func TestDevicesByProfileName(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.MultiDevicesResponse
+				var res responseDTO.MultiNodesResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Devices), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Nodes), "Node count not as expected")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}

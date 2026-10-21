@@ -47,7 +47,7 @@ docker-compose up -d
 
 You can check the status of your running EdgeX services by going to http://localhost:8500/
 
-Now that you have EdgeX up and running, you can follow our [API Walkthrough](https://docs.edgexfoundry.org/2.1/walk-through/Ch-Walkthrough/) to learn how the different services work together to connect IoT devices to cloud services.
+Now that you have EdgeX up and running, you can follow our [API Walkthrough](https://docs.edgexfoundry.org/2.1/walk-through/Ch-Walkthrough/) to learn how the different services work together to connect IoT nodes to cloud services.
 
 ## Running EdgeX with security components
 
@@ -154,7 +154,7 @@ make run no-secty dev
 
 ## Versioning
 
-Please refer to the EdgeX Foundry [versioning policy](https://wiki.edgexfoundry.org/pages/viewpage.action?pageId=21823969) for information on how EdgeX services are released and how EdgeX services are compatible with one another.  Specifically, device services (and the associated SDK), application services (and the associated app functions SDK), and client tools (like the EdgeX CLI and UI) can have independent minor releases, but these services must be compatible with the latest major release of EdgeX.
+Please refer to the EdgeX Foundry [versioning policy](https://wiki.edgexfoundry.org/pages/viewpage.action?pageId=21823969) for information on how EdgeX services are released and how EdgeX services are compatible with one another.  Specifically, node services (and the associated SDK), application services (and the associated app functions SDK), and client tools (like the EdgeX CLI and UI) can have independent minor releases, but these services must be compatible with the latest major release of EdgeX.
 
 ## Long Term Support
 

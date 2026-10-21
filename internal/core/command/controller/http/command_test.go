@@ -38,14 +38,14 @@ const (
 	mockHost = "127.0.0.1"
 	mockPort = 66666
 
-	testProfileName       = "testProfile"
-	testResourceName      = "testResource"
-	testDeviceName        = "testDevice"
-	testSourceName        = "testSourceName"
-	testDeviceServiceName = "testDeviceService"
-	testCommandName       = "testCommand"
-	testBaseAddress       = "http://localhost:49990"
-	testQueryStrings      = "a=1&b=2&ds-pushevent=false"
+	testProfileName     = "testProfile"
+	testResourceName    = "testResource"
+	testNodeName        = "testNode"
+	testSourceName      = "testSourceName"
+	testNodeServiceName = "testNodeService"
+	testCommandName     = "testCommand"
+	testBaseAddress     = "http://localhost:49990"
+	testQueryStrings    = "a=1&b=2&ds-pushevent=false"
 )
 
 // NewMockDIC function returns a mock bootstrap di Container
@@ -77,88 +77,88 @@ func buildTestSettings() map[string]interface{} {
 	return settings
 }
 
-func buildDeviceCoreCommands(t *testing.T, device dtos.Device, deviceProfile dtos.DeviceProfile) dtos.DeviceCoreCommand {
-	dcMock := &mocks.DeviceClient{}
-	dpcMock := &mocks.DeviceProfileClient{}
-	dcMock.On("DeviceByName", context.Background(), device.Name).
-		Return(responseDTO.NewDeviceResponse("", "", http.StatusOK, device), nil)
-	dpcMock.On("DeviceProfileByName", context.Background(), deviceProfile.Name).
-		Return(responseDTO.NewDeviceProfileResponse("", "", http.StatusOK, deviceProfile), nil)
+func buildNodeCoreCommands(t *testing.T, node dtos.Node, profile dtos.Profile) dtos.NodeCoreCommand {
+	dcMock := &mocks.NodeClient{}
+	dpcMock := &mocks.ProfileClient{}
+	dcMock.On("NodeByName", context.Background(), node.Name).
+		Return(responseDTO.NewNodeResponse("", "", http.StatusOK, node), nil)
+	dpcMock.On("ProfileByName", context.Background(), profile.Name).
+		Return(responseDTO.NewProfileResponse("", "", http.StatusOK, profile), nil)
 	dic := NewMockDIC()
 	dic.Update(di.ServiceConstructorMap{
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dcMock
 		},
-		bootstrapContainer.DeviceProfileClientName: func(get di.Get) interface{} {
+		bootstrapContainer.ProfileClientName: func(get di.Get) interface{} {
 			return dpcMock
 		},
 	})
-	commands, err := application.CommandsByDeviceName(device.Name, dic)
+	commands, err := application.CommandsByNodeName(node.Name, dic)
 	require.NoError(t, err)
 	return commands
 }
 
-func buildDeviceResponse() responseDTO.DeviceResponse {
-	device := dtos.Device{
-		Name:        testDeviceName,
+func buildNodeResponse() responseDTO.NodeResponse {
+	node := dtos.Node{
+		Name:        testNodeName,
 		ProfileName: testProfileName,
-		ServiceName: testDeviceServiceName,
+		ServiceName: testNodeServiceName,
 	}
-	deviceResponse := responseDTO.DeviceResponse{
-		Device: device,
+	nodeResponse := responseDTO.NodeResponse{
+		Node: node,
 	}
-	return deviceResponse
+	return nodeResponse
 }
 
-func buildMultiDevicesResponse() responseDTO.MultiDevicesResponse {
-	devices := []dtos.Device{
-		{Name: testDeviceName + "1", ProfileName: testProfileName, ServiceName: testDeviceServiceName},
-		{Name: testDeviceName + "2", ProfileName: testProfileName, ServiceName: testDeviceServiceName},
+func buildMultiNodesResponse() responseDTO.MultiNodesResponse {
+	nodes := []dtos.Node{
+		{Name: testNodeName + "1", ProfileName: testProfileName, ServiceName: testNodeServiceName},
+		{Name: testNodeName + "2", ProfileName: testProfileName, ServiceName: testNodeServiceName},
 	}
-	return responseDTO.MultiDevicesResponse{
+	return responseDTO.MultiNodesResponse{
 		BaseWithTotalCountResponse: commonDTO.NewBaseWithTotalCountResponse("", "", http.StatusOK, int64(2)),
-		Devices:                    devices,
+		Nodes:                      nodes,
 	}
 }
 
-func buildDeviceCommands() []dtos.DeviceCommand {
-	c1 := dtos.DeviceCommand{
+func buildCommands() []dtos.Command {
+	c1 := dtos.Command{
 		Name:      "command1",
 		ReadWrite: common.ReadWrite_R,
 	}
-	c2 := dtos.DeviceCommand{
+	c2 := dtos.Command{
 		Name:      "command2",
 		ReadWrite: common.ReadWrite_R,
 	}
-	var commands []dtos.DeviceCommand
+	var commands []dtos.Command
 	commands = append(commands, c1, c2)
 	return commands
 }
 
-func buildDeviceProfileResponse() responseDTO.DeviceProfileResponse {
-	commands := buildDeviceCommands()
-	profile := dtos.DeviceProfile{
-		DeviceProfileBasicInfo: dtos.DeviceProfileBasicInfo{Name: testProfileName},
-		DeviceCommands:         commands,
+func buildProfileResponse() responseDTO.ProfileResponse {
+	commands := buildCommands()
+	profile := dtos.Profile{
+		ProfileBasicInfo: dtos.ProfileBasicInfo{Name: testProfileName},
+		Commands:         commands,
 	}
-	deviceResponse := responseDTO.DeviceProfileResponse{
+	nodeResponse := responseDTO.ProfileResponse{
 		Profile: profile,
 	}
-	return deviceResponse
+	return nodeResponse
 }
 
-func buildDeviceServiceResponse() responseDTO.DeviceServiceResponse {
-	service := dtos.DeviceService{
-		Name:        testDeviceServiceName,
+func buildNodeServiceResponse() responseDTO.NodeServiceResponse {
+	service := dtos.NodeService{
+		Name:        testNodeServiceName,
 		BaseAddress: testBaseAddress,
 	}
-	return responseDTO.DeviceServiceResponse{
+	return responseDTO.NodeServiceResponse{
 		Service: service,
 	}
 }
 
 func buildEvent() dtos.Event {
-	event := dtos.NewEvent(testProfileName, testDeviceName, testSourceName)
+	event := dtos.NewEvent(testProfileName, testNodeName, testSourceName)
 	_ = event.AddSimpleReading(testResourceName, common.ValueTypeUint16, uint16(45))
 	id, _ := uuid.NewUUID()
 	event.Id = id.String()
@@ -171,28 +171,28 @@ func buildEventResponse() responseDTO.EventResponse {
 }
 
 func TestAllCommands(t *testing.T) {
-	expectedMultiDevicesResponse := buildMultiDevicesResponse()
-	expectedDeviceProfileResponse := buildDeviceProfileResponse()
-	deviceCoreCommand1 := buildDeviceCoreCommands(t, expectedMultiDevicesResponse.Devices[0], expectedDeviceProfileResponse.Profile)
-	deviceCoreCommand2 := buildDeviceCoreCommands(t, expectedMultiDevicesResponse.Devices[1], expectedDeviceProfileResponse.Profile)
-	expectedMultiDeviceCoreCommandsResponse := responseDTO.MultiDeviceCoreCommandsResponse{
-		DeviceCoreCommands: []dtos.DeviceCoreCommand{deviceCoreCommand1, deviceCoreCommand2},
+	expectedMultiNodesResponse := buildMultiNodesResponse()
+	expectedProfileResponse := buildProfileResponse()
+	nodeCoreCommand1 := buildNodeCoreCommands(t, expectedMultiNodesResponse.Nodes[0], expectedProfileResponse.Profile)
+	nodeCoreCommand2 := buildNodeCoreCommands(t, expectedMultiNodesResponse.Nodes[1], expectedProfileResponse.Profile)
+	expectedMultiNodeCoreCommandsResponse := responseDTO.MultiNodeCoreCommandsResponse{
+		NodeCoreCommands: []dtos.NodeCoreCommand{nodeCoreCommand1, nodeCoreCommand2},
 	}
 
-	dcMock := &mocks.DeviceClient{}
-	dcMock.On("AllDevices", context.Background(), []string(nil), 0, 20).Return(expectedMultiDevicesResponse, nil)
-	dcMock.On("AllDevices", context.Background(), []string(nil), 0, 2).Return(expectedMultiDevicesResponse, nil)
-	dcMock.On("AllDevices", context.Background(), []string(nil), 3, 10).Return(responseDTO.MultiDevicesResponse{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "bounds out of range", nil))
+	dcMock := &mocks.NodeClient{}
+	dcMock.On("AllNodes", context.Background(), []string(nil), 0, 20).Return(expectedMultiNodesResponse, nil)
+	dcMock.On("AllNodes", context.Background(), []string(nil), 0, 2).Return(expectedMultiNodesResponse, nil)
+	dcMock.On("AllNodes", context.Background(), []string(nil), 3, 10).Return(responseDTO.MultiNodesResponse{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "bounds out of range", nil))
 
-	dpcMock := &mocks.DeviceProfileClient{}
-	dpcMock.On("DeviceProfileByName", context.Background(), testProfileName).Return(expectedDeviceProfileResponse, nil)
+	dpcMock := &mocks.ProfileClient{}
+	dpcMock.On("ProfileByName", context.Background(), testProfileName).Return(expectedProfileResponse, nil)
 
 	dic := NewMockDIC()
 	dic.Update(di.ServiceConstructorMap{
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dcMock
 		},
-		bootstrapContainer.DeviceProfileClientName: func(get di.Get) interface{} {
+		bootstrapContainer.ProfileClientName: func(get di.Get) interface{} {
 			return dpcMock
 		},
 	})
@@ -208,8 +208,8 @@ func TestAllCommands(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get commands without offset and limit", "", "", false, len(expectedMultiDeviceCoreCommandsResponse.DeviceCoreCommands), expectedMultiDevicesResponse.TotalCount, http.StatusOK},
-		{"Valid - get commands with offset and limit", "0", "2", false, len(expectedMultiDeviceCoreCommandsResponse.DeviceCoreCommands), expectedMultiDevicesResponse.TotalCount, http.StatusOK},
+		{"Valid - get commands without offset and limit", "", "", false, len(expectedMultiNodeCoreCommandsResponse.NodeCoreCommands), expectedMultiNodesResponse.TotalCount, http.StatusOK},
+		{"Valid - get commands with offset and limit", "0", "2", false, len(expectedMultiNodeCoreCommandsResponse.NodeCoreCommands), expectedMultiNodesResponse.TotalCount, http.StatusOK},
 		{"Invalid - bounds out of range", "3", "10", true, 0, 0, http.StatusRequestedRangeNotSatisfiable},
 		{"Invalid - invalid offset format", "aaa", "10", true, 0, 0, http.StatusBadRequest},
 		{"Invalid - invalid limit format", "0", "aaa", true, 0, 0, http.StatusBadRequest},
@@ -217,7 +217,7 @@ func TestAllCommands(t *testing.T) {
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiAllDeviceRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiAllNodeRoute, http.NoBody)
 			query := req.URL.Query()
 			if testCase.offset != "" {
 				query.Add(common.Offset, testCase.offset)
@@ -245,13 +245,13 @@ func TestAllCommands(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.MultiDeviceCoreCommandsResponse
+				var res responseDTO.MultiNodeCoreCommandsResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.DeviceCoreCommands), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.NodeCoreCommands), "Node count not as expected")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
@@ -259,26 +259,26 @@ func TestAllCommands(t *testing.T) {
 	}
 }
 
-func TestCommandsByDeviceName(t *testing.T) {
-	var nonExistDeviceName = "nonExistDevice"
+func TestCommandsByNodeName(t *testing.T) {
+	var nonExistNodeName = "nonExistNode"
 
-	expectedDeviceResponse := buildDeviceResponse()
-	expectedDeviceProfileResponse := buildDeviceProfileResponse()
-	expectedDeviceCoreCommand := buildDeviceCoreCommands(t, expectedDeviceResponse.Device, expectedDeviceProfileResponse.Profile)
+	expectedNodeResponse := buildNodeResponse()
+	expectedProfileResponse := buildProfileResponse()
+	expectedNodeCoreCommand := buildNodeCoreCommands(t, expectedNodeResponse.Node, expectedProfileResponse.Profile)
 
-	dcMock := &mocks.DeviceClient{}
-	dcMock.On("DeviceByName", context.Background(), testDeviceName).Return(expectedDeviceResponse, nil)
-	dcMock.On("DeviceByName", context.Background(), nonExistDeviceName).Return(responseDTO.DeviceResponse{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "fail to query device by name", nil))
+	dcMock := &mocks.NodeClient{}
+	dcMock.On("NodeByName", context.Background(), testNodeName).Return(expectedNodeResponse, nil)
+	dcMock.On("NodeByName", context.Background(), nonExistNodeName).Return(responseDTO.NodeResponse{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "fail to query node by name", nil))
 
-	dpcMock := &mocks.DeviceProfileClient{}
-	dpcMock.On("DeviceProfileByName", context.Background(), testProfileName).Return(expectedDeviceProfileResponse, nil)
+	dpcMock := &mocks.ProfileClient{}
+	dpcMock.On("ProfileByName", context.Background(), testProfileName).Return(expectedProfileResponse, nil)
 
 	dic := NewMockDIC()
 	dic.Update(di.ServiceConstructorMap{
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dcMock
 		},
-		bootstrapContainer.DeviceProfileClientName: func(get di.Get) interface{} {
+		bootstrapContainer.ProfileClientName: func(get di.Get) interface{} {
 			return dpcMock
 		},
 	})
@@ -287,19 +287,19 @@ func TestCommandsByDeviceName(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		errorExpected      bool
 		expectedCount      int
 		expectedStatusCode int
 	}{
-		{"Valid - get coreCommands with deviceName", testDeviceName, false, len(expectedDeviceCoreCommand.CoreCommands), http.StatusOK},
-		{"Invalid - get coreCommands with empty deviceName", "", true, 0, http.StatusBadRequest},
-		{"Invalid - get coreCommands with non exist deviceName", nonExistDeviceName, true, 0, http.StatusNotFound},
+		{"Valid - get coreCommands with nodeName", testNodeName, false, len(expectedNodeCoreCommand.CoreCommands), http.StatusOK},
+		{"Invalid - get coreCommands with empty nodeName", "", true, 0, http.StatusBadRequest},
+		{"Invalid - get coreCommands with non exist nodeName", nonExistNodeName, true, 0, http.StatusNotFound},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req := httptest.NewRequest("GET", "/api/v3/device/name/:name", nil)
+			req := httptest.NewRequest("GET", "/api/v3/node/name/:name", nil)
 
 			// Act
 			recorder := httptest.NewRecorder()
@@ -307,8 +307,8 @@ func TestCommandsByDeviceName(t *testing.T) {
 
 			// Set url path params
 			c.SetParamNames(common.Name)
-			c.SetParamValues(testCase.deviceName)
-			handler := echo.HandlerFunc(cc.CommandsByDeviceName)
+			c.SetParamValues(testCase.nodeName)
+			handler := echo.HandlerFunc(cc.CommandsByNodeName)
 			err := handler(c)
 			assert.NoError(t, err)
 
@@ -322,13 +322,13 @@ func TestCommandsByDeviceName(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.DeviceCoreCommandResponse
+				var res responseDTO.NodeCoreCommandResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.DeviceCoreCommand.CoreCommands), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.NodeCoreCommand.CoreCommands), "Node count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 			}
 		})
@@ -339,30 +339,30 @@ func TestIssueGetCommand(t *testing.T) {
 	var nonExistName = "nonExist"
 
 	expectedEventResponse := buildEventResponse()
-	expectedDeviceResponse := buildDeviceResponse()
-	expectedDeviceServiceResponse := buildDeviceServiceResponse()
+	expectedNodeResponse := buildNodeResponse()
+	expectedNodeServiceResponse := buildNodeServiceResponse()
 
-	dcMock := &mocks.DeviceClient{}
-	dcMock.On("DeviceByName", context.Background(), testDeviceName).Return(expectedDeviceResponse, nil)
-	dcMock.On("DeviceByName", context.Background(), nonExistName).Return(responseDTO.DeviceResponse{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "fail to query device by name", nil))
+	dcMock := &mocks.NodeClient{}
+	dcMock.On("NodeByName", context.Background(), testNodeName).Return(expectedNodeResponse, nil)
+	dcMock.On("NodeByName", context.Background(), nonExistName).Return(responseDTO.NodeResponse{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "fail to query node by name", nil))
 
-	dscMock := &mocks.DeviceServiceClient{}
-	dscMock.On("DeviceServiceByName", context.Background(), testDeviceServiceName).Return(expectedDeviceServiceResponse, nil)
+	dscMock := &mocks.NodeServiceClient{}
+	dscMock.On("NodeServiceByName", context.Background(), testNodeServiceName).Return(expectedNodeServiceResponse, nil)
 
-	dsccMock := &mocks.DeviceServiceCommandClient{}
-	dsccMock.On("GetCommand", context.Background(), testBaseAddress, testDeviceName, testCommandName, testQueryStrings).Return(&expectedEventResponse, nil)
-	dsccMock.On("GetCommand", context.Background(), testBaseAddress, testDeviceName, testCommandName, "").Return(&expectedEventResponse, nil)
-	dsccMock.On("GetCommand", context.Background(), testBaseAddress, testDeviceName, nonExistName, testQueryStrings).Return(&responseDTO.EventResponse{}, errors.NewCommonEdgeX(errors.KindContractInvalid, "fail to query device service by name", nil))
+	dsccMock := &mocks.NodeServiceCommandClient{}
+	dsccMock.On("GetCommand", context.Background(), testBaseAddress, testNodeName, testCommandName, testQueryStrings).Return(&expectedEventResponse, nil)
+	dsccMock.On("GetCommand", context.Background(), testBaseAddress, testNodeName, testCommandName, "").Return(&expectedEventResponse, nil)
+	dsccMock.On("GetCommand", context.Background(), testBaseAddress, testNodeName, nonExistName, testQueryStrings).Return(&responseDTO.EventResponse{}, errors.NewCommonEdgeX(errors.KindContractInvalid, "fail to query node service by name", nil))
 
 	dic := NewMockDIC()
 	dic.Update(di.ServiceConstructorMap{
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dcMock
 		},
-		bootstrapContainer.DeviceServiceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeServiceClientName: func(get di.Get) interface{} {
 			return dscMock
 		},
-		bootstrapContainer.DeviceServiceCommandClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeServiceCommandClientName: func(get di.Get) interface{} {
 			return dsccMock
 		},
 	})
@@ -371,25 +371,25 @@ func TestIssueGetCommand(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		commandName        string
 		queryStrings       string
 		errorExpected      bool
 		expectedStatusCode int
 	}{
-		{"Valid - execute read command with valid deviceName, commandName, and query strings", testDeviceName, testCommandName, testQueryStrings, false, http.StatusOK},
-		{"Valid - empty query strings", testDeviceName, testCommandName, "", false, http.StatusOK},
-		{"Invalid - execute read command with invalid deviceName", nonExistName, testCommandName, testQueryStrings, true, http.StatusNotFound},
-		{"Invalid - execute read command with invalid commandName", testDeviceName, nonExistName, testQueryStrings, true, http.StatusBadRequest},
-		{"Invalid - empty device name", "", nonExistName, testQueryStrings, true, http.StatusBadRequest},
-		{"Invalid - empty command name", testDeviceName, "", testQueryStrings, true, http.StatusBadRequest},
-		{"Invalid - invalid ds-pushevent paramter", testDeviceName, "", "ds-pushevent=123", true, http.StatusBadRequest},
-		{"Invalid - invalid ds-returnevent paramter", testDeviceName, "", "ds-returnevent=123", true, http.StatusBadRequest},
+		{"Valid - execute read command with valid nodeName, commandName, and query strings", testNodeName, testCommandName, testQueryStrings, false, http.StatusOK},
+		{"Valid - empty query strings", testNodeName, testCommandName, "", false, http.StatusOK},
+		{"Invalid - execute read command with invalid nodeName", nonExistName, testCommandName, testQueryStrings, true, http.StatusNotFound},
+		{"Invalid - execute read command with invalid commandName", testNodeName, nonExistName, testQueryStrings, true, http.StatusBadRequest},
+		{"Invalid - empty node name", "", nonExistName, testQueryStrings, true, http.StatusBadRequest},
+		{"Invalid - empty command name", testNodeName, "", testQueryStrings, true, http.StatusBadRequest},
+		{"Invalid - invalid ds-pushevent paramter", testNodeName, "", "ds-pushevent=123", true, http.StatusBadRequest},
+		{"Invalid - invalid ds-returnevent paramter", testNodeName, "", "ds-returnevent=123", true, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/v3/device/name/:name/:command", http.NoBody)
+			req := httptest.NewRequest(http.MethodGet, "/api/v3/node/name/:name/:command", http.NoBody)
 			req.URL.RawQuery = testCase.queryStrings
 
 			// Act
@@ -399,7 +399,7 @@ func TestIssueGetCommand(t *testing.T) {
 
 			// Set url path params
 			c.SetParamNames(common.Name, common.Command)
-			c.SetParamValues(testCase.deviceName, testCase.commandName)
+			c.SetParamValues(testCase.nodeName, testCase.commandName)
 			err := handler(c)
 			assert.NoError(t, err)
 
@@ -429,33 +429,33 @@ func TestIssueSetCommand(t *testing.T) {
 	var nonExistName = "nonExist"
 
 	expectedBaseResponse := commonDTO.NewBaseResponse("", "", http.StatusOK)
-	expectedDeviceResponse := buildDeviceResponse()
-	expectedDeviceServiceResponse := buildDeviceServiceResponse()
+	expectedNodeResponse := buildNodeResponse()
+	expectedNodeServiceResponse := buildNodeServiceResponse()
 
-	dcMock := &mocks.DeviceClient{}
-	dcMock.On("DeviceByName", context.Background(), testDeviceName).Return(expectedDeviceResponse, nil)
-	dcMock.On("DeviceByName", context.Background(), nonExistName).Return(responseDTO.DeviceResponse{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "fail to query device by name", nil))
+	dcMock := &mocks.NodeClient{}
+	dcMock.On("NodeByName", context.Background(), testNodeName).Return(expectedNodeResponse, nil)
+	dcMock.On("NodeByName", context.Background(), nonExistName).Return(responseDTO.NodeResponse{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "fail to query node by name", nil))
 
-	dscMock := &mocks.DeviceServiceClient{}
-	dscMock.On("DeviceServiceByName", context.Background(), testDeviceServiceName).Return(expectedDeviceServiceResponse, nil)
+	dscMock := &mocks.NodeServiceClient{}
+	dscMock.On("NodeServiceByName", context.Background(), testNodeServiceName).Return(expectedNodeServiceResponse, nil)
 
 	testSettings := buildTestSettings()
 	testSettingsJsonStr, _ := json.Marshal(testSettings)
-	dsccMock := &mocks.DeviceServiceCommandClient{}
-	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testDeviceName, testCommandName, testQueryStrings, testSettings).Return(expectedBaseResponse, nil)
-	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testDeviceName, testCommandName, "", testSettings).Return(expectedBaseResponse, nil)
-	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testDeviceName, testCommandName, testQueryStrings, "").Return(commonDTO.BaseResponse{}, errors.NewCommonEdgeX(errors.KindServerError, "no request body provided for PUT command", nil))
-	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testDeviceName, nonExistName, testQueryStrings, testSettings).Return(commonDTO.BaseResponse{}, errors.NewCommonEdgeX(errors.KindContractInvalid, "no corresponding PUT command", nil))
+	dsccMock := &mocks.NodeServiceCommandClient{}
+	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testNodeName, testCommandName, testQueryStrings, testSettings).Return(expectedBaseResponse, nil)
+	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testNodeName, testCommandName, "", testSettings).Return(expectedBaseResponse, nil)
+	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testNodeName, testCommandName, testQueryStrings, "").Return(commonDTO.BaseResponse{}, errors.NewCommonEdgeX(errors.KindServerError, "no request body provided for PUT command", nil))
+	dsccMock.On("SetCommandWithObject", context.Background(), testBaseAddress, testNodeName, nonExistName, testQueryStrings, testSettings).Return(commonDTO.BaseResponse{}, errors.NewCommonEdgeX(errors.KindContractInvalid, "no corresponding PUT command", nil))
 
 	dic := NewMockDIC()
 	dic.Update(di.ServiceConstructorMap{
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dcMock
 		},
-		bootstrapContainer.DeviceServiceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeServiceClientName: func(get di.Get) interface{} {
 			return dscMock
 		},
-		bootstrapContainer.DeviceServiceCommandClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeServiceCommandClientName: func(get di.Get) interface{} {
 			return dsccMock
 		},
 	})
@@ -464,25 +464,25 @@ func TestIssueSetCommand(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		commandName        string
 		queryStrings       string
 		settings           []byte
 		errorExpected      bool
 		expectedStatusCode int
 	}{
-		{"Valid - execute set command with valid deviceName, commandName, query strings, and settings", testDeviceName, testCommandName, testQueryStrings, testSettingsJsonStr, false, http.StatusOK},
-		{"Valid - empty query strings", testDeviceName, testCommandName, "", testSettingsJsonStr, false, http.StatusOK},
-		{"Invalid - execute set command with invalid deviceName", nonExistName, testCommandName, testQueryStrings, testSettingsJsonStr, true, http.StatusNotFound},
-		{"Invalid - execute set command with invalid commandName", testDeviceName, nonExistName, testQueryStrings, testSettingsJsonStr, true, http.StatusBadRequest},
-		{"Invalid - empty device name", "", testCommandName, testQueryStrings, testSettingsJsonStr, true, http.StatusBadRequest},
-		{"Invalid - empty command name", testDeviceName, "", testQueryStrings, testSettingsJsonStr, true, http.StatusBadRequest},
-		{"Invalid - empty settings", testDeviceName, testCommandName, testQueryStrings, []byte{}, true, http.StatusBadRequest},
+		{"Valid - execute set command with valid nodeName, commandName, query strings, and settings", testNodeName, testCommandName, testQueryStrings, testSettingsJsonStr, false, http.StatusOK},
+		{"Valid - empty query strings", testNodeName, testCommandName, "", testSettingsJsonStr, false, http.StatusOK},
+		{"Invalid - execute set command with invalid nodeName", nonExistName, testCommandName, testQueryStrings, testSettingsJsonStr, true, http.StatusNotFound},
+		{"Invalid - execute set command with invalid commandName", testNodeName, nonExistName, testQueryStrings, testSettingsJsonStr, true, http.StatusBadRequest},
+		{"Invalid - empty node name", "", testCommandName, testQueryStrings, testSettingsJsonStr, true, http.StatusBadRequest},
+		{"Invalid - empty command name", testNodeName, "", testQueryStrings, testSettingsJsonStr, true, http.StatusBadRequest},
+		{"Invalid - empty settings", testNodeName, testCommandName, testQueryStrings, []byte{}, true, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodPut, "/api/v3/device/name/:name/:command", bytes.NewBuffer(testCase.settings))
+			req := httptest.NewRequest(http.MethodPut, "/api/v3/node/name/:name/:command", bytes.NewBuffer(testCase.settings))
 			req.URL.RawQuery = testCase.queryStrings
 
 			// Act
@@ -492,7 +492,7 @@ func TestIssueSetCommand(t *testing.T) {
 
 			// Set url path params
 			c.SetParamNames(common.Name, common.Command)
-			c.SetParamValues(testCase.deviceName, testCase.commandName)
+			c.SetParamValues(testCase.nodeName, testCase.commandName)
 
 			err := handler(c)
 			assert.NoError(t, err)

@@ -51,8 +51,8 @@ func (mc *MappingController) Delete(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (mc *MappingController) DeleteByNorthDeviceName(c echo.Context) error {
-	if err := application.DeleteByNorthDeviceName(c.Request().Context(), c.Param("northDeviceName"), mc.dic); err != nil {
+func (mc *MappingController) DeleteByNorthNodeName(c echo.Context) error {
+	if err := application.DeleteByNorthNodeName(c.Request().Context(), c.Param("northNodeName"), mc.dic); err != nil {
 		return writeError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -65,8 +65,8 @@ func (mc *MappingController) DeleteByNorthProfileName(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (mc *MappingController) DeleteBySouthDeviceName(c echo.Context) error {
-	if err := application.DeleteBySouthDeviceName(c.Request().Context(), c.Param("southDeviceName"), mc.dic); err != nil {
+func (mc *MappingController) DeleteBySouthNodeName(c echo.Context) error {
+	if err := application.DeleteBySouthNodeName(c.Request().Context(), c.Param("southNodeName"), mc.dic); err != nil {
 		return writeError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -81,7 +81,7 @@ func (mc *MappingController) DeleteBySouthProfileName(c echo.Context) error {
 
 func (mc *MappingController) Forward(c echo.Context) error {
 	point := model.NorthPoint{
-		NorthDeviceName: c.QueryParam("northDeviceName"), NorthProfileName: c.QueryParam("northProfileName"),
+		NorthNodeName: c.QueryParam("northNodeName"), NorthProfileName: c.QueryParam("northProfileName"),
 		NorthResourceName: c.QueryParam("northResourceName"),
 	}
 	mapping, err := application.Forward(c.Request().Context(), point, mc.dic)
@@ -93,7 +93,7 @@ func (mc *MappingController) Forward(c echo.Context) error {
 
 func (mc *MappingController) Reverse(c echo.Context) error {
 	point := model.SouthPoint{
-		SouthDeviceName: c.QueryParam("southDeviceName"), SouthProfileName: c.QueryParam("southProfileName"),
+		SouthNodeName: c.QueryParam("southNodeName"), SouthProfileName: c.QueryParam("southProfileName"),
 		SouthResourceName: c.QueryParam("southResourceName"),
 	}
 	mapping, err := application.Reverse(c.Request().Context(), point, mc.dic)
@@ -115,12 +115,12 @@ func (mc *MappingController) Batch(c echo.Context) error {
 	return c.JSON(http.StatusOK, mappings)
 }
 
-func (mc *MappingController) ByNorthDeviceName(c echo.Context) error {
+func (mc *MappingController) ByNorthNodeName(c echo.Context) error {
 	offset, limit, err := pagination(c)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{err.Error()})
 	}
-	mappings, total, err := application.ByNorthDeviceName(c.Request().Context(), c.Param("northDeviceName"), offset, limit, mc.dic)
+	mappings, total, err := application.ByNorthNodeName(c.Request().Context(), c.Param("northNodeName"), offset, limit, mc.dic)
 	if err != nil {
 		return writeError(c, err)
 	}
@@ -139,12 +139,12 @@ func (mc *MappingController) ByNorthProfileName(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{"totalCount": total, "mappings": mappings})
 }
 
-func (mc *MappingController) BySouthDeviceName(c echo.Context) error {
+func (mc *MappingController) BySouthNodeName(c echo.Context) error {
 	offset, limit, err := pagination(c)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{err.Error()})
 	}
-	mappings, total, err := application.BySouthDeviceName(c.Request().Context(), c.Param("southDeviceName"), offset, limit, mc.dic)
+	mappings, total, err := application.BySouthNodeName(c.Request().Context(), c.Param("southNodeName"), offset, limit, mc.dic)
 	if err != nil {
 		return writeError(c, err)
 	}

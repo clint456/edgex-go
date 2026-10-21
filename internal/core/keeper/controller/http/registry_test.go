@@ -352,6 +352,6 @@ func TestRegistryController_Registrations(t *testing.T) {
 	assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode, "HTTP status code not as expected")
 	assert.Equal(t, int64(1), res.TotalCount, "Total count not as expected")
-	assert.Equal(t, 1, len(res.Registrations), "Device count not as expected")
+	assert.Equal(t, 1, len(res.Registrations), "Node count not as expected")
 	assert.Empty(t, res.Message, "Message should be empty when it is successful")
 }

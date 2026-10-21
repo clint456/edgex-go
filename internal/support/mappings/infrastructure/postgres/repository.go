@@ -14,8 +14,8 @@ import (
 
 const (
 	table   = "support_mappings.mapping"
-	columns = `id, north_device_name, north_profile_name, north_resource_name,
-		south_device_name, south_profile_name, south_resource_name, metadata, created, modified`
+	columns = `id, north_node_name, north_profile_name, north_resource_name,
+		south_node_name, south_profile_name, south_resource_name, metadata, created, modified`
 )
 
 type Repository struct{ pool *pgxpool.Pool }
@@ -37,17 +37,17 @@ func (r *Repository) Update(ctx context.Context, m model.Mapping) (model.Mapping
 	if err != nil {
 		return model.Mapping{}, err
 	}
-	query := `UPDATE ` + table + ` SET north_device_name=$2, north_profile_name=$3, north_resource_name=$4,
-	south_device_name=$5, south_profile_name=$6, south_resource_name=$7, metadata=$8, modified=$9
+	query := `UPDATE ` + table + ` SET north_node_name=$2, north_profile_name=$3, north_resource_name=$4,
+	south_node_name=$5, south_profile_name=$6, south_resource_name=$7, metadata=$8, modified=$9
 WHERE id=$1 RETURNING ` + columns
-	args := []any{m.ID, m.NorthPoint.NorthDeviceName, m.NorthPoint.NorthProfileName, m.NorthPoint.NorthResourceName,
-		m.SouthPoint.SouthDeviceName, m.SouthPoint.SouthProfileName, m.SouthPoint.SouthResourceName, metadata, m.Modified}
+	args := []any{m.ID, m.NorthPoint.NorthNodeName, m.NorthPoint.NorthProfileName, m.NorthPoint.NorthResourceName,
+		m.SouthPoint.SouthNodeName, m.SouthPoint.SouthProfileName, m.SouthPoint.SouthResourceName, metadata, m.Modified}
 	return scan(r.pool.QueryRow(ctx, query, args...))
 }
 
 func values(m model.Mapping, metadata []byte) []any {
-	return []any{m.ID, m.NorthPoint.NorthDeviceName, m.NorthPoint.NorthProfileName, m.NorthPoint.NorthResourceName,
-		m.SouthPoint.SouthDeviceName, m.SouthPoint.SouthProfileName, m.SouthPoint.SouthResourceName, metadata, m.Created, m.Modified}
+	return []any{m.ID, m.NorthPoint.NorthNodeName, m.NorthPoint.NorthProfileName, m.NorthPoint.NorthResourceName,
+		m.SouthPoint.SouthNodeName, m.SouthPoint.SouthProfileName, m.SouthPoint.SouthResourceName, metadata, m.Created, m.Modified}
 }
 
 func (r *Repository) Delete(ctx context.Context, id string) error {
@@ -66,32 +66,32 @@ func (r *Repository) ByID(ctx context.Context, id string) (model.Mapping, error)
 }
 
 func (r *Repository) ByNorthPoint(ctx context.Context, point model.NorthPoint) (model.Mapping, error) {
-	query := `SELECT ` + columns + ` FROM ` + table + ` WHERE north_device_name=$1 AND north_profile_name=$2 AND north_resource_name=$3`
-	return scan(r.pool.QueryRow(ctx, query, point.NorthDeviceName, point.NorthProfileName, point.NorthResourceName))
+	query := `SELECT ` + columns + ` FROM ` + table + ` WHERE north_node_name=$1 AND north_profile_name=$2 AND north_resource_name=$3`
+	return scan(r.pool.QueryRow(ctx, query, point.NorthNodeName, point.NorthProfileName, point.NorthResourceName))
 }
 
 func (r *Repository) BySouthPoint(ctx context.Context, point model.SouthPoint) (model.Mapping, error) {
-	query := `SELECT ` + columns + ` FROM ` + table + ` WHERE south_device_name=$1 AND south_profile_name=$2 AND south_resource_name=$3`
-	return scan(r.pool.QueryRow(ctx, query, point.SouthDeviceName, point.SouthProfileName, point.SouthResourceName))
+	query := `SELECT ` + columns + ` FROM ` + table + ` WHERE south_node_name=$1 AND south_profile_name=$2 AND south_resource_name=$3`
+	return scan(r.pool.QueryRow(ctx, query, point.SouthNodeName, point.SouthProfileName, point.SouthResourceName))
 }
 
 func (r *Repository) ByNorthPoints(ctx context.Context, points []model.NorthPoint) ([]model.Mapping, error) {
 	values := make([][3]string, 0, len(points))
 	for _, point := range points {
-		values = append(values, [3]string{point.NorthDeviceName, point.NorthProfileName, point.NorthResourceName})
+		values = append(values, [3]string{point.NorthNodeName, point.NorthProfileName, point.NorthResourceName})
 	}
-	return r.byPoints(ctx, "north_device_name", "north_profile_name", "north_resource_name", values)
+	return r.byPoints(ctx, "north_node_name", "north_profile_name", "north_resource_name", values)
 }
 
 func (r *Repository) BySouthPoints(ctx context.Context, points []model.SouthPoint) ([]model.Mapping, error) {
 	values := make([][3]string, 0, len(points))
 	for _, point := range points {
-		values = append(values, [3]string{point.SouthDeviceName, point.SouthProfileName, point.SouthResourceName})
+		values = append(values, [3]string{point.SouthNodeName, point.SouthProfileName, point.SouthResourceName})
 	}
-	return r.byPoints(ctx, "south_device_name", "south_profile_name", "south_resource_name", values)
+	return r.byPoints(ctx, "south_node_name", "south_profile_name", "south_resource_name", values)
 }
 
-func (r *Repository) byPoints(ctx context.Context, deviceColumn, profileColumn, resourceColumn string, points [][3]string) ([]model.Mapping, error) {
+func (r *Repository) byPoints(ctx context.Context, nodeColumn, profileColumn, resourceColumn string, points [][3]string) ([]model.Mapping, error) {
 	if len(points) == 0 {
 		return []model.Mapping{}, nil
 	}
@@ -99,23 +99,23 @@ func (r *Repository) byPoints(ctx context.Context, deviceColumn, profileColumn, 
 	predicates := make([]string, 0, len(points))
 	for i, point := range points {
 		base := i*3 + 1
-		predicates = append(predicates, fmt.Sprintf("(%s=$%d AND %s=$%d AND %s=$%d)", deviceColumn, base, profileColumn, base+1, resourceColumn, base+2))
+		predicates = append(predicates, fmt.Sprintf("(%s=$%d AND %s=$%d AND %s=$%d)", nodeColumn, base, profileColumn, base+1, resourceColumn, base+2))
 		args = append(args, point[0], point[1], point[2])
 	}
-	query := `SELECT ` + columns + ` FROM ` + table + ` WHERE ` + strings.Join(predicates, " OR ") + ` ORDER BY north_device_name, north_profile_name, north_resource_name`
+	query := `SELECT ` + columns + ` FROM ` + table + ` WHERE ` + strings.Join(predicates, " OR ") + ` ORDER BY north_node_name, north_profile_name, north_resource_name`
 	return queryMappings(ctx, r.pool, query, args...)
 }
 
-func (r *Repository) ByNorthDeviceName(ctx context.Context, name string, offset, limit int) ([]model.Mapping, int64, error) {
-	return r.byName(ctx, "north_device_name", name, offset, limit)
+func (r *Repository) ByNorthNodeName(ctx context.Context, name string, offset, limit int) ([]model.Mapping, int64, error) {
+	return r.byName(ctx, "north_node_name", name, offset, limit)
 }
 
 func (r *Repository) ByNorthProfileName(ctx context.Context, name string, offset, limit int) ([]model.Mapping, int64, error) {
 	return r.byName(ctx, "north_profile_name", name, offset, limit)
 }
 
-func (r *Repository) BySouthDeviceName(ctx context.Context, name string, offset, limit int) ([]model.Mapping, int64, error) {
-	return r.byName(ctx, "south_device_name", name, offset, limit)
+func (r *Repository) BySouthNodeName(ctx context.Context, name string, offset, limit int) ([]model.Mapping, int64, error) {
+	return r.byName(ctx, "south_node_name", name, offset, limit)
 }
 
 func (r *Repository) BySouthProfileName(ctx context.Context, name string, offset, limit int) ([]model.Mapping, int64, error) {
@@ -128,21 +128,21 @@ func (r *Repository) byName(ctx context.Context, column, name string, offset, li
 	if err := r.pool.QueryRow(ctx, countQuery, name).Scan(&count); err != nil {
 		return nil, 0, err
 	}
-	query := fmt.Sprintf(`SELECT %s FROM %s WHERE %s=$1 ORDER BY north_device_name, north_profile_name, north_resource_name OFFSET $2 LIMIT $3`, columns, table, column)
+	query := fmt.Sprintf(`SELECT %s FROM %s WHERE %s=$1 ORDER BY north_node_name, north_profile_name, north_resource_name OFFSET $2 LIMIT $3`, columns, table, column)
 	result, err := queryMappings(ctx, r.pool, query, name, offset, limit)
 	return result, count, err
 }
 
-func (r *Repository) DeleteByNorthDeviceName(ctx context.Context, name string) ([]model.Mapping, error) {
-	return r.deleteByName(ctx, "north_device_name", name)
+func (r *Repository) DeleteByNorthNodeName(ctx context.Context, name string) ([]model.Mapping, error) {
+	return r.deleteByName(ctx, "north_node_name", name)
 }
 
 func (r *Repository) DeleteByNorthProfileName(ctx context.Context, name string) ([]model.Mapping, error) {
 	return r.deleteByName(ctx, "north_profile_name", name)
 }
 
-func (r *Repository) DeleteBySouthDeviceName(ctx context.Context, name string) ([]model.Mapping, error) {
-	return r.deleteByName(ctx, "south_device_name", name)
+func (r *Repository) DeleteBySouthNodeName(ctx context.Context, name string) ([]model.Mapping, error) {
+	return r.deleteByName(ctx, "south_node_name", name)
 }
 
 func (r *Repository) DeleteBySouthProfileName(ctx context.Context, name string) ([]model.Mapping, error) {
@@ -159,7 +159,7 @@ func (r *Repository) All(ctx context.Context, offset, limit int) ([]model.Mappin
 	if err := r.pool.QueryRow(ctx, `SELECT count(*) FROM `+table).Scan(&count); err != nil {
 		return nil, 0, err
 	}
-	query := `SELECT ` + columns + ` FROM ` + table + ` ORDER BY north_device_name, north_profile_name, north_resource_name OFFSET $1 LIMIT $2`
+	query := `SELECT ` + columns + ` FROM ` + table + ` ORDER BY north_node_name, north_profile_name, north_resource_name OFFSET $1 LIMIT $2`
 	result, err := queryMappings(ctx, r.pool, query, offset, limit)
 	return result, count, err
 }
@@ -169,8 +169,8 @@ type rowScanner interface{ Scan(...any) error }
 func scan(row rowScanner) (model.Mapping, error) {
 	var m model.Mapping
 	var metadata []byte
-	err := row.Scan(&m.ID, &m.NorthPoint.NorthDeviceName, &m.NorthPoint.NorthProfileName, &m.NorthPoint.NorthResourceName,
-		&m.SouthPoint.SouthDeviceName, &m.SouthPoint.SouthProfileName, &m.SouthPoint.SouthResourceName,
+	err := row.Scan(&m.ID, &m.NorthPoint.NorthNodeName, &m.NorthPoint.NorthProfileName, &m.NorthPoint.NorthResourceName,
+		&m.SouthPoint.SouthNodeName, &m.SouthPoint.SouthProfileName, &m.SouthPoint.SouthResourceName,
 		&metadata, &m.Created, &m.Modified)
 	if err != nil {
 		return m, err

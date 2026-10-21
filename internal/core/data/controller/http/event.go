@@ -79,7 +79,7 @@ func (ec *EventController) AddEvent(c echo.Context) error {
 	// URL parameters
 	serviceName := c.Param(common.ServiceName)
 	profileName := c.Param(common.ProfileName)
-	deviceName := c.Param(common.DeviceName)
+	nodeName := c.Param(common.NodeName)
 	sourceName := c.Param(common.SourceName)
 
 	var addEventReqDTO requestDTO.AddEventRequest
@@ -106,14 +106,14 @@ func (ec *EventController) AddEvent(c echo.Context) error {
 		if err != nil {
 			return utils.WriteErrorResponse(w, ctx, lc, err, "")
 		}
-		go ec.app.PublishEvent(addEventReqDTO, serviceName, profileName, deviceName, sourceName, ctx, ec.dic)
+		go ec.app.PublishEvent(addEventReqDTO, serviceName, profileName, nodeName, sourceName, ctx, ec.dic)
 	}
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
 	event := requestDTO.AddEventReqToEventModel(addEventReqDTO)
-	err = ec.app.ValidateEvent(event, profileName, deviceName, sourceName, ctx, ec.dic)
+	err = ec.app.ValidateEvent(event, profileName, nodeName, sourceName, ctx, ec.dic)
 	if err == nil {
 		err = ec.app.AddEvent(event, ctx, ec.dic)
 	}
@@ -191,7 +191,7 @@ func (ec *EventController) EventTotalCount(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc) // encode and send out the response
 }
 
-func (ec *EventController) EventCountByDeviceName(c echo.Context) error {
+func (ec *EventController) EventCountByNodeName(c echo.Context) error {
 	// retrieve all the service injections from bootstrap
 	lc := container.LoggingClientFrom(ec.dic.Get)
 	r := c.Request()
@@ -199,10 +199,10 @@ func (ec *EventController) EventCountByDeviceName(c echo.Context) error {
 	ctx := r.Context()
 
 	// URL parameters
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 
-	// Count the event by device
-	count, err := ec.app.EventCountByDeviceName(deviceName, ec.dic)
+	// Count the event by node
+	count, err := ec.app.EventCountByNodeName(nodeName, ec.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -235,7 +235,7 @@ func (ec *EventController) AllEvents(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (ec *EventController) EventsByDeviceName(c echo.Context) error {
+func (ec *EventController) EventsByNodeName(c echo.Context) error {
 	lc := container.LoggingClientFrom(ec.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -251,7 +251,7 @@ func (ec *EventController) EventsByDeviceName(c echo.Context) error {
 	}
 	parms := query.Parameters{Offset: offset, Limit: limit, Numeric: cast.ToBool(c.QueryParam(common.Numeric))}
 
-	events, totalCount, err := ec.app.EventsByDeviceName(parms, name, ec.dic)
+	events, totalCount, err := ec.app.EventsByNodeName(parms, name, ec.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -261,16 +261,16 @@ func (ec *EventController) EventsByDeviceName(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (ec *EventController) DeleteEventsByDeviceName(c echo.Context) error {
+func (ec *EventController) DeleteEventsByNodeName(c echo.Context) error {
 	// retrieve all the service injections from bootstrap
 	lc := container.LoggingClientFrom(ec.dic.Get)
 	r := c.Request()
 	w := c.Response()
 	ctx := r.Context()
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 
-	// Delete events with associated Device deviceName
-	err := ec.app.DeleteEventsByDeviceName(deviceName, ec.dic)
+	// Delete events with associated Node nodeName
+	err := ec.app.DeleteEventsByNodeName(nodeName, ec.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}

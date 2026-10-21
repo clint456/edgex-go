@@ -31,21 +31,21 @@ import (
 )
 
 func TestPublishSystemEvent(t *testing.T) {
-	TestDeviceProfileName := "onvif-camera"
-	TestDeviceServiceName := "Device-onvif-camera"
-	TestDeviceName := "Camera-Device"
+	TestProfileName := "onvif-camera"
+	TestNodeServiceName := "Node-onvif-camera"
+	TestNodeName := "Camera-Node"
 
-	expectedDevice := dtos.Device{
-		Name:        TestDeviceName,
+	expectedNode := dtos.Node{
+		Name:        TestNodeName,
 		Id:          uuid.NewString(),
-		ServiceName: TestDeviceServiceName,
-		ProfileName: TestDeviceProfileName,
+		ServiceName: TestNodeServiceName,
+		ProfileName: TestProfileName,
 	}
 
-	expectedDeviceProfile := dtos.DeviceProfile{
-		DeviceProfileBasicInfo: dtos.DeviceProfileBasicInfo{
+	expectedProfile := dtos.Profile{
+		ProfileBasicInfo: dtos.ProfileBasicInfo{
 			Id:   uuid.NewString(),
-			Name: TestDeviceProfileName,
+			Name: TestProfileName,
 		},
 	}
 
@@ -60,14 +60,14 @@ func TestPublishSystemEvent(t *testing.T) {
 		PubError      bool
 		ClientMissing bool
 	}{
-		{"Device Add", common.DeviceSystemEventType, common.SystemEventActionAdd, TestDeviceServiceName, false, false},
-		{"Device Update", common.DeviceSystemEventType, common.SystemEventActionUpdate, TestDeviceServiceName, false, false},
-		{"Device Delete", common.DeviceSystemEventType, common.SystemEventActionDelete, TestDeviceServiceName, false, false},
-		{"Device Profile Add", common.DeviceProfileSystemEventType, common.SystemEventActionAdd, common.CoreMetaDataServiceKey, false, false},
-		{"Device Profile Update", common.DeviceProfileSystemEventType, common.SystemEventActionUpdate, TestDeviceServiceName, false, false},
-		{"Device Profile Delete", common.DeviceProfileSystemEventType, common.SystemEventActionDelete, common.CoreMetaDataServiceKey, false, false},
-		{"Client Missing Error", common.DeviceSystemEventType, common.SystemEventActionAdd, TestDeviceServiceName, false, true},
-		{"Publish Error", common.DeviceSystemEventType, common.SystemEventActionAdd, TestDeviceServiceName, true, false},
+		{"Node Add", common.NodeSystemEventType, common.SystemEventActionAdd, TestNodeServiceName, false, false},
+		{"Node Update", common.NodeSystemEventType, common.SystemEventActionUpdate, TestNodeServiceName, false, false},
+		{"Node Delete", common.NodeSystemEventType, common.SystemEventActionDelete, TestNodeServiceName, false, false},
+		{"Node Profile Add", common.ProfileSystemEventType, common.SystemEventActionAdd, common.CoreMetaDataServiceKey, false, false},
+		{"Node Profile Update", common.ProfileSystemEventType, common.SystemEventActionUpdate, TestNodeServiceName, false, false},
+		{"Node Profile Delete", common.ProfileSystemEventType, common.SystemEventActionDelete, common.CoreMetaDataServiceKey, false, false},
+		{"Client Missing Error", common.NodeSystemEventType, common.SystemEventActionAdd, TestNodeServiceName, false, true},
+		{"Publish Error", common.NodeSystemEventType, common.SystemEventActionAdd, TestNodeServiceName, true, false},
 	}
 
 	pubErrMsg := errors.NewCommonEdgeXWrapper(goErrors.New("publish failed"))
@@ -92,20 +92,20 @@ func TestPublishSystemEvent(t *testing.T) {
 				require.NoError(t, err)
 
 				switch test.Type {
-				case common.DeviceSystemEventType:
-					actualDevice := dtos.Device{}
-					err = systemEvent.DecodeDetails(&actualDevice)
+				case common.NodeSystemEventType:
+					actualNode := dtos.Node{}
+					err = systemEvent.DecodeDetails(&actualNode)
 					require.NoError(t, err)
-					assert.Equal(t, expectedDevice.Name, actualDevice.Name)
-					assert.Equal(t, expectedDevice.Id, actualDevice.Id)
-					assert.Equal(t, expectedDevice.ServiceName, actualDevice.ServiceName)
-					assert.Equal(t, expectedDevice.ProfileName, actualDevice.ProfileName)
-				case common.DeviceProfileSystemEventType:
-					actualDeviceProfile := dtos.DeviceProfile{}
-					err = systemEvent.DecodeDetails(&actualDeviceProfile)
+					assert.Equal(t, expectedNode.Name, actualNode.Name)
+					assert.Equal(t, expectedNode.Id, actualNode.Id)
+					assert.Equal(t, expectedNode.ServiceName, actualNode.ServiceName)
+					assert.Equal(t, expectedNode.ProfileName, actualNode.ProfileName)
+				case common.ProfileSystemEventType:
+					actualProfile := dtos.Profile{}
+					err = systemEvent.DecodeDetails(&actualProfile)
 					require.NoError(t, err)
-					assert.Equal(t, expectedDeviceProfile.Name, actualDeviceProfile.Name)
-					assert.Equal(t, expectedDeviceProfile.Id, actualDeviceProfile.Id)
+					assert.Equal(t, expectedProfile.Name, actualProfile.Name)
+					assert.Equal(t, expectedProfile.Id, actualProfile.Id)
 				}
 
 				assert.Equal(t, common.ApiVersion, systemEvent.ApiVersion)
@@ -152,10 +152,10 @@ func TestPublishSystemEvent(t *testing.T) {
 			ctx = context.WithValue(ctx, common.CorrelationHeader, expectedCorrelationID)
 			var expectedDetails any
 			switch test.Type {
-			case common.DeviceSystemEventType:
-				expectedDetails = expectedDevice
-			case common.DeviceProfileSystemEventType:
-				expectedDetails = expectedDeviceProfile
+			case common.NodeSystemEventType:
+				expectedDetails = expectedNode
+			case common.ProfileSystemEventType:
+				expectedDetails = expectedProfile
 			}
 
 			publishSystemEvent(test.Type, test.Action, test.Owner, expectedDetails, ctx, dic)
@@ -171,7 +171,7 @@ func TestPublishSystemEvent(t *testing.T) {
 				test.Type,
 				test.Action,
 				common.URLEncode(test.Owner),
-				common.URLEncode(expectedDevice.ProfileName))
+				common.URLEncode(expectedNode.ProfileName))
 			mockClient.AssertCalled(t, "Publish", mock.Anything, expectedTopic)
 
 			if test.PubError {

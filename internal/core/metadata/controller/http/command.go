@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021-2023 IOTech Ltd
+// Copyright (C) 2022-2023 IOTech Ltd
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -13,53 +13,30 @@ import (
 	"github.com/clint456/edgex-go/internal/pkg"
 	"github.com/clint456/edgex-go/internal/pkg/correlation"
 	"github.com/clint456/edgex-go/internal/pkg/utils"
-
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/bootstrap/container"
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/common"
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/dtos"
 	commonDTO "github.com/edgexfoundry/go-mod-core-contracts/v4/dtos/common"
 	requestDTO "github.com/edgexfoundry/go-mod-core-contracts/v4/dtos/requests"
-	responseDTO "github.com/edgexfoundry/go-mod-core-contracts/v4/dtos/responses"
 
 	"github.com/labstack/echo/v4"
 )
 
-type DeviceResourceController struct {
+type CommandController struct {
 	reader io.DtoReader
 	dic    *di.Container
 }
 
-// NewDeviceResourceController creates and initializes an DeviceResourceController
-func NewDeviceResourceController(dic *di.Container) *DeviceResourceController {
-	return &DeviceResourceController{
+// NewCommandController creates and initializes an CommandController
+func NewCommandController(dic *di.Container) *CommandController {
+	return &CommandController{
 		reader: io.NewJsonDtoReader(),
 		dic:    dic,
 	}
 }
 
-// DeviceResourceByProfileNameAndResourceName query the device resource by profileName and resourceName
-func (dc *DeviceResourceController) DeviceResourceByProfileNameAndResourceName(c echo.Context) error {
-	lc := container.LoggingClientFrom(dc.dic.Get)
-	r := c.Request()
-	w := c.Response()
-	ctx := r.Context()
-
-	// URL parameters
-	profileName := c.Param(common.ProfileName)
-	resourceName := c.Param(common.ResourceName)
-
-	resource, err := application.DeviceResourceByProfileNameAndResourceName(profileName, resourceName, dc.dic)
-	if err != nil {
-		return utils.WriteErrorResponse(w, ctx, lc, err, "")
-	}
-
-	response := responseDTO.NewDeviceResourceResponse("", "", http.StatusOK, resource)
-	utils.WriteHttpHeader(w, ctx, http.StatusOK)
-	return pkg.EncodeAndWriteResponse(response, w, lc)
-}
-
-func (dc *DeviceResourceController) AddDeviceProfileResource(c echo.Context) error {
+func (dc *CommandController) AddProfileCommand(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -67,10 +44,11 @@ func (dc *DeviceResourceController) AddDeviceProfileResource(c echo.Context) err
 	}
 
 	lc := container.LoggingClientFrom(dc.dic.Get)
+
 	ctx := r.Context()
 	correlationId := correlation.FromContext(ctx)
 
-	var reqDTOs []requestDTO.AddDeviceResourceRequest
+	var reqDTOs []requestDTO.AddCommandRequest
 	err := dc.reader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
@@ -81,8 +59,8 @@ func (dc *DeviceResourceController) AddDeviceProfileResource(c echo.Context) err
 		var response interface{}
 		reqId := dto.RequestId
 		profileName := dto.ProfileName
-		deviceResource := dtos.ToDeviceResourceModel(dto.Resource)
-		err = application.AddDeviceProfileResource(profileName, deviceResource, ctx, dc.dic)
+		command := dtos.ToCommandModel(dto.Command)
+		err = application.AddProfileCommand(profileName, command, ctx, dc.dic)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -95,6 +73,7 @@ func (dc *DeviceResourceController) AddDeviceProfileResource(c echo.Context) err
 				reqId,
 				"",
 				http.StatusCreated)
+
 		}
 		addResponses = append(addResponses, response)
 	}
@@ -103,7 +82,7 @@ func (dc *DeviceResourceController) AddDeviceProfileResource(c echo.Context) err
 	return pkg.EncodeAndWriteResponse(addResponses, w, lc)
 }
 
-func (dc *DeviceResourceController) PatchDeviceProfileResource(c echo.Context) error {
+func (dc *CommandController) PatchProfileCommand(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -114,7 +93,7 @@ func (dc *DeviceResourceController) PatchDeviceProfileResource(c echo.Context) e
 	ctx := r.Context()
 	correlationId := correlation.FromContext(ctx)
 
-	var reqDTOs []requestDTO.UpdateDeviceResourceRequest
+	var reqDTOs []requestDTO.UpdateCommandRequest
 	err := dc.reader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
@@ -125,7 +104,7 @@ func (dc *DeviceResourceController) PatchDeviceProfileResource(c echo.Context) e
 		var response interface{}
 		reqId := dto.RequestId
 		profileName := dto.ProfileName
-		err = application.PatchDeviceProfileResource(profileName, dto.Resource, ctx, dc.dic)
+		err = application.PatchProfileCommand(profileName, dto.Command, ctx, dc.dic)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -144,10 +123,9 @@ func (dc *DeviceResourceController) PatchDeviceProfileResource(c echo.Context) e
 
 	utils.WriteHttpHeader(w, ctx, http.StatusMultiStatus)
 	return pkg.EncodeAndWriteResponse(updateResponses, w, lc)
-
 }
 
-func (dc *DeviceResourceController) DeleteDeviceResourceByName(c echo.Context) error {
+func (dc *CommandController) DeleteCommandByName(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	lc := container.LoggingClientFrom(dc.dic.Get)
@@ -155,9 +133,9 @@ func (dc *DeviceResourceController) DeleteDeviceResourceByName(c echo.Context) e
 
 	// URL parameters
 	profileName := c.Param(common.Name)
-	resourceName := c.Param(common.ResourceName)
+	commandName := c.Param(common.CommandName)
 
-	err := application.DeleteDeviceResourceByName(profileName, resourceName, ctx, dc.dic)
+	err := application.DeleteCommandByName(profileName, commandName, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}

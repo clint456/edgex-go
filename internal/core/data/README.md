@@ -1,7 +1,7 @@
 # EdgeX Foundry Core Data Service
 [![license](https://img.shields.io/badge/license-Apache%20v2.0-blue.svg)](LICENSE)
 
-Core Data provides a centralized persistence facility for data readings collected by devices and sensors. Device services for devices and sensors that collect data, call on the Core Data service to store the device and sensor data on the edge system (such as in a gateway) until the data can be moved "north" and then exported to Enterprise and cloud systems.
+Core Data provides a centralized persistence facility for data readings collected by nodes and sensors. Node services for nodes and sensors that collect data, call on the Core Data service to store the node and sensor data on the edge system (such as in a gateway) until the data can be moved "north" and then exported to Enterprise and cloud systems.
 
 # Install and Deploy Native #
 

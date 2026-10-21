@@ -27,7 +27,7 @@ import (
 )
 
 // SubscribeCommandRequests subscribes command requests from EdgeX service (e.g., Application Service)
-// and forwards them to the appropriate Device Service via internal MessageBus
+// and forwards them to the appropriate Node Service via internal MessageBus
 func SubscribeCommandRequests(ctx context.Context, requestTimeout time.Duration, dic *di.Container) errors.EdgeX {
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
 	baseTopic := container.ConfigurationFrom(dic.Get).MessageBus.GetBaseTopicPrefix()
@@ -58,7 +58,7 @@ func SubscribeCommandRequests(ctx context.Context, requestTimeout time.Duration,
 				lc.Error(err.Error())
 			case requestEnvelope := <-messages:
 				go func() {
-					processDeviceCommandRequest(messageBus, requestEnvelope, baseTopic, requestTimeout, lc, dic)
+					processCommandRequest(messageBus, requestEnvelope, baseTopic, requestTimeout, lc, dic)
 				}()
 			}
 		}
@@ -67,7 +67,7 @@ func SubscribeCommandRequests(ctx context.Context, requestTimeout time.Duration,
 	return nil
 }
 
-func processDeviceCommandRequest(
+func processCommandRequest(
 	messageBus messaging.MessageClient,
 	requestEnvelope types.MessageEnvelope,
 	baseTopic string,
@@ -77,7 +77,7 @@ func processDeviceCommandRequest(
 	var err error
 	config := container.ConfigurationFrom(dic.Get)
 
-	lc.Debugf("Command device request received on internal MessageBus. Topic: %s, Request-id: %s, Correlation-id: %s", requestEnvelope.ReceivedTopic, requestEnvelope.RequestID, requestEnvelope.CorrelationID)
+	lc.Debugf("Command node request received on internal MessageBus. Topic: %s, Request-id: %s, Correlation-id: %s", requestEnvelope.ReceivedTopic, requestEnvelope.RequestID, requestEnvelope.CorrelationID)
 
 	if len(strings.TrimSpace(requestEnvelope.RequestID)) == 0 {
 		lc.Errorf("RequestId not set in Command request received on internal MessageBus")
@@ -90,7 +90,7 @@ func processDeviceCommandRequest(
 	topicLevels := strings.Split(requestEnvelope.ReceivedTopic, "/")
 	length := len(topicLevels)
 	if length < 3 {
-		err = fmt.Errorf("invalid internal command request topic scheme. Expected request topic scheme with >=3 levels: '<DeviceRequestTopicPrefix>/<device-name>/<command-name>/<method>'")
+		err = fmt.Errorf("invalid internal command request topic scheme. Expected request topic scheme with >=3 levels: '<NodeRequestTopicPrefix>/<node-name>/<command-name>/<method>'")
 		lc.Error(err.Error())
 		responseEnvelope := types.NewMessageEnvelopeWithError(requestEnvelope.RequestID, err.Error())
 		err = messageBus.Publish(responseEnvelope, internalResponseTopic)
@@ -100,10 +100,10 @@ func processDeviceCommandRequest(
 		return
 	}
 
-	// expected internal command request/response topic scheme: #/<device>/<command-name>/<method>
-	deviceName, err := url.PathUnescape(topicLevels[length-3])
+	// expected internal command request/response topic scheme: #/<node>/<command-name>/<method>
+	nodeName, err := url.PathUnescape(topicLevels[length-3])
 	if err != nil {
-		lc.Errorf("Failed to unescape device name from '%s': %s", topicLevels[length-3], err.Error())
+		lc.Errorf("Failed to unescape node name from '%s': %s", topicLevels[length-3], err.Error())
 		lc.Warn("Not publishing error message back due to insufficient information on response topic")
 		return
 	}
@@ -130,9 +130,9 @@ func processDeviceCommandRequest(
 		return
 	}
 
-	topicPrefix := common.BuildTopic(baseTopic, common.CoreCommandDeviceRequestPublishTopic)
-	// internal command request topic scheme: <DeviceRequestTopicPrefix>/<device-service>/<device>/<command-name>/<method>
-	deviceServiceName, err := retrieveServiceNameByDevice(deviceName, dic)
+	topicPrefix := common.BuildTopic(baseTopic, common.CoreCommandNodeRequestPublishTopic)
+	// internal command request topic scheme: <NodeRequestTopicPrefix>/<node-service>/<node>/<command-name>/<method>
+	nodeServiceName, err := retrieveServiceNameByNode(nodeName, dic)
 	if err != nil {
 		err = fmt.Errorf("invalid request topic: %s", err.Error())
 		lc.Error(err.Error())
@@ -155,17 +155,17 @@ func processDeviceCommandRequest(
 		return
 	}
 
-	deviceRequestTopic := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
-		SetPath(topicPrefix).SetNameFieldPath(deviceServiceName).SetNameFieldPath(deviceName).SetNameFieldPath(commandName).SetPath(method).BuildPath()
-	deviceResponseTopicPrefix := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
-		SetPath(baseTopic).SetPath(common.ResponseTopic).SetNameFieldPath(deviceServiceName).BuildPath()
+	nodeRequestTopic := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
+		SetPath(topicPrefix).SetNameFieldPath(nodeServiceName).SetNameFieldPath(nodeName).SetNameFieldPath(commandName).SetPath(method).BuildPath()
+	nodeResponseTopicPrefix := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
+		SetPath(baseTopic).SetPath(common.ResponseTopic).SetNameFieldPath(nodeServiceName).BuildPath()
 
-	lc.Debugf("Sending Command Device Request to internal MessageBus. Topic: %s, Correlation-id: %s", deviceRequestTopic, requestEnvelope.CorrelationID)
-	lc.Debugf("Expecting response on topic: %s/%s", deviceResponseTopicPrefix, requestEnvelope.RequestID)
+	lc.Debugf("Sending Command Node Request to internal MessageBus. Topic: %s, Correlation-id: %s", nodeRequestTopic, requestEnvelope.CorrelationID)
+	lc.Debugf("Expecting response on topic: %s/%s", nodeResponseTopicPrefix, requestEnvelope.RequestID)
 
-	response, err := messageBus.Request(requestEnvelope, deviceRequestTopic, deviceResponseTopicPrefix, requestTimeout)
+	response, err := messageBus.Request(requestEnvelope, nodeRequestTopic, nodeResponseTopicPrefix, requestTimeout)
 	if err != nil {
-		lc.Errorf("Request to topic '%s' failed: %s", deviceRequestTopic, err.Error())
+		lc.Errorf("Request to topic '%s' failed: %s", nodeRequestTopic, err.Error())
 		return
 	}
 
@@ -238,20 +238,20 @@ func processCommandQueryRequest(
 		return
 	}
 
-	// example topic scheme: /commandquery/request/<device>
-	// deviceName is expected to be at last topic level.
+	// example topic scheme: /commandquery/request/<node>
+	// nodeName is expected to be at last topic level.
 	topicLevels := strings.Split(requestEnvelope.ReceivedTopic, "/")
-	deviceName, err := url.PathUnescape(topicLevels[len(topicLevels)-1])
+	nodeName, err := url.PathUnescape(topicLevels[len(topicLevels)-1])
 	if err != nil {
-		lc.Errorf("Failed to unescape device name '%s': %s", deviceName, err.Error())
+		lc.Errorf("Failed to unescape node name '%s': %s", nodeName, err.Error())
 		lc.Warn("Not publishing error message back due to insufficient information on response topic")
 		return
 	}
-	if strings.EqualFold(deviceName, common.All) {
-		deviceName = common.All
+	if strings.EqualFold(nodeName, common.All) {
+		nodeName = common.All
 	}
 
-	responseEnvelope, err := getCommandQueryResponseEnvelope(requestEnvelope, deviceName, dic)
+	responseEnvelope, err := getCommandQueryResponseEnvelope(requestEnvelope, nodeName, dic)
 	if err != nil {
 		lc.Error(err.Error())
 		responseEnvelope = types.NewMessageEnvelopeWithError(requestEnvelope.RequestID, err.Error())

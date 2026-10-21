@@ -25,7 +25,7 @@ import (
 )
 
 // defaultMaxConcurrentExternalCommands caps in-flight external MQTT command requests so a single
-// slow/offline device cannot block the Paho callback goroutine and starve subsequent commands.
+// slow/offline node cannot block the Paho callback goroutine and starve subsequent commands.
 // At capacity, new requests are rejected inline with a "service busy" response envelope —
 // queuing further would just delay the same failure.
 const defaultMaxConcurrentExternalCommands = 32
@@ -82,20 +82,20 @@ func commandQueryHandler(dic *di.Container) mqtt.MessageHandler {
 			return
 		}
 
-		// example topic scheme: edgex/commandquery/request/<device-name>
-		// deviceName is expected to be at last topic level.
+		// example topic scheme: edgex/commandquery/request/<node-name>
+		// nodeName is expected to be at last topic level.
 		topicLevels := strings.Split(message.Topic(), "/")
-		deviceName, err := url.PathUnescape(topicLevels[len(topicLevels)-1])
+		nodeName, err := url.PathUnescape(topicLevels[len(topicLevels)-1])
 		if err != nil {
-			lc.Errorf("Failed to unescape device name '%s': %s", deviceName, err.Error())
+			lc.Errorf("Failed to unescape node name '%s': %s", nodeName, err.Error())
 			lc.Warn("Not publishing error message back due to insufficient information on response topic")
 			return
 		}
-		if strings.EqualFold(deviceName, common.All) {
-			deviceName = common.All
+		if strings.EqualFold(nodeName, common.All) {
+			nodeName = common.All
 		}
 
-		responseEnvelope, err := getCommandQueryResponseEnvelope(requestEnvelope, deviceName, dic)
+		responseEnvelope, err := getCommandQueryResponseEnvelope(requestEnvelope, nodeName, dic)
 		if err != nil {
 			responseEnvelope = types.NewMessageEnvelopeWithError(requestEnvelope.RequestID, err.Error())
 		}
@@ -127,15 +127,15 @@ func commandRequestHandler(requestTimeout time.Duration, sem chan struct{}, dic 
 		topicLevels := strings.Split(message.Topic(), "/")
 		length := len(topicLevels)
 		if length < 3 {
-			lc.Error("Failed to parse and construct response topic scheme, expected request topic scheme: '#/<device-name>/<command-name>/<method>")
+			lc.Error("Failed to parse and construct response topic scheme, expected request topic scheme: '#/<node-name>/<command-name>/<method>")
 			lc.Warn("Not publishing error message back due to insufficient information on response topic")
 			return
 		}
 
-		// expected external command request/response topic scheme: #/<device-name>/<command-name>/<method>
-		deviceName, err := url.PathUnescape(topicLevels[length-3])
+		// expected external command request/response topic scheme: #/<node-name>/<command-name>/<method>
+		nodeName, err := url.PathUnescape(topicLevels[length-3])
 		if err != nil {
-			lc.Errorf("Failed to unescape device name from '%s': %s", topicLevels[length-3], err.Error())
+			lc.Errorf("Failed to unescape node name from '%s': %s", topicLevels[length-3], err.Error())
 			lc.Warn("Not publishing error message back due to insufficient information on response topic")
 			return
 		}
@@ -152,12 +152,12 @@ func commandRequestHandler(requestTimeout time.Duration, sem chan struct{}, dic 
 			return
 		}
 
-		externalResponseTopic := common.BuildTopic(externalMQTTInfo.Topics[common.CommandResponseTopicPrefixKey], deviceName, commandName, method)
+		externalResponseTopic := common.BuildTopic(externalMQTTInfo.Topics[common.CommandResponseTopicPrefixKey], nodeName, commandName, method)
 
 		internalBaseTopic := config.MessageBus.GetBaseTopicPrefix()
-		topicPrefix := common.BuildTopic(internalBaseTopic, common.CoreCommandDeviceRequestPublishTopic)
+		topicPrefix := common.BuildTopic(internalBaseTopic, common.CoreCommandNodeRequestPublishTopic)
 
-		deviceServiceName, err := retrieveServiceNameByDevice(deviceName, dic)
+		nodeServiceName, err := retrieveServiceNameByNode(nodeName, dic)
 		if err != nil {
 			responseEnvelope := types.NewMessageEnvelopeWithError(requestEnvelope.RequestID, err.Error())
 			publishMessage(client, externalResponseTopic, qos, retain, responseEnvelope, lc)
@@ -171,21 +171,21 @@ func commandRequestHandler(requestTimeout time.Duration, sem chan struct{}, dic 
 			return
 		}
 
-		deviceRequestTopic := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
-			SetPath(topicPrefix).SetNameFieldPath(deviceServiceName).SetNameFieldPath(deviceName).SetNameFieldPath(commandName).SetPath(method).BuildPath()
-		deviceResponseTopicPrefix := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
-			SetPath(internalBaseTopic).SetPath(common.ResponseTopic).SetNameFieldPath(deviceServiceName).BuildPath()
+		nodeRequestTopic := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
+			SetPath(topicPrefix).SetNameFieldPath(nodeServiceName).SetNameFieldPath(nodeName).SetNameFieldPath(commandName).SetPath(method).BuildPath()
+		nodeResponseTopicPrefix := common.NewPathBuilder().EnableNameFieldEscape(config.Service.EnableNameFieldEscape).
+			SetPath(internalBaseTopic).SetPath(common.ResponseTopic).SetNameFieldPath(nodeServiceName).BuildPath()
 
-		lc.Debugf("Sending Command request to internal MessageBus. Topic: %s, Request-id: %s Correlation-id: %s", deviceRequestTopic, requestEnvelope.RequestID, requestEnvelope.CorrelationID)
-		lc.Debugf("Expecting response on topic: %s/%s", deviceResponseTopicPrefix, requestEnvelope.RequestID)
+		lc.Debugf("Sending Command request to internal MessageBus. Topic: %s, Request-id: %s Correlation-id: %s", nodeRequestTopic, requestEnvelope.RequestID, requestEnvelope.CorrelationID)
+		lc.Debugf("Expecting response on topic: %s/%s", nodeResponseTopicPrefix, requestEnvelope.RequestID)
 
 		// Non-blocking acquire — never block the Paho callback goroutine. At capacity we reject
-		// inline rather than queue, so a stuck device cannot cause head-of-line blocking on
+		// inline rather than queue, so a stuck node cannot cause head-of-line blocking on
 		// subsequent external command requests.
 		select {
 		case sem <- struct{}{}:
 		default:
-			lc.Warnf("external command in-flight limit (%d) reached; rejecting request for device '%s'", cap(sem), deviceName)
+			lc.Warnf("external command in-flight limit (%d) reached; rejecting request for node '%s'", cap(sem), nodeName)
 			busy := types.NewMessageEnvelopeWithError(requestEnvelope.RequestID,
 				"core-command busy: too many concurrent external commands")
 			publishMessage(client, externalResponseTopic, qos, retain, busy, lc)
@@ -197,9 +197,9 @@ func commandRequestHandler(requestTimeout time.Duration, sem chan struct{}, dic 
 		go func() {
 			defer func() { <-sem }()
 
-			response, err := internalMessageBus.Request(requestEnvelope, deviceRequestTopic, deviceResponseTopicPrefix, requestTimeout)
+			response, err := internalMessageBus.Request(requestEnvelope, nodeRequestTopic, nodeResponseTopicPrefix, requestTimeout)
 			if err != nil {
-				errorMessage := fmt.Sprintf("Failed to send DeviceCommand request with internal MessageBus: %v", err)
+				errorMessage := fmt.Sprintf("Failed to send Command request with internal MessageBus: %v", err)
 				publishMessage(client, externalResponseTopic, qos, retain,
 					types.NewMessageEnvelopeWithError(requestEnvelope.RequestID, errorMessage), lc)
 				return

@@ -40,20 +40,20 @@ const (
 	mockHost = "127.0.0.1"
 	mockPort = 66666
 
-	testProfileName       = "testProfile"
-	testResourceName      = "testResource"
-	testDeviceName        = "testDevice"
-	testDeviceServiceName = "testService"
-	testCommandName       = "testCommand"
-	testMethod            = "get"
+	testProfileName     = "testProfile"
+	testResourceName    = "testResource"
+	testNodeName        = "testNode"
+	testNodeServiceName = "testService"
+	testCommandName     = "testCommand"
+	testMethod          = "get"
 
-	testQueryRequestTopic        = "unittest/#"
-	testQueryAllExample          = "unittest/all"
-	testQueryByDeviceNameExample = "unittest/testDevice"
-	testQueryResponseTopic       = "unittest/response"
+	testQueryRequestTopic      = "unittest/#"
+	testQueryAllExample        = "unittest/all"
+	testQueryByNodeNameExample = "unittest/testNode"
+	testQueryResponseTopic     = "unittest/response"
 
 	testExternalCommandRequestTopic        = "unittest/external/request/#"
-	testExternalCommandRequestTopicExample = "unittest/external/request/testDevice/testCommand/get"
+	testExternalCommandRequestTopicExample = "unittest/external/request/testNode/testCommand/get"
 	testExternalCommandResponseTopicPrefix = "unittest/external/response"
 )
 
@@ -116,13 +116,13 @@ func TestOnConnectHandler(t *testing.T) {
 }
 
 func Test_commandQueryHandler(t *testing.T) {
-	profileResponse := responses.DeviceProfileResponse{
+	profileResponse := responses.ProfileResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Profile: dtos.DeviceProfile{
-			DeviceProfileBasicInfo: dtos.DeviceProfileBasicInfo{
+		Profile: dtos.Profile{
+			ProfileBasicInfo: dtos.ProfileBasicInfo{
 				Name: testProfileName,
 			},
-			DeviceResources: []dtos.DeviceResource{
+			Resources: []dtos.Resource{
 				{
 					Name: testResourceName,
 					Properties: dtos.ResourceProperties{
@@ -133,18 +133,18 @@ func Test_commandQueryHandler(t *testing.T) {
 			},
 		},
 	}
-	deviceResponse := responses.DeviceResponse{
+	nodeResponse := responses.NodeResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Device: dtos.Device{
-			Name:        testDeviceName,
+		Node: dtos.Node{
+			Name:        testNodeName,
 			ProfileName: testProfileName,
 		},
 	}
-	allDevicesResponse := responses.MultiDevicesResponse{
+	allNodesResponse := responses.MultiNodesResponse{
 		BaseWithTotalCountResponse: commonDTO.NewBaseWithTotalCountResponse("", "", http.StatusOK, 1),
-		Devices: []dtos.Device{
+		Nodes: []dtos.Node{
 			{
-				Name:        testDeviceName,
+				Name:        testNodeName,
 				ProfileName: testProfileName,
 			},
 		},
@@ -155,11 +155,11 @@ func Test_commandQueryHandler(t *testing.T) {
 	lc.On("Errorf", mock.Anything, mock.Anything).Return(nil)
 	lc.On("Debugf", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	lc.On("Warn", mock.Anything).Return(nil)
-	dc := &clientMocks.DeviceClient{}
-	dc.On("AllDevices", context.Background(), []string(nil), common.DefaultOffset, common.DefaultLimit).Return(allDevicesResponse, nil)
-	dc.On("DeviceByName", context.Background(), testDeviceName).Return(deviceResponse, nil)
-	dpc := &clientMocks.DeviceProfileClient{}
-	dpc.On("DeviceProfileByName", context.Background(), testProfileName).Return(profileResponse, nil)
+	dc := &clientMocks.NodeClient{}
+	dc.On("AllNodes", context.Background(), []string(nil), common.DefaultOffset, common.DefaultLimit).Return(allNodesResponse, nil)
+	dc.On("NodeByName", context.Background(), testNodeName).Return(nodeResponse, nil)
+	dpc := &clientMocks.ProfileClient{}
+	dpc.On("ProfileByName", context.Background(), testProfileName).Return(profileResponse, nil)
 	dic := di.NewContainer(di.ServiceConstructorMap{
 		container.ConfigurationName: func(get di.Get) interface{} {
 			return &config.ConfigurationStruct{
@@ -180,10 +180,10 @@ func Test_commandQueryHandler(t *testing.T) {
 		bootstrapContainer.LoggingClientInterfaceName: func(get di.Get) interface{} {
 			return lc
 		},
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dc
 		},
-		bootstrapContainer.DeviceProfileClientName: func(get di.Get) interface{} {
+		bootstrapContainer.ProfileClientName: func(get di.Get) interface{} {
 			return dpc
 		},
 	})
@@ -202,8 +202,8 @@ func Test_commandQueryHandler(t *testing.T) {
 		expectedPublishError bool
 	}{
 		{"valid - query all", testQueryAllExample, validPayload, false, false},
-		{"valid - query by device name", testQueryByDeviceNameExample, validPayload, false, false},
-		{"invalid - invalid request json payload", testQueryByDeviceNameExample, invalidRequestPayload, true, false},
+		{"valid - query by node name", testQueryByNodeNameExample, validPayload, false, false},
+		{"invalid - invalid request json payload", testQueryByNodeNameExample, invalidRequestPayload, true, false},
 		{"invalid - invalid query parameters", testQueryAllExample, invalidQueryParamsPayload, true, true},
 	}
 	for _, tt := range tests {
@@ -241,30 +241,30 @@ func Test_commandQueryHandler(t *testing.T) {
 }
 
 func Test_commandRequestHandler(t *testing.T) {
-	unknownDevice := "unknown-device"
-	unknownServiceDevice := "unknownService-device"
+	unknownNode := "unknown-node"
+	unknownServiceNode := "unknownService-node"
 	unknownService := "unknown-service"
 
-	deviceResponse := responses.DeviceResponse{
+	nodeResponse := responses.NodeResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Device: dtos.Device{
-			Name:        testDeviceName,
+		Node: dtos.Node{
+			Name:        testNodeName,
 			ProfileName: testProfileName,
-			ServiceName: testDeviceServiceName,
+			ServiceName: testNodeServiceName,
 		},
 	}
-	unknownServiceDeviceResponse := responses.DeviceResponse{
+	unknownServiceNodeResponse := responses.NodeResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Device: dtos.Device{
-			Name:        unknownServiceDevice,
+		Node: dtos.Node{
+			Name:        unknownServiceNode,
 			ProfileName: testProfileName,
 			ServiceName: unknownService,
 		},
 	}
-	deviceServiceResponse := responses.DeviceServiceResponse{
+	nodeServiceResponse := responses.NodeServiceResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Service: dtos.DeviceService{
-			Name: testDeviceServiceName,
+		Service: dtos.NodeService{
+			Name: testNodeServiceName,
 		},
 	}
 
@@ -275,13 +275,13 @@ func Test_commandRequestHandler(t *testing.T) {
 	lc.On("Errorf", mock.Anything, mock.Anything).Return(nil)
 	lc.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	lc.On("Warn", mock.Anything).Return(nil)
-	dc := &clientMocks.DeviceClient{}
-	dc.On("DeviceByName", context.Background(), testDeviceName).Return(deviceResponse, nil)
-	dc.On("DeviceByName", context.Background(), unknownDevice).Return(responses.DeviceResponse{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "unknown device", nil))
-	dc.On("DeviceByName", context.Background(), unknownServiceDevice).Return(unknownServiceDeviceResponse, nil)
-	dsc := &clientMocks.DeviceServiceClient{}
-	dsc.On("DeviceServiceByName", context.Background(), testDeviceServiceName).Return(deviceServiceResponse, nil)
-	dsc.On("DeviceServiceByName", context.Background(), unknownService).Return(responses.DeviceServiceResponse{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "unknown device service", nil))
+	dc := &clientMocks.NodeClient{}
+	dc.On("NodeByName", context.Background(), testNodeName).Return(nodeResponse, nil)
+	dc.On("NodeByName", context.Background(), unknownNode).Return(responses.NodeResponse{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "unknown node", nil))
+	dc.On("NodeByName", context.Background(), unknownServiceNode).Return(unknownServiceNodeResponse, nil)
+	dsc := &clientMocks.NodeServiceClient{}
+	dsc.On("NodeServiceByName", context.Background(), testNodeServiceName).Return(nodeServiceResponse, nil)
+	dsc.On("NodeServiceByName", context.Background(), unknownService).Return(responses.NodeServiceResponse{}, edgexErr.NewCommonEdgeX(edgexErr.KindEntityDoesNotExist, "unknown node service", nil))
 	client := &internalMessagingMocks.MessageClient{}
 	client.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(expectedResponse, nil)
 	dic := di.NewContainer(di.ServiceConstructorMap{
@@ -307,10 +307,10 @@ func Test_commandRequestHandler(t *testing.T) {
 		bootstrapContainer.LoggingClientInterfaceName: func(get di.Get) interface{} {
 			return lc
 		},
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
 			return dc
 		},
-		bootstrapContainer.DeviceServiceClientName: func(get di.Get) interface{} {
+		bootstrapContainer.NodeServiceClientName: func(get di.Get) interface{} {
 			return dsc
 		},
 		bootstrapContainer.MessagingClientName: func(get di.Get) interface{} {
@@ -335,10 +335,10 @@ func Test_commandRequestHandler(t *testing.T) {
 		{"valid", testExternalCommandRequestTopicExample, validPayload, false, false},
 		{"invalid - invalid request json payload", testExternalCommandRequestTopicExample, invalidRequestPayload, true, false},
 		{"invalid - invalid request topic scheme", "unittest/invalid", validPayload, true, false},
-		{"invalid - unrecognized command method", "unittest/request/testDevice/testCommand/invalid", validPayload, true, false},
-		{"invalid - device not found", "unittest/request/unknown-device/testCommand/get", validPayload, true, true},
-		{"invalid - device service not found", "unittest/request/unknownService-device/testCommand/get", validPayload, true, true},
-		{"invalid - invalid device service reserved query parameters", testExternalCommandRequestTopicExample, invalidQueryParamsPayload, true, true},
+		{"invalid - unrecognized command method", "unittest/request/testNode/testCommand/invalid", validPayload, true, false},
+		{"invalid - node not found", "unittest/request/unknown-node/testCommand/get", validPayload, true, true},
+		{"invalid - node service not found", "unittest/request/unknownService-node/testCommand/get", validPayload, true, true},
+		{"invalid - invalid node service reserved query parameters", testExternalCommandRequestTopicExample, invalidQueryParamsPayload, true, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -369,8 +369,8 @@ func Test_commandRequestHandler(t *testing.T) {
 				return
 			}
 
-			expectedInternalRequestTopic := common.BuildTopic(baseTopic, common.CoreCommandDeviceRequestPublishTopic, testDeviceServiceName, testDeviceName, testCommandName, testMethod)
-			expectedInternalResponseTopicPrefix := common.BuildTopic(baseTopic, common.ResponseTopic, testDeviceServiceName)
+			expectedInternalRequestTopic := common.BuildTopic(baseTopic, common.CoreCommandNodeRequestPublishTopic, testNodeServiceName, testNodeName, testCommandName, testMethod)
+			expectedInternalResponseTopicPrefix := common.BuildTopic(baseTopic, common.ResponseTopic, testNodeServiceName)
 			// Request now runs in a goroutine — wait for it.
 			require.Eventually(t, func() bool {
 				return client.AssertCalled(new(testing.T), "Request", tt.payload, expectedInternalRequestTopic, expectedInternalResponseTopicPrefix, mock.Anything)
@@ -399,17 +399,17 @@ func testCommandRequestPayload() types.MessageEnvelope {
 func newCommandRequestDIC(t *testing.T, runRequest func(args mock.Arguments)) (*di.Container, *internalMessagingMocks.MessageClient) {
 	t.Helper()
 
-	deviceResponse := responses.DeviceResponse{
+	nodeResponse := responses.NodeResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Device: dtos.Device{
-			Name:        testDeviceName,
+		Node: dtos.Node{
+			Name:        testNodeName,
 			ProfileName: testProfileName,
-			ServiceName: testDeviceServiceName,
+			ServiceName: testNodeServiceName,
 		},
 	}
-	deviceServiceResponse := responses.DeviceServiceResponse{
+	nodeServiceResponse := responses.NodeServiceResponse{
 		BaseResponse: commonDTO.NewBaseResponse("", "", http.StatusOK),
-		Service:      dtos.DeviceService{Name: testDeviceServiceName},
+		Service:      dtos.NodeService{Name: testNodeServiceName},
 	}
 
 	lc := &lcMocks.LoggingClient{}
@@ -419,10 +419,10 @@ func newCommandRequestDIC(t *testing.T, runRequest func(args mock.Arguments)) (*
 	lc.On("Warn", mock.Anything).Return(nil)
 	lc.On("Warnf", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
-	dc := &clientMocks.DeviceClient{}
-	dc.On("DeviceByName", context.Background(), testDeviceName).Return(deviceResponse, nil)
-	dsc := &clientMocks.DeviceServiceClient{}
-	dsc.On("DeviceServiceByName", context.Background(), testDeviceServiceName).Return(deviceServiceResponse, nil)
+	dc := &clientMocks.NodeClient{}
+	dc.On("NodeByName", context.Background(), testNodeName).Return(nodeResponse, nil)
+	dsc := &clientMocks.NodeServiceClient{}
+	dsc.On("NodeServiceByName", context.Background(), testNodeServiceName).Return(nodeServiceResponse, nil)
 
 	msgClient := &internalMessagingMocks.MessageClient{}
 	call := msgClient.On("Request", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
@@ -445,8 +445,8 @@ func newCommandRequestDIC(t *testing.T, runRequest func(args mock.Arguments)) (*
 			}
 		},
 		bootstrapContainer.LoggingClientInterfaceName: func(get di.Get) interface{} { return lc },
-		bootstrapContainer.DeviceClientName:           func(get di.Get) interface{} { return dc },
-		bootstrapContainer.DeviceServiceClientName:    func(get di.Get) interface{} { return dsc },
+		bootstrapContainer.NodeClientName:             func(get di.Get) interface{} { return dc },
+		bootstrapContainer.NodeServiceClientName:      func(get di.Get) interface{} { return dsc },
 		bootstrapContainer.MessagingClientName:        func(get di.Get) interface{} { return msgClient },
 	})
 

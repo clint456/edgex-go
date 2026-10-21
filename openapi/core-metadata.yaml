@@ -1,41 +1,41 @@
 openapi: 3.1.0
 info:
   title: Edgex Foundry - Core Metadata API
-  description: "This is the definition of the API for the Core Metadata service in the EdgeX Foundry IOT microservice platform. Core Metadata is responsible for all information related to provisioned devices and their associated services."
+  description: "This is the definition of the API for the Core Metadata service in the EdgeX Foundry IOT microservice platform. Core Metadata is responsible for all information related to provisioned nodes and their associated services."
   version: 4.0.0
 servers:
   - url: 'http://localhost:59881/api/v3'
     description: URL for local development and testing
 components:
   schemas:
-    AddDeviceRequest:
+    AddNodeRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-      description: "A request to add a new device associated with a specific device service and conforming to a specific device profile."
+      description: "A request to add a new node associated with a specific node service and conforming to a specific node profile."
       type: object
       properties:
-        device:
-          $ref: '#/components/schemas/CreateDevice'
+        node:
+          $ref: '#/components/schemas/CreateNode'
       required:
-        - device
-    AddDeviceProfileRequest:
+        - node
+    AddProfileRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-      description: "A request to add a new device profile. When making this request, the ID property should not be populated."
+      description: "A request to add a new node profile. When making this request, the ID property should not be populated."
       type: object
       properties:
         profile:
-          $ref: '#/components/schemas/CreateDeviceProfile'
+          $ref: '#/components/schemas/CreateProfile'
       required:
         - profile
-    AddDeviceServiceRequest:
+    AddNodeServiceRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-      description: "A request to add a new DeviceService - name must be unique"
+      description: "A request to add a new NodeService - name must be unique"
       type: object
       properties:
         service:
-          $ref: '#/components/schemas/CreateDeviceService'
+          $ref: '#/components/schemas/CreateNodeService'
       required:
         - service
     AddProvisionWatcherRequest:
@@ -56,13 +56,13 @@ components:
           description: Interval indicates how often the specific resource needs to be polled. It represents as a duration string. The format of this field is to be an unsigned integer followed by a unit which may be "ns", "us" (or "µs"), "ms", "s", "m", "h" representing nanoseconds, microseconds, milliseconds, seconds, minutes or hours. Eg, "100ms", "24h"
         onChange:
           type: boolean
-          description: OnChange indicates whether the device service will generate an event only, if the reading value is different from the previous one. If true, only generate events when readings change
+          description: OnChange indicates whether the node service will generate an event only, if the reading value is different from the previous one. If true, only generate events when readings change
         onChangeThreshold:
           type: number
           description: OnChangeThreshold indicates any changed value that exceeds the threshold shall be generated new event if `onChange` is true, this feature only applies to the numeric reading. Available value types are `Uint8`, `Uint16`, `Uint32`, `Uint64`, `Int8`, `Int16`, `Int32`, `Int64`, `Float32`, `Float64`. The default value is 0.
         sourceName:
           type: string
-          description: SourceName indicates the name of the resource or device command in the device profile which describes the event to generate
+          description: SourceName indicates the name of the resource or node command in the node profile which describes the event to generate
         retention:
           type: object
           description: Retention defines policies for retaining autoevents.
@@ -128,13 +128,13 @@ components:
         totalCount:
           description: "The total count of all multi instances."
           type: integer
-    Device:
+    Node:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: ID uniquely identifies the device, a UUID for example
+          description: ID uniquely identifies the node, a UUID for example
         created:
           type: integer
           description: Created is a timestamp indicating when the entity was created.
@@ -143,7 +143,7 @@ components:
           description: Modified is a timestamp indicating when the entity was last modified.
         name:
           type: string
-          description: Unique name for identifying a device
+          description: Unique name for identifying a node
         description:
           type: string
         adminState:
@@ -161,43 +161,43 @@ components:
             - UNKNOWN
         labels:
           type: array
-          description: Other labels applied to the device to help with searching
+          description: Other labels applied to the node to help with searching
           items:
             type: string
         location:
           type: object
-          description: Device service specific location (interface{} is an empty interface so it can be anything)
+          description: Node service specific location (interface{} is an empty interface so it can be anything)
         serviceName:
           type: string
-          description: Associated Device Service - One per device
+          description: Associated Node Service - One per node
         profileName:
           type: string
-          description: Associated Device Profile - Describes the device
+          description: Associated Node Profile - Describes the node
         autoEvents:
           type: array
-          description: A list of auto-generated events coming from the device
+          description: A list of auto-generated events coming from the node
           items:
             $ref: '#/components/schemas/AutoEvent'
         protocols:
           type: object
-          description: A map of supported protocols for the given device
+          description: A map of supported protocols for the given node
           additionalProperties:
             $ref: '#/components/schemas/ProtocolProperties'
         parent:
           type: string
-          description: Parent device name
+          description: Parent node name
         tags:
           type: object
-          description: A map of tags used to tag the given device
+          description: A map of tags used to tag the given node
         properties:
           type: object
-          description: A map of properties required to address the given device
-    CreateDevice:
+          description: A map of properties required to address the given node
+    CreateNode:
       type: object
       properties:
         name:
           type: string
-          description: Unique name for identifying a device
+          description: Unique name for identifying a node
         description:
           type: string
         adminState:
@@ -215,56 +215,56 @@ components:
             - UNKNOWN
         labels:
           type: array
-          description: Other labels applied to the device to help with searching
+          description: Other labels applied to the node to help with searching
           items:
             type: string
         location:
           type: object
-          description: Device service specific location (interface{} is an empty interface so it can be anything)
+          description: Node service specific location (interface{} is an empty interface so it can be anything)
         serviceName:
           type: string
-          description: Associated Device Service - One per device
+          description: Associated Node Service - One per node
         profileName:
           type: string
-          description: Associated Device Profile - Describes the device
+          description: Associated Node Profile - Describes the node
         autoEvents:
           type: array
-          description: A list of auto-generated events coming from the device
+          description: A list of auto-generated events coming from the node
           items:
             $ref: '#/components/schemas/AutoEvent'
         protocols:
           type: object
-          description: A map of supported protocols for the given device
+          description: A map of supported protocols for the given node
           additionalProperties:
             $ref: '#/components/schemas/ProtocolProperties'
         parent:
           type: string
-          description: Parent device name
+          description: Parent node name
         tags:
           type: object
-          description: A map of tags used to tag the given device
+          description: A map of tags used to tag the given node
         properties:
           type: object
-          description: A map of properties required to address the given device
+          description: A map of properties required to address the given node
       required:
         - name
         - adminState
         - operatingState
         - serviceName
         - protocols
-    UpdateDevice:
+    UpdateNode:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: ID uniquely identifies the device, a UUID for example
+          description: ID uniquely identifies the node, a UUID for example
         name:
           type: string
-          description: Unique name for identifying a device
+          description: Unique name for identifying a node
         description:
           type: string
-          description: Description of the device
+          description: Description of the node
         adminState:
           type: string
           description: Admin state (locked/unlocked)
@@ -273,38 +273,38 @@ components:
           description: Operating state (enabled/disabled)
         labels:
           type: array
-          description: Other labels applied to the device to help with searching
+          description: Other labels applied to the node to help with searching
           items:
             type: string
         location:
           type: object
-          description: Device service specific location (interface{} is an empty interface so it can be anything)
+          description: Node service specific location (interface{} is an empty interface so it can be anything)
         serviceName:
           type: string
-          description: Associated Device Service - One per device
+          description: Associated Node Service - One per node
         profileName:
           type: string
-          description: Associated Device Profile - Describes the device
+          description: Associated Node Profile - Describes the node
         autoEvents:
           type: array
-          description: A list of auto-generated events coming from the device
+          description: A list of auto-generated events coming from the node
           items:
             $ref: '#/components/schemas/AutoEvent'
         protocols:
           type: object
-          description: A map of supported protocols for the given device
+          description: A map of supported protocols for the given node
           additionalProperties:
             $ref: '#/components/schemas/ProtocolProperties'
         parent:
           type: string
-          description: Parent device name
+          description: Parent node name
         tags:
           type: object
-          description: A map of tags used to tag the given device
+          description: A map of tags used to tag the given node
         properties:
           type: object
-          description: A map of properties required to address the given device
-    DeviceProfileBasicInfo:
+          description: A map of properties required to address the given node
+    ProfileBasicInfo:
       description: "A profile basic information"
       type: object
       properties:
@@ -316,26 +316,26 @@ components:
           description: Description
         manufacturer:
           type: string
-          description: Manufacturer of the device
+          description: Manufacturer of the node
         model:
           type: string
-          description: Model of the device
+          description: Model of the node
         labels:
           type: array
           description: Labels used to search for groups of profiles
           items:
             type: string
-        linkedDeviceCount:
+        linkedNodeCount:
           type: integer
-          description: The total number of devices associated with this profile.
-    DeviceProfileBasicInfoRequest:
+          description: The total number of nodes associated with this profile.
+    ProfileBasicInfoRequest:
       description: "Update basic information of an existing profile"
       type: object
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
       properties:
         basicinfo:
-          $ref: '#/components/schemas/DeviceProfileBasicInfo'
+          $ref: '#/components/schemas/ProfileBasicInfo'
       required:
         - profileName
     UpdateTags:
@@ -343,28 +343,28 @@ components:
       properties:
         name:
           type: string
-          description: device resource or device command name
+          description: node resource or node command name
         tags:
           type: object
           description: A map of tags to add or update
       required:
         - name
         - tags
-    DeviceProfileTagsRequest:
-      description: "Add/Update tags of device resources/device commands in an existing profile"
+    ProfileTagsRequest:
+      description: "Add/Update tags of node resources/node commands in an existing profile"
       type: object
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
       properties:
-        deviceResources:
+        resources:
           type: array
           items:
             $ref: '#/components/schemas/UpdateTags'
-        deviceCommands:
+        commands:
           type: array
           items:
             $ref: '#/components/schemas/UpdateTags'
-    MultiDeviceProfileBasicInfosResponse:
+    MultiProfileBasicInfosResponse:
       allOf:
         - $ref: '#/components/schemas/BaseWithTotalCountResponse'
       type: object
@@ -372,15 +372,15 @@ components:
         profiles:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceProfileBasicInfo'
-    DeviceProfile:
-      description: "A profile defining a class of device to be onboarded, including its capabilities and data format."
+            $ref: '#/components/schemas/ProfileBasicInfo'
+    Profile:
+      description: "A profile defining a class of node to be onboarded, including its capabilities and data format."
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: ID uniquely identifies the device profile, a UUID for example
+          description: ID uniquely identifies the node profile, a UUID for example
         name:
           type: string
           description: Non-database identifier (must be unique)
@@ -395,68 +395,68 @@ components:
           description: Modified is a timestamp indicating when the entity was last modified.
         manufacturer:
           type: string
-          description: Manufacturer of the device
+          description: Manufacturer of the node
         model:
           type: string
-          description: Model of the device
+          description: Model of the node
         labels:
           type: array
           description: Labels used to search for groups of profiles
           items:
             type: string
-        deviceResources:
+        resources:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceResource'
-        deviceCommands:
+            $ref: '#/components/schemas/Resource'
+        commands:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceCommand'
-        linkedDeviceCount:
+            $ref: '#/components/schemas/Command'
+        linkedNodeCount:
           type: integer
-          description: The total number of devices associated with this profile.
-    CreateDeviceProfile:
-      description: "A profile defining a class of device to be onboarded, including its capabilities and data format."
+          description: The total number of nodes associated with this profile.
+    CreateProfile:
+      description: "A profile defining a class of node to be onboarded, including its capabilities and data format."
       type: object
       allOf:
-        - $ref: '#/components/schemas/DeviceProfileBasicInfo'
+        - $ref: '#/components/schemas/ProfileBasicInfo'
       properties:
-        deviceResources:
+        resources:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceResource'
-        deviceCommands:
+            $ref: '#/components/schemas/Resource'
+        commands:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceCommand'
+            $ref: '#/components/schemas/Command'
       required:
         - name
-    UpdateDeviceProfile:
-      description: "A profile defining a class of device to be onboarded, including its capabilities and data format."
+    UpdateProfile:
+      description: "A profile defining a class of node to be onboarded, including its capabilities and data format."
       type: object
       allOf:
-        - $ref: '#/components/schemas/DeviceProfileBasicInfo'
+        - $ref: '#/components/schemas/ProfileBasicInfo'
       properties:
         id:
           type: string
           format: uuid
-          description: ID uniquely identifies the device profile, a UUID for example
-        deviceResources:
+          description: ID uniquely identifies the node profile, a UUID for example
+        resources:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceResource'
-        deviceCommands:
+            $ref: '#/components/schemas/Resource'
+        commands:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceCommand'
-    DeviceProfileResponse:
+            $ref: '#/components/schemas/Command'
+    ProfileResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
       type: object
       properties:
         profile:
-          $ref: '#/components/schemas/DeviceProfile'
-    MultiDeviceProfilesResponse:
+          $ref: '#/components/schemas/Profile'
+    MultiProfilesResponse:
       allOf:
         - $ref: '#/components/schemas/BaseWithTotalCountResponse'
       type: object
@@ -464,9 +464,9 @@ components:
         profiles:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceProfile'
-    DeviceResource:
-      description: "DeviceResource represents a value on a device that can be read or written."
+            $ref: '#/components/schemas/Profile'
+    Resource:
+      description: "Resource represents a value on a node that can be read or written."
       type: object
       properties:
         description:
@@ -475,7 +475,7 @@ components:
           type: string
         isHidden:
           type: boolean
-          description: "Indicate the visibility of the DeviceResource via a CoreCommand."
+          description: "Indicate the visibility of the Resource via a CoreCommand."
         tags:
           type: object
           description: "Tags for adding additional information on reading level"
@@ -483,13 +483,13 @@ components:
           $ref: '#/components/schemas/ResourceProperties'
         attributes:
           type: object
-          description: Each Device Service should define required and optional keys
+          description: Each Node Service should define required and optional keys
           additionalProperties:
             type: string
       required:
         - name
-    UpdateDeviceResource:
-      description: "UpdateDeviceResource represents a value on a device resource that can be read or written."
+    UpdateResource:
+      description: "UpdateResource represents a value on a node resource that can be read or written."
       type: object
       properties:
         description:
@@ -498,60 +498,60 @@ components:
           type: string
         isHidden:
           type: boolean
-          description: "Indicate the visibility of the DeviceResource via a CoreCommand."
+          description: "Indicate the visibility of the Resource via a CoreCommand."
       required:
         - name
-    DeviceResourceRequest:
+    ResourceRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
       type: object
       properties:
         profileName:
           type: string
-          description: "The unique name of a device profile"
+          description: "The unique name of a node profile"
         resource:
-          $ref: '#/components/schemas/DeviceResource'
+          $ref: '#/components/schemas/Resource'
       required:
         - profileName
         - resource
-    UpdateDeviceResourceRequest:
+    UpdateResourceRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
       type: object
       properties:
         profileName:
           type: string
-          description: "The unique name of a device profile"
+          description: "The unique name of a node profile"
         resource:
-          $ref: '#/components/schemas/UpdateDeviceResource'
+          $ref: '#/components/schemas/UpdateResource'
       required:
         - profileName
         - resource
-    DeviceResourceResponse:
+    ResourceResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
       type: object
       properties:
         resource:
-          $ref: '#/components/schemas/DeviceResource'
-    DeviceResponse:
+          $ref: '#/components/schemas/Resource'
+    NodeResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
       type: object
       properties:
-        device:
-          $ref: '#/components/schemas/Device'
-    MultiDevicesResponse:
+        node:
+          $ref: '#/components/schemas/Node'
+    MultiNodesResponse:
       allOf:
         - $ref: '#/components/schemas/BaseWithTotalCountResponse'
       type: object
       properties:
-        devices:
+        nodes:
           type: array
           items:
-            $ref: '#/components/schemas/Device'
-    DeviceService:
-      description: "A DeviceService is responsible for proxying connectivity between a set of devices and the EdgeX Foundry core services."
+            $ref: '#/components/schemas/Node'
+    NodeService:
+      description: "A NodeService is responsible for proxying connectivity between a set of nodes and the EdgeX Foundry core services."
       type: object
       properties:
         created:
@@ -565,13 +565,13 @@ components:
         id:
           type: string
           format: uuid
-          description: ID uniquely identifies the device, a UUID for example
+          description: ID uniquely identifies the node, a UUID for example
         name:
           type: string
-          description: Description of the device service
+          description: Description of the node service
         labels:
           type: array
-          description: tags or other labels applied to the device service for search or other identification needs
+          description: tags or other labels applied to the node service for search or other identification needs
           items:
             type: string
         baseAddress:
@@ -579,7 +579,7 @@ components:
           description: BaseAddress is a fully qualified URI, e.g. <protocol>:\\<hostname>:<port>/<optional path>
         adminState:
           type: string
-          description: Device Service Admin State
+          description: Node Service Admin State
           enum:
             - LOCKED
             - UNLOCKED
@@ -587,24 +587,24 @@ components:
         - name
         - adminState
         - baseAddress
-    CreateDeviceService:
-      description: "A DeviceService is responsible for proxying connectivity between a set of devices and the EdgeX Foundry core services."
+    CreateNodeService:
+      description: "A NodeService is responsible for proxying connectivity between a set of nodes and the EdgeX Foundry core services."
       type: object
       properties:
         name:
           type: string
-          description: Description of the device service
+          description: Description of the node service
         description:
           type: string
         adminState:
           type: string
-          description: Device Service Admin State
+          description: Node Service Admin State
           enum:
             - LOCKED
             - UNLOCKED
         labels:
           type: array
-          description: tags or other labels applied to the device service for search or other identification needs
+          description: tags or other labels applied to the node service for search or other identification needs
           items:
             type: string
         baseAddress:
@@ -614,20 +614,20 @@ components:
         - name
         - adminState
         - baseAddress
-    UpdateDeviceService:
-      description: "A DeviceService is responsible for proxying connectivity between a set of devices and the EdgeX Foundry core services."
+    UpdateNodeService:
+      description: "A NodeService is responsible for proxying connectivity between a set of nodes and the EdgeX Foundry core services."
       type: object
       properties:
         id:
           type: string
           format: uuid
-          description: ID uniquely identifies the device, a UUID for example
+          description: ID uniquely identifies the node, a UUID for example
         name:
           type: string
-          description: Description of the device service
+          description: Description of the node service
         labels:
           type: array
-          description: tags or other labels applied to the device service for search or other identification needs
+          description: tags or other labels applied to the node service for search or other identification needs
           items:
             type: string
         baseAddress:
@@ -635,18 +635,18 @@ components:
           description: BaseAddress is a fully qualified URI, e.g. <protocol>:\\<hostname>:<port>/<optional path>
         adminState:
           type: string
-          description: Device Service Admin State
+          description: Node Service Admin State
         properties:
           type: object
-          description: A map of properties required to address the given device service
-    DeviceServiceResponse:
+          description: A map of properties required to address the given node service
+    NodeServiceResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
       type: object
       properties:
         service:
-          $ref: '#/components/schemas/DeviceService'
-    MultiDeviceServicesResponse:
+          $ref: '#/components/schemas/NodeService'
+    MultiNodeServicesResponse:
       allOf:
         - $ref: '#/components/schemas/BaseWithTotalCountResponse'
       type: object
@@ -654,9 +654,9 @@ components:
         services:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceService'
+            $ref: '#/components/schemas/NodeService'
     ProvisionWatcher:
-      description: "A ProvisionWatcher defines the filtering criteria for device auto discovery."
+      description: "A ProvisionWatcher defines the filtering criteria for node auto discovery."
       type: object
       properties:
         id:
@@ -668,7 +668,7 @@ components:
           description: Non-database identifier (must be unique)
         serviceName:
           type: string
-          description: Name of the device service that will use the provision watcher
+          description: Name of the node service that will use the provision watcher
         created:
           type: integer
           description: Created is a timestamp indicating when the entity was created.
@@ -687,7 +687,7 @@ components:
             type: string
         blockingIdentifiers:
           type: object
-          description: Set of key-values pairs that identify devices which will not be added despite matching on identifiers
+          description: Set of key-values pairs that identify nodes which will not be added despite matching on identifiers
           additionalProperties:
             type: array
             items:
@@ -698,12 +698,12 @@ components:
           enum:
             - LOCKED
             - UNLOCKED
-        discoveredDevice:
+        discoveredNode:
           type: object
           allOf:
-            - $ref: '#/components/schemas/DiscoveredDevice'
+            - $ref: '#/components/schemas/DiscoveredNode'
     CreateProvisionWatcher:
-      description: "A ProvisionWatcher defines the filtering criteria for device auto discovery."
+      description: "A ProvisionWatcher defines the filtering criteria for node auto discovery."
       type: object
       properties:
         name:
@@ -711,7 +711,7 @@ components:
           description: Non-database identifier (must be unique)
         serviceName:
           type: string
-          description: Name of the device service that will use the provision watcher
+          description: Name of the node service that will use the provision watcher
         labels:
           type: array
           description: Labels applied to the provision watcher to help with searching
@@ -724,7 +724,7 @@ components:
             type: string
         blockingIdentifiers:
           type: object
-          description: Set of key-values pairs that identify devices which will not be added despite matching on identifiers
+          description: Set of key-values pairs that identify nodes which will not be added despite matching on identifiers
           additionalProperties:
             type: array
             items:
@@ -732,16 +732,16 @@ components:
         adminState:
           type: string
           description: Admin state - either locked or unlocked
-        discoveredDevice:
+        discoveredNode:
           type: object
           allOf:
-            - $ref: '#/components/schemas/DiscoveredDevice'
+            - $ref: '#/components/schemas/DiscoveredNode'
       required:
         - name
         - identifiers
-        - discoveredDevice
+        - discoveredNode
     UpdateProvisionWatcher:
-      description: "A ProvisionWatcher defines the filtering criteria for device auto discovery."
+      description: "A ProvisionWatcher defines the filtering criteria for node auto discovery."
       type: object
       properties:
         id:
@@ -753,7 +753,7 @@ components:
           description: Non-database identifier (must be unique)
         serviceName:
           type: string
-          description: Name of the device service that will use the provision watcher
+          description: Name of the node service that will use the provision watcher
         labels:
           type: array
           description: Labels applied to the provision watcher to help with searching
@@ -766,7 +766,7 @@ components:
             type: string
         blockingIdentifiers:
           type: object
-          description: Set of key-values pairs that identify devices which will not be added despite matching on identifiers
+          description: Set of key-values pairs that identify nodes which will not be added despite matching on identifiers
           additionalProperties:
             type: array
             items:
@@ -777,10 +777,10 @@ components:
           enum:
             - LOCKED
             - UNLOCKED
-        discoveredDevice:
+        discoveredNode:
           type: object
           allOf:
-            - $ref: '#/components/schemas/UpdateDiscoveredDevice'
+            - $ref: '#/components/schemas/UpdateDiscoveredNode'
     ProvisionWatcherResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
@@ -797,13 +797,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProvisionWatcher'
-    DiscoveredDevice:
-      description: "A DiscoveredDevice defines the data to be assigned on the new discovered device"
+    DiscoveredNode:
+      description: "A DiscoveredNode defines the data to be assigned on the new discovered node"
       type: object
       properties:
         profileName:
           type: string
-          description: Name of the profile that should be applied to the devices available at the identifier addresses
+          description: Name of the profile that should be applied to the nodes available at the identifier addresses
         adminState:
           type: string
           description: Admin state
@@ -812,7 +812,7 @@ components:
             - UNLOCKED
         autoEvents:
           type: array
-          description: Autoevents that allow device service to automatically start generating data from new devices
+          description: Autoevents that allow node service to automatically start generating data from new nodes
           items:
             $ref: '#/components/schemas/AutoEvent'
         properties:
@@ -821,13 +821,13 @@ components:
       required:
         - serviceName
         - adminState
-    UpdateDiscoveredDevice:
-      description: "A UpdateDiscoveredDevice defines the data to be assigned on the new discovered device"
+    UpdateDiscoveredNode:
+      description: "A UpdateDiscoveredNode defines the data to be assigned on the new discovered node"
       type: object
       properties:
         profileName:
           type: string
-          description: Name of the profile that should be applied to the devices available at the identifier addresses
+          description: Name of the profile that should be applied to the nodes available at the identifier addresses
         adminState:
           type: string
           description: Admin state
@@ -836,7 +836,7 @@ components:
             - UNLOCKED
         autoEvents:
           type: array
-          description: Autoevents that allow device service to automatically start generating data from new devices
+          description: Autoevents that allow node service to automatically start generating data from new nodes
           items:
             $ref: '#/components/schemas/AutoEvent'
         properties:
@@ -877,8 +877,8 @@ components:
         serviceName:
           description: "Outputs the name of the service the response is from"
           type: string
-    DeviceCommand:
-      description: "Defines read/write capabilities native to the device"
+    Command:
+      description: "Defines read/write capabilities native to the node"
       type: object
       properties:
         name:
@@ -888,10 +888,10 @@ components:
           description: "Tags for adding additional information on event level"
         isHidden:
           type: boolean
-          description: "Indicate the visibility of the DeviceCommand via a CoreCommand."
+          description: "Indicate the visibility of the Command via a CoreCommand."
         readWrite:
           type: string
-          description: "Read/Write Permissions set for this DeviceCommand. The value can be R, W, or RW. R enables GET command, and W enables SET command in the Core Command Service."
+          description: "Read/Write Permissions set for this Command. The value can be R, W, or RW. R enables GET command, and W enables SET command in the Core Command Service."
           enum:
             - R
             - W
@@ -904,44 +904,44 @@ components:
         - name
         - readWrite
         - resourceOperations
-    UpdateDeviceCommand:
+    UpdateCommand:
       type: object
       properties:
         name:
           type: string
         isHidden:
           type: boolean
-          description: "Indicate the visibility of the DeviceCommand via a CoreCommand."
+          description: "Indicate the visibility of the Command via a CoreCommand."
       required:
         - name
-    DeviceCommandRequest:
+    CommandRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
       type: object
       properties:
         profileName:
           type: string
-          description: "The unique name of a device profile"
-        deviceCommand:
-          $ref: '#/components/schemas/DeviceCommand'
+          description: "The unique name of a node profile"
+        command:
+          $ref: '#/components/schemas/Command'
       required:
         - profileName
-        - deviceCommand
-    UpdateDeviceCommandRequest:
+        - command
+    UpdateCommandRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
       type: object
       properties:
         profileName:
           type: string
-          description: "The unique name of a device profile"
-        deviceCommand:
-          $ref: '#/components/schemas/UpdateDeviceCommand'
+          description: "The unique name of a node profile"
+        command:
+          $ref: '#/components/schemas/UpdateCommand'
       required:
         - profileName
-        - deviceCommand
+        - command
     ResourceProperties:
-      description: "Defines constraints with regard to the range of acceptable values assigned to an event reading and defined as a property within a device profile."
+      description: "Defines constraints with regard to the range of acceptable values assigned to an event reading and defined as a property within a node profile."
       type: object
       properties:
         valueType:
@@ -1010,7 +1010,7 @@ components:
           description: 'Base for property to be applied to, leave 0 for no power operation (i.e. base ^ property: 2 ^ 10). Only valid where Type is one of the integer or float types.'
         assertion:
           type: string
-          description: Required value of the property, set for checking error state.  Failing an assertion condition will mark the device with an error state
+          description: Required value of the property, set for checking error state.  Failing an assertion condition will mark the node with an error state
         mediaType:
           type: string
           description: A string value used to indicate the type of binary data if Type=binary
@@ -1027,50 +1027,50 @@ components:
       type: object
       additionalProperties: true
     ResourceOperation:
-      description: "Defines an operation of which a device is capable."
+      description: "Defines an operation of which a node is capable."
       type: object
       properties:
-        deviceResource:
+        resource:
           type: string
-          description: The replacement of Object field. Must name a DeviceResource in this profile
+          description: The replacement of Object field. Must name a Resource in this profile
         defaultValue:
           type: string
-          description: If present, should be compatible with the Type field of the named DeviceResource
+          description: If present, should be compatible with the Type field of the named Resource
         mappings:
           type: object
-          description: Only valid where the Type of the named DeviceResource is String
+          description: Only valid where the Type of the named Resource is String
           additionalProperties:
             type: string
       required:
-        - deviceResource
-    UpdateDeviceRequest:
+        - resource
+    UpdateNodeRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-      description: "A request to update an existing device definition. 'id' and 'deviceName' must be populated in order to identify the device. Any other property that is populated in the request will be updated. Empty/blank properties will not be considered."
+      description: "A request to update an existing node definition. 'id' and 'nodeName' must be populated in order to identify the node. Any other property that is populated in the request will be updated. Empty/blank properties will not be considered."
       type: object
       properties:
-        device:
-          $ref: '#/components/schemas/UpdateDevice'
+        node:
+          $ref: '#/components/schemas/UpdateNode'
       required:
-        - device
-    UpdateDeviceProfileRequest:
+        - node
+    UpdateProfileRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-      description: "A request to update an existing device profile definition. 'id' and 'name' must be populated in order to identify the profile. Any other property that is populated in the request will be updated. Empty/blank properties will not be considered."
+      description: "A request to update an existing node profile definition. 'id' and 'name' must be populated in order to identify the profile. Any other property that is populated in the request will be updated. Empty/blank properties will not be considered."
       type: object
       properties:
         profile:
-          $ref: '#/components/schemas/UpdateDeviceProfile'
+          $ref: '#/components/schemas/UpdateProfile'
       required:
         - profile
-    UpdateDeviceServiceRequest:
+    UpdateNodeServiceRequest:
       allOf:
         - $ref: '#/components/schemas/BaseRequest'
-      description: "A request to update an existing device service definition. 'id' and 'deviceServiceName' must be populated in order to identify the service. Any other property that is populated in the request will be updated. Empty/blank properties will not be considered."
+      description: "A request to update an existing node service definition. 'id' and 'nodeServiceName' must be populated in order to identify the service. Any other property that is populated in the request will be updated. Empty/blank properties will not be considered."
       type: object
       properties:
         service:
-          $ref: '#/components/schemas/UpdateDeviceService'
+          $ref: '#/components/schemas/UpdateNodeService'
       required:
         - service
     UpdateProvisionWatcherRequest:
@@ -1225,7 +1225,7 @@ components:
       schema:
         type: boolean
         default: false
-      description: "Indicates whether to skip the Device Service Validation API call."
+      description: "Indicates whether to skip the Node Service Validation API call."
     forceParam:
       in: query
       name: force
@@ -1233,7 +1233,7 @@ components:
       schema:
         type: boolean
         default: false
-      description: "Indicates whether to force add the device if device name already exists."
+      description: "Indicates whether to force add the node if node name already exists."
   headers:
     correlatedResponseHeader:
       description: "A response header that returns the unique correlation ID used to initiate the request."
@@ -1319,7 +1319,7 @@ components:
           requestId: "791846bd-e702-4c7a-9d22-3ceee2f08427"
           statusCode: 500
           message: "Internal Server Error"
-    MultiPOSTDeviceStatusExample:
+    MultiPOSTNodeStatusExample:
       value:
         - apiVersion: "v3"
           requestId: "592b98aa-1e4e-46f2-992a-9e6ef844270f"
@@ -1354,7 +1354,7 @@ components:
           requestId: "791846bd-e702-4c7a-9d22-3ceee2f08427"
           statusCode: 500
           message: "Internal Server Error"
-    MultiUpdateDeviceStatusExample:
+    MultiUpdateNodeStatusExample:
       value:
         - apiVersion: "v3"
           requestId: "592b98aa-1e4e-46f2-992a-9e6ef844270f"
@@ -1371,10 +1371,10 @@ components:
           requestId: "791846bd-e702-4c7a-9d22-3ceee2f08427"
           statusCode: 500
           message: "Internal Server Error"
-    AddDeviceRequest:
+    AddNodeRequest:
       value:
         - apiVersion: v3
-          device:
+          node:
             name: AWS-IOT-Button1
             description: Home automation system
             adminState: UNLOCKED
@@ -1384,7 +1384,7 @@ components:
               - hvac
               - thermostat
             location: "{lat:45.45,long:47.80}"
-            serviceName: device-modbus
+            serviceName: node-modbus
             profileName: Google-Home-profile
             autoEvents:
               - interval: 300ms
@@ -1405,16 +1405,16 @@ components:
                 field4: "field4Value"
                 field5: "field5Value"
             properties:
-              DeviceInstance:
+              NodeInstance:
                 instanceName: "myInstance"
                 instanceId: "instance1"
               Firmware:
                 firmwareId: "firmwareABC"
                 firmwareVersion: "v1.1.2"
-    UpdateDeviceRequest:
+    UpdateNodeRequest:
       value:
         - apiVersion: v3
-          device:
+          node:
             id: "edaa7c0f-05c6-4368-89f1-3be5e197cf6a"
             name: "AWS-IOT-Button1"
             operatingState: "DOWN"
@@ -1426,36 +1426,36 @@ components:
                 onChangeThreshold: 0.01
                 sourceName: "CurrentHumidity"
         - apiVersion: v3
-          device:
+          node:
             id: "771de9f4-b5a3-4eba-b5e7-ec6e14fa3de7"
             name: "AWS-IOT-Button2"
             description: "Home automation system"
             adminState: "LOCKED"
             operatingState: "UP"
-    AddDeviceServiceRequest:
+    AddNodeServiceRequest:
       value:
         - requestId: "e6e8a2f4-eb14-4649-9e2b-175247911369"
           apiVersion: v3
           service:
-            name: home-thermostat-device-service
+            name: home-thermostat-node-service
             description: manage homethermostats
             adminState: UNLOCKED
             labels:
               - hvac
               - thermostat
-            baseAddress: http://home-device-service:49990
-    AddDeviceProfileRequest:
+            baseAddress: http://home-node-service:49990
+    AddProfileRequest:
       value:
         - requestId: "e6e8a2f4-eb14-4649-9e2b-175247911369"
           apiVersion: v3
           profile:
-            name: "Simple-Device-Profile"
+            name: "Simple-Node-Profile"
             manufacturer: "Simple Corp."
             model: "SP-01"
             labels:
               - "modbus"
-            description: "Example of Simple Device Profile"
-            deviceResources:
+            description: "Example of Simple Node Profile"
+            resources:
               - name: "SwitchButton"
                 description: "Switch On/Off."
                 properties:
@@ -1463,28 +1463,28 @@ components:
                   readWrite: "RW"
                   defaultValue: "On"
                   units: "On/Off"
-            deviceCommands:
+            commands:
               - name: "Switch"
                 readWrite: "RW"
                 resourceOperations:
-                  - deviceResource: "SwitchButton"
+                  - resource: "SwitchButton"
                     DefaultValue: "false"
-    AddDeviceCommandRequest:
+    AddCommandRequest:
       value:
         - requestId: "e6e8a2f4-eb14-4649-9e2b-175247911369"
           apiVersion: v3
-          profileName: "Simple-Device-Profile"
-          deviceCommand:
+          profileName: "Simple-Node-Profile"
+          command:
             name: "Switch"
             readWrite: "RW"
             resourceOperations:
-              - deviceResource: "SwitchButton"
+              - resource: "SwitchButton"
                 DefaultValue: "false"
-    AddDeviceResourceRequest:
+    AddResourceRequest:
       value:
         - requestId: "e6e8a2f4-eb14-4649-9e2b-175247911369"
           apiVersion: v3
-          profileName: "Simple-Device-Profile"
+          profileName: "Simple-Node-Profile"
           resource:
             name: "SwitchButton"
             description: "Switch On/Off."
@@ -1510,40 +1510,40 @@ components:
                 - "398"
                 - "399"
             adminState: "UNLOCKED"
-            discoveredDevice:
-              profileName: "device-simple"
-              serviceName: "device-simple"
+            discoveredNode:
+              profileName: "node-simple"
+              serviceName: "node-simple"
               adminState: "UNLOCKED"
               properties:
-                DeviceNameTemplate:
+                NodeNameTemplate:
                   valueReplace: true
-                  template: "device-name-{{Address}}-{{Port}"
-    GetAllDevicesResponse:
+                  template: "node-name-{{Address}}-{{Port}"
+    GetAllNodesResponse:
       value:
         apiVersion: "v3"
         requestId: "479439fa-0148-11eb-adc1-0242ac120002"
         statusCode: 200
         totalCount: 3
-        devices:
+        nodes:
           - id: "55b68fcf-0fd2-445a-9fae-670b37fb9274"
-            name: "Random-Boolean-Device"
-            description: "Example of Device Virtual"
+            name: "Random-Boolean-Node"
+            description: "Example of Node Virtual"
             created: 1600927134931
             modified: 1600927134931
             adminState: "UNLOCKED"
             operatingState: "UP"
             labels:
-              - device-virtual-example
+              - node-virtual-example
             location: ""
-            serviceName: "device-virtual"
-            profileName: "Random-Boolean-Device"
+            serviceName: "node-virtual"
+            profileName: "Random-Boolean-Node"
             autoEvents:
               - interval: "10s"
                 onChange: false
                 sourceName: "Bool"
             protocols:
               other:
-                Address: "device-virtual-bool-01"
+                Address: "node-virtual-bool-01"
                 Port: "300"
             tags:
               tag1:
@@ -1554,24 +1554,24 @@ components:
                 field4: "field4Value"
                 field5: "field5Value"
             properties:
-              DeviceInstance:
+              NodeInstance:
                 instanceName: "myInstance"
                 instanceId: "instance1"
               Firmware:
                 firmwareId: "firmwareABC"
                 firmwareVersion: "v1.1.2"
           - id: "03bd5ce0-b967-4165-a335-775fea604142"
-            name: "Random-UnsignedInteger-Device"
-            description: "Example of Device Virtual"
+            name: "Random-UnsignedInteger-Node"
+            description: "Example of Node Virtual"
             created: 1600927134949
             modified: 1600927134949
             adminState: "UNLOCKED"
             operatingState: "UP"
             labels:
-              - device-virtual-example
+              - node-virtual-example
             location: ""
-            serviceName: "device-virtual"
-            profileName: "Random-Boolean-Device"
+            serviceName: "node-virtual"
+            profileName: "Random-Boolean-Node"
             autoEvents:
               - interval: "20s"
                 onChange: false
@@ -1581,7 +1581,7 @@ components:
                 sourceName: "Uint16"
             protocols:
               other:
-                Address: "device-virtual-uint-01"
+                Address: "node-virtual-uint-01"
                 Port: "300"
             tags:
               tag1:
@@ -1592,13 +1592,13 @@ components:
                 field4: "field4Value"
                 field5: "field5Value"
             properties:
-              DeviceInstance:
+              NodeInstance:
                 instanceName: "myInstance"
                 instanceId: "instance2"
               Firmware:
                 firmwareId: "firmwareXYZ"
                 firmwareVersion: "v3.1.0"
-    GetAllDeviceProfilesResponse:
+    GetAllProfilesResponse:
       value:
         apiVersion: "v3"
         requestId: "bc979763-afde-492c-b0a2-79ff3025b6de"
@@ -1606,52 +1606,52 @@ components:
         totalCount: 3
         profiles:
         - id: "9d33b6fd-f38b-4f0e-aef4-0332578ff2c0"
-          name: "Device-Virtual-Profile"
-          description: "Example of Device-Virtual"
+          name: "Node-Virtual-Profile"
+          description: "Example of Node-Virtual"
           created: 1600927134904
           modified: 1600927134904
           manufacturer: "IOTech"
-          model: "Device-Virtual-01"
+          model: "Node-Virtual-01"
           labels:
-            - device-virtual-example
-          deviceResources:
+            - node-virtual-example
+          resources:
             - description: "Generate random float32 value"
               name: "Float32"
               properties:
                 type: "Float32"
                 readWrite: "RW"
                 defaultValue: "0"
-          deviceCommands:
+          commands:
             - name: "Float32"
               readWrite: "RW"
               resourceOperations:
-                - deviceResource: "Float32"
+                - resource: "Float32"
                   defaultValue: "0.0123"
-          linkedDeviceCount: 1
+          linkedNodeCount: 1
         - id: "3edf4fe9-b3b8-4f78-bb94-ff55f7d9f316"
-          name: "Device-Modbus-Profile"
-          description: "Example of Device-Modbus"
+          name: "Node-Modbus-Profile"
+          description: "Example of Node-Modbus"
           created: 1600927134904
           modified: 1600927134904
           manufacturer: "IOTech"
-          model: "Device-Modbus-01"
+          model: "Node-Modbus-01"
           labels:
-            - device-modbus-example
-          deviceResources:
+            - node-modbus-example
+          resources:
             - description: "Generate random float32 value"
               name: "Float32"
               properties:
                 type: "Float32"
                 readWrite: "RW"
                 defaultValue: "0"
-          deviceCommands:
+          commands:
             - name: "Float32"
               readWrite: "RW"
               resourceOperations:
-                - deviceResource: "1"
+                - resource: "1"
                   defaultValue: "false"
-          linkedDeviceCount: 0
-    GetAllDeviceProfileBasicInfosResponse:
+          linkedNodeCount: 0
+    GetAllProfileBasicInfosResponse:
       value:
         apiVersion: "v3"
         requestId: "bc979763-afde-492c-b0a2-79ff3025b6de"
@@ -1659,21 +1659,21 @@ components:
         totalCount: 3
         profiles:
           - id: "9d33b6fd-f38b-4f0e-aef4-0332578ff2c0"
-            name: "Device-Virtual-Profile"
-            description: "Example of Device-Virtual"
+            name: "Node-Virtual-Profile"
+            description: "Example of Node-Virtual"
             manufacturer: "IOTech"
-            model: "Device-Virtual-01"
+            model: "Node-Virtual-01"
             labels:
-              - device-virtual-example
-            linkedDeviceCount: 1
+              - node-virtual-example
+            linkedNodeCount: 1
           - id: "3edf4fe9-b3b8-4f78-bb94-ff55f7d9f316"
-            name: "Device-Modbus-Profile"
-            description: "Example of Device-Modbus"
+            name: "Node-Modbus-Profile"
+            description: "Example of Node-Modbus"
             manufacturer: "IOTech"
-            model: "Device-Modbus-01"
+            model: "Node-Modbus-01"
             labels:
-              - device-modbus-example
-            linkedDeviceCount: 0
+              - node-modbus-example
+            linkedNodeCount: 0
     GetAllProvisionWatchersResponse:
       value:
         apiVersion: "v3"
@@ -1696,18 +1696,18 @@ components:
                 - "398"
                 - "399"
             adminState: "UNLOCKED"
-            discoveredDevice:
-              profileName: "device-virtual"
-              serviceName: "device-virtual"
+            discoveredNode:
+              profileName: "node-virtual"
+              serviceName: "node-virtual"
               adminState: "UNLOCKED"
               autoEvents:
                 - sourceName: "Bool"
                   interval: "10s"
                   onChange: false
               properties:
-                DeviceNameTemplate:
+                NodeNameTemplate:
                   valueReplace: true
-                  template: "device-name-{{Address}}-{{Port}"
+                  template: "node-name-{{Address}}-{{Port}"
           - id: "90c971f0-cb84-4bda-a9f0-d9494196b54d"
             name: "simple-watcher"
             created: 0
@@ -1723,9 +1723,9 @@ components:
                 - "498"
                 - "499"
             adminState: "UNLOCKED"
-            discoveredDevice:
-              profileName: "device-simple"
-              serviceName: "device-simple"
+            discoveredNode:
+              profileName: "node-simple"
+              serviceName: "node-simple"
               adminState: "UNLOCKED"
     UnitsOfMeasureResponseExample:
       value:
@@ -1748,12 +1748,12 @@ components:
                 - "kilos"
                 - "grams"
 paths:
-  /device:
+  /node:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/bypassValidationParam'
     post:
-      summary: "Allows provisioning of a new device"
+      summary: "Allows provisioning of a new node"
       parameters:
         - $ref: '#/components/parameters/forceParam'
       requestBody:
@@ -1763,10 +1763,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/AddDeviceRequest'
+                $ref: '#/components/schemas/AddNodeRequest'
             examples:
-              AddDeviceRequest:
-                $ref: '#/components/examples/AddDeviceRequest'
+              AddNodeRequest:
+                $ref: '#/components/examples/AddNodeRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -1782,8 +1782,8 @@ paths:
                     - $ref: '#/components/schemas/ErrorResponse'
                     - $ref: '#/components/schemas/BaseWithIdResponse'
               examples:
-                MultiPOSTDeviceStatusExample:
-                  $ref: '#/components/examples/MultiPOSTDeviceStatusExample'
+                MultiPOSTNodeStatusExample:
+                  $ref: '#/components/examples/MultiPOSTNodeStatusExample'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -1809,7 +1809,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     patch:
-      summary: "Allows updates to an existing device"
+      summary: "Allows updates to an existing node"
       requestBody:
         required: true
         content:
@@ -1817,10 +1817,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UpdateDeviceRequest'
+                $ref: '#/components/schemas/UpdateNodeRequest'
             examples:
-              UpdateDeviceRequest:
-                $ref: '#/components/examples/UpdateDeviceRequest'
+              UpdateNodeRequest:
+                $ref: '#/components/examples/UpdateNodeRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -1836,8 +1836,8 @@ paths:
                     - $ref: '#/components/schemas/ErrorResponse'
                     - $ref: '#/components/schemas/BaseWithIdResponse'
               examples:
-                MultiUpdateDeviceStatusExample:
-                  $ref: '#/components/examples/MultiUpdateDeviceStatusExample'
+                MultiUpdateNodeStatusExample:
+                  $ref: '#/components/examples/MultiUpdateNodeStatusExample'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -1862,7 +1862,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /device/all:
+  /node/all:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
@@ -1871,7 +1871,7 @@ paths:
       - $ref: '#/components/parameters/descendantsParam'
       - $ref: '#/components/parameters/maxLevelsParam'
     get:
-      summary: "Given the entire range of devices sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Devices may also be filtered by label or parent."
+      summary: "Given the entire range of nodes sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Nodes may also be filtered by label or parent."
       responses:
         '200':
           description: "OK"
@@ -1881,10 +1881,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDevicesResponse'
+                $ref: '#/components/schemas/MultiNodesResponse'
               examples:
-                GetAllDevicesResponse:
-                  $ref: '#/components/examples/GetAllDevicesResponse'
+                GetAllNodesResponse:
+                  $ref: '#/components/examples/GetAllNodesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -1921,7 +1921,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/device/check/name/{name}':
+  '/node/check/name/{name}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -1929,12 +1929,12 @@ paths:
         required: true
         schema:
           type: string
-        description: "The name of the device you want to check on."
+        description: "The name of the node you want to check on."
     get:
-      summary: "Returned status code indicates if the device exists or not."
+      summary: "Returned status code indicates if the node exists or not."
       responses:
         '200':
-          description: "Device exists"
+          description: "Node exists"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -1981,7 +1981,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/device/name/{name}':
+  '/node/name/{name}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -1989,9 +1989,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The name of the device you wish to load, datatype string."
+        description: "The name of the node you wish to load, datatype string."
     get:
-      summary: "Returns a device by name"
+      summary: "Returns a node by name"
       responses:
         '200':
           description: "OK"
@@ -2001,31 +2001,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceResponse'
+                $ref: '#/components/schemas/NodeResponse'
               example:
                 apiVersion: "v3"
                 requestId: "75ca2b65-f8ef-44f7-a995-a29c53ce111b"
                 statusCode: 200
-                device:
+                node:
                   id: "55b68fcf-0fd2-445a-9fae-670b37fb9274"
-                  name: "Random-Boolean-Device"
-                  description: "Example of Device Virtual"
+                  name: "Random-Boolean-Node"
+                  description: "Example of Node Virtual"
                   created: 1600926440123
                   modified: 1600928666321
                   adminState: "UNLOCKED"
                   operatingState: "UP"
                   labels:
-                    - device-virtual-example
+                    - node-virtual-example
                   location: ""
-                  serviceName: "device-virtual"
-                  profileName: "Random-Boolean-Device"
+                  serviceName: "node-virtual"
+                  profileName: "Random-Boolean-Node"
                   autoEvents:
                     - interval: "10s"
                       onChange: false
                       sourceName: "Bool"
                   protocols:
                     other:
-                      Address: "device-virtual-bool-01"
+                      Address: "node-virtual-bool-01"
                       Port: "300"
         '400':
           description: "Request is in an invalid state"
@@ -2064,7 +2064,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     delete:
-      summary: "Delete a device by name"
+      summary: "Delete a node by name"
       responses:
         '200':
           description: "Delete successful"
@@ -2091,7 +2091,7 @@ paths:
                 404Example:
                   $ref: '#/components/examples/404Example'
         '409':
-          description: "Conflict - cannot delete a device with children"
+          description: "Conflict - cannot delete a node with children"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -2114,7 +2114,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/device/id/{id}':
+  '/node/id/{id}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: id
@@ -2123,9 +2123,9 @@ paths:
         schema:
           type: string
           format: uuid
-        description: "The universally unique identifier (UUID) of the device you wish to retrieve."
+        description: "The universally unique identifier (UUID) of the node you wish to retrieve."
     get:
-      summary: "Returns a device by its UUID"
+      summary: "Returns a node by its UUID"
       responses:
         '200':
           description: "OK"
@@ -2135,31 +2135,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceResponse'
+                $ref: '#/components/schemas/NodeResponse'
               example:
                 apiVersion: "v3"
                 requestId: "75ca2b65-f8ef-44f7-a995-a29c53ce111b"
                 statusCode: 200
-                device:
+                node:
                   id: "55b68fcf-0fd2-445a-9fae-670b37fb9274"
-                  name: "Random-Boolean-Device"
-                  description: "Example of Device Virtual"
+                  name: "Random-Boolean-Node"
+                  description: "Example of Node Virtual"
                   created: 1600926440123
                   modified: 1600928666321
                   adminState: "UNLOCKED"
                   operatingState: "UP"
                   labels:
-                    - device-virtual-example
+                    - node-virtual-example
                   location: ""
-                  serviceName: "device-virtual"
-                  profileName: "Random-Boolean-Device"
+                  serviceName: "node-virtual"
+                  profileName: "Random-Boolean-Node"
                   autoEvents:
                     - interval: "10s"
                       onChange: false
                       sourceName: "Bool"
                   protocols:
                     other:
-                      Address: "device-virtual-bool-01"
+                      Address: "node-virtual-bool-01"
                       Port: "300"
         '400':
           description: "Request is in an invalid state"
@@ -2197,7 +2197,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/device/profile/name/{name}':
+  '/node/profile/name/{name}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
@@ -2207,9 +2207,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The name identifying a device profile"
+        description: "The name identifying a node profile"
     get:
-      summary: "Returns all devices assigned to the specified device profile"
+      summary: "Returns all nodes assigned to the specified node profile"
       responses:
         '200':
           description: "OK"
@@ -2219,10 +2219,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDevicesResponse'
+                $ref: '#/components/schemas/MultiNodesResponse'
               examples:
-                GetAllDevicesResponse:
-                  $ref: '#/components/examples/GetAllDevicesResponse'
+                GetAllNodesResponse:
+                  $ref: '#/components/examples/GetAllNodesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -2259,7 +2259,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/device/service/name/{name}':
+  '/node/service/name/{name}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
@@ -2269,9 +2269,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The name identifying a device service"
+        description: "The name identifying a node service"
     get:
-      summary: "Returns all devices assigned to the specified device service"
+      summary: "Returns all nodes assigned to the specified node service"
       responses:
         '200':
           description: "OK"
@@ -2281,10 +2281,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDevicesResponse'
+                $ref: '#/components/schemas/MultiNodesResponse'
               examples:
-                GetAllDevicesResponse:
-                  $ref: '#/components/examples/GetAllDevicesResponse'
+                GetAllNodesResponse:
+                  $ref: '#/components/examples/GetAllNodesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -2321,11 +2321,11 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceprofile:
+  /profile:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
     post:
-      summary: "Allows creation of a new device profile"
+      summary: "Allows creation of a new node profile"
       requestBody:
         required: true
         content:
@@ -2333,10 +2333,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/AddDeviceProfileRequest'
+                $ref: '#/components/schemas/AddProfileRequest'
             examples:
-              AddDeviceRequest:
-                $ref: '#/components/examples/AddDeviceProfileRequest'
+              AddNodeRequest:
+                $ref: '#/components/examples/AddProfileRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -2379,7 +2379,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     put:
-      summary: "Allows updates to an existing device profile"
+      summary: "Allows updates to an existing node profile"
       requestBody:
         required: true
         content:
@@ -2387,10 +2387,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UpdateDeviceProfileRequest'
+                $ref: '#/components/schemas/UpdateProfileRequest'
             examples:
-              AddDeviceRequest:
-                $ref: '#/components/examples/AddDeviceProfileRequest'
+              AddNodeRequest:
+                $ref: '#/components/examples/AddProfileRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -2421,7 +2421,7 @@ paths:
                 400Example:
                   $ref: '#/components/examples/400Example'
         '423':
-          description: "profile change is not allowed when StrictDeviceProfileDeletes config is enabled"
+          description: "profile change is not allowed when StrictProfileDeletes config is enabled"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -2444,11 +2444,11 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceprofile/uploadfile:
+  /profile/uploadfile:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
     post:
-      summary: "Allows creation of a new device profile via an uploaded YAML file"
+      summary: "Allows creation of a new node profile via an uploaded YAML file"
       requestBody:
         required: true
         content:
@@ -2459,7 +2459,7 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: 'The Device Profile YAML file binary'
+                  description: 'The Node Profile YAML file binary'
       responses:
         '201':
           description: "OK"
@@ -2488,7 +2488,7 @@ paths:
                 400Example:
                   $ref: '#/components/examples/400Example'
         '409':
-          description: "Conflict detected. Device profile name and command names must be universally unique."
+          description: "Conflict detected. Node profile name and command names must be universally unique."
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -2512,7 +2512,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     put:
-      summary: "Allows updates to an existing device profile from file"
+      summary: "Allows updates to an existing node profile from file"
       requestBody:
         required: true
         content:
@@ -2523,7 +2523,7 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: 'The Device Profile YAML file binary'
+                  description: 'The Node Profile YAML file binary'
       responses:
         '200':
           description: "OK"
@@ -2551,7 +2551,7 @@ paths:
                 400Example:
                   $ref: '#/components/examples/400Example'
         '409':
-          description: "Conflict detected. Device profile name must be universally unique."
+          description: "Conflict detected. Node profile name must be universally unique."
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -2563,7 +2563,7 @@ paths:
                 409Example:
                   $ref: '#/components/examples/409Example'
         '423':
-          description: "profile change is not allowed when StrictDeviceProfileChanges config is enabled"
+          description: "profile change is not allowed when StrictProfileChanges config is enabled"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -2586,14 +2586,14 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceprofile/all:
+  /profile/all:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
       - $ref: '#/components/parameters/labelsParam'
     get:
-      summary: "Given the entire range of device profiles sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Device profiles may also be filtered by label."
+      summary: "Given the entire range of node profiles sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Node profiles may also be filtered by label."
       responses:
         '200':
           description: "OK"
@@ -2603,10 +2603,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDeviceProfilesResponse'
+                $ref: '#/components/schemas/MultiProfilesResponse'
               examples:
-                GetAllDeviceProfilesResponse:
-                  $ref: '#/components/examples/GetAllDeviceProfilesResponse'
+                GetAllProfilesResponse:
+                  $ref: '#/components/examples/GetAllProfilesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -2643,7 +2643,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/name/{name}':
+  '/profile/name/{name}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -2651,9 +2651,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The unique name of a device profile"
+        description: "The unique name of a node profile"
     get:
-      summary: "Returns a device profile by its name"
+      summary: "Returns a node profile by its name"
       responses:
         '200':
           description: "OK"
@@ -2663,7 +2663,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceProfileResponse'
+                $ref: '#/components/schemas/ProfileResponse'
               example:
                apiVersion: "v3"
                requestId: "374387ad-18ef-4f5c-8b67-6844bec31310"
@@ -2671,26 +2671,26 @@ paths:
                profile:
                 id: "9d33b6fd-f38b-4f0e-aef4-0332578ff2c0"
                 name: ""
-                description: "Example of Device-Virtual"
+                description: "Example of Node-Virtual"
                 created: 1600927134904
                 modified: 1600927134904
                 manufacturer: "IOTech"
-                model: "Device-Virtual-01"
+                model: "Node-Virtual-01"
                 labels:
-                  - device-virtual-example
-                deviceResources:
+                  - node-virtual-example
+                resources:
                   - description: "Generate random float32 value"
                     name: "Float32"
                     properties:
                       valueType: "Float32"
                       readWrite: "RW"
                       defaultValue: "0"
-                deviceCommands:
+                commands:
                   - name: "Float32"
                     readWrite: "RW"
                     resourceOperations:
-                      - deviceResource: "Float32"
-                linkedDeviceCount: 1
+                      - resource: "Float32"
+                linkedNodeCount: 1
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -2728,7 +2728,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     delete:
-      summary: "Delete a device profile by its unique name. This operation will fail if there are devices actively using the profile."
+      summary: "Delete a node profile by its unique name. This operation will fail if there are nodes actively using the profile."
       responses:
         '200':
           description: "Delete successful"
@@ -2767,7 +2767,7 @@ paths:
                 409DeleteExample:
                   $ref: '#/components/examples/409DeleteExample'
         '423':
-          description: "profile deletion is not allowed when StrictDeviceProfileDeletes config is enabled"
+          description: "profile deletion is not allowed when StrictProfileDeletes config is enabled"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -2790,7 +2790,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/name/{name}/tags':
+  '/profile/name/{name}/tags':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -2798,24 +2798,24 @@ paths:
         required: true
         schema:
           type: string
-        description: "The unique name of a device profile"
+        description: "The unique name of a node profile"
     patch:
-      summary: "Allows adding or updating the tags field for device resources or device commands within an existing device profile. Removing existing tags is not supported."
+      summary: "Allows adding or updating the tags field for node resources or node commands within an existing node profile. Removing existing tags is not supported."
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              $ref: '#/components/schemas/DeviceProfileTagsRequest'
+              $ref: '#/components/schemas/ProfileTagsRequest'
             example:
               apiVersion: "v3"
               requestId: "2463bff9-aa53-4bc4-bebf-42fe81146ea8"
-              deviceResources:
+              resources:
                 - name: "Float32"
                   tags:
                     tag1: "field1Value"
-              deviceCommands:
+              commands:
                 - name: "Float32"
                   tags:
                     tag2:
@@ -2857,11 +2857,11 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/basicinfo':
+  '/profile/basicinfo':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
     patch:
-      summary: "Allows basic information updates to an existing device profile, such as profile's description, manufacturer, model and label fields."
+      summary: "Allows basic information updates to an existing node profile, such as profile's description, manufacturer, model and label fields."
       requestBody:
         required: true
         content:
@@ -2869,12 +2869,12 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/DeviceProfileBasicInfoRequest'
+                $ref: '#/components/schemas/ProfileBasicInfoRequest'
             example:
               - apiVersion: "v3"
                 requestId: "bc979763-afde-492c-b0a2-79ff3025b6de"
                 basicinfo:
-                  name: "Device-Virtual-Profile"
+                  name: "Node-Virtual-Profile"
                   manufacturer: "Simple Corp."
       responses:
         '207':
@@ -2917,14 +2917,14 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceprofile/basicinfo/all:
+  /profile/basicinfo/all:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
       - $ref: '#/components/parameters/labelsParam'
     get:
-      summary: "Given the entire range of device profile basic infos sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Device profiles may also be filtered by label."
+      summary: "Given the entire range of node profile basic infos sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Node profiles may also be filtered by label."
       responses:
         '200':
           description: "OK"
@@ -2934,10 +2934,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDeviceProfileBasicInfosResponse'
+                $ref: '#/components/schemas/MultiProfileBasicInfosResponse'
               examples:
-                GetAllDeviceProfilesResponse:
-                  $ref: '#/components/examples/GetAllDeviceProfileBasicInfosResponse'
+                GetAllProfilesResponse:
+                  $ref: '#/components/examples/GetAllProfileBasicInfosResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -2974,11 +2974,11 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/deviceCommand':
+  '/profile/command':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
     post:
-      summary: "Allows creation of device commands of an existing device profile"
+      summary: "Allows creation of node commands of an existing node profile"
       requestBody:
         required: true
         content:
@@ -2986,10 +2986,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/DeviceCommandRequest'
+                $ref: '#/components/schemas/CommandRequest'
             examples:
-              AddDeviceCommandRequest:
-                $ref: '#/components/examples/AddDeviceCommandRequest'
+              AddCommandRequest:
+                $ref: '#/components/examples/AddCommandRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -3032,7 +3032,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     patch:
-      summary: "Allows the isHidden field of the existing device commands to be updated."
+      summary: "Allows the isHidden field of the existing node commands to be updated."
       requestBody:
         required: true
         content:
@@ -3040,12 +3040,12 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UpdateDeviceCommandRequest'
+                $ref: '#/components/schemas/UpdateCommandRequest'
             example:
               - apiVersion: "v3"
                 requestId: "bc979763-afde-492c-b0a2-79ff3025b6de"
-                profileName: "Device-Virtual-Profile"
-                devicecommand:
+                profileName: "Node-Virtual-Profile"
+                command:
                   "name": "Switch"
                   "isHidden": "true"
       responses:
@@ -3089,7 +3089,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/name/{name}/deviceCommand/{commandName}':
+  '/profile/name/{name}/command/{commandName}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -3097,15 +3097,15 @@ paths:
         required: true
         schema:
           type: string
-        description: "The unique name of a device profile"
+        description: "The unique name of a node profile"
       - name: commandName
         in: path
         required: true
         schema:
           type: string
-        description: "The unique name of a device command"
+        description: "The unique name of a node command"
     delete:
-      summary: "Delete a device command by its unique name. This operation will fail if there are devices actively using the profile."
+      summary: "Delete a node command by its unique name. This operation will fail if there are nodes actively using the profile."
       responses:
         '200':
           description: "Delete successful"
@@ -3144,7 +3144,7 @@ paths:
                 409DeleteExample:
                   $ref: '#/components/examples/409DeleteExample'
         '423':
-          description: "profile change is not allowed when StrictDeviceProfileChanges config is enabled"
+          description: "profile change is not allowed when StrictProfileChanges config is enabled"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -3167,11 +3167,11 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/resource':
+  '/profile/resource':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
     post:
-      summary: "Allows creation of device resources of an existing device profile"
+      summary: "Allows creation of node resources of an existing node profile"
       requestBody:
         required: true
         content:
@@ -3179,10 +3179,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/DeviceResourceRequest'
+                $ref: '#/components/schemas/ResourceRequest'
             examples:
-              AddDeviceResourceRequest:
-                $ref: '#/components/examples/AddDeviceResourceRequest'
+              AddResourceRequest:
+                $ref: '#/components/examples/AddResourceRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -3225,7 +3225,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     patch:
-      summary: "Allows the description and isHidden fields of the existing device resources to be updated."
+      summary: "Allows the description and isHidden fields of the existing node resources to be updated."
       requestBody:
         required: true
         content:
@@ -3233,11 +3233,11 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UpdateDeviceResourceRequest'
+                $ref: '#/components/schemas/UpdateResourceRequest'
             example:
               - apiVersion: "v3"
                 requestId: "bc979763-afde-492c-b0a2-79ff3025b6de"
-                profileName: "Device-Virtual-Profile"
+                profileName: "Node-Virtual-Profile"
                 resource:
                   "name": "Float32"
                   "description": "random float32 value"
@@ -3283,7 +3283,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/name/{name}/resource/{resourceName}':
+  '/profile/name/{name}/resource/{resourceName}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -3291,15 +3291,15 @@ paths:
         required: true
         schema:
           type: string
-        description: "The unique name of a device profile"
+        description: "The unique name of a node profile"
       - name: resourceName
         in: path
         required: true
         schema:
           type: string
-        description: "The unique name of a device resource"
+        description: "The unique name of a node resource"
     delete:
-      summary: "Delete a device resource by its unique name. This operation will fail if there are devices actively using the profile."
+      summary: "Delete a node resource by its unique name. This operation will fail if there are nodes actively using the profile."
       responses:
         '200':
           description: "Delete successful"
@@ -3350,7 +3350,7 @@ paths:
                 409DeleteExample:
                   $ref: '#/components/examples/409DeleteExample'
         '423':
-          description: "profile change is not allowed when StrictDeviceProfileChanges config is enabled"
+          description: "profile change is not allowed when StrictProfileChanges config is enabled"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -3373,7 +3373,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/manufacturer/{manufacturer}':
+  '/profile/manufacturer/{manufacturer}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
@@ -3383,9 +3383,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The manufacturer for the device profiles in which you're interested."
+        description: "The manufacturer for the node profiles in which you're interested."
     get:
-      summary: "Returns a list of device profiles for the given manufacturer."
+      summary: "Returns a list of node profiles for the given manufacturer."
       responses:
         '200':
           description: "OK"
@@ -3395,10 +3395,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDeviceProfilesResponse'
+                $ref: '#/components/schemas/MultiProfilesResponse'
               examples:
-                GetAllDeviceProfilesResponse:
-                  $ref: '#/components/examples/GetAllDeviceProfilesResponse'
+                GetAllProfilesResponse:
+                  $ref: '#/components/examples/GetAllProfilesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -3435,7 +3435,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/manufacturer/{manufacturer}/model/{model}':
+  '/profile/manufacturer/{manufacturer}/model/{model}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
@@ -3445,15 +3445,15 @@ paths:
         required: true
         schema:
           type: string
-        description: "The manufacturer for the device profiles in which you're interested."
+        description: "The manufacturer for the node profiles in which you're interested."
       - name: model
         in: path
         required: true
         schema:
           type: string
-        description: "The model of the device profiles in which you're interested."
+        description: "The model of the node profiles in which you're interested."
     get:
-      summary: "Returns a list of device profiles for the given manufacturer and model."
+      summary: "Returns a list of node profiles for the given manufacturer and model."
       responses:
         '200':
           description: "OK"
@@ -3463,10 +3463,10 @@ paths:
           content:
             application/json:
               schema:
-               $ref: '#/components/schemas/MultiDeviceProfilesResponse'
+               $ref: '#/components/schemas/MultiProfilesResponse'
               examples:
-                GetAllDeviceProfilesResponse:
-                  $ref: '#/components/examples/GetAllDeviceProfilesResponse'
+                GetAllProfilesResponse:
+                  $ref: '#/components/examples/GetAllProfilesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -3503,7 +3503,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceprofile/model/{model}':
+  '/profile/model/{model}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
@@ -3513,9 +3513,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The model assigned to the device profiles in which you're interested."
+        description: "The model assigned to the node profiles in which you're interested."
     get:
-      summary: "Returns a list of device profiles for the given model."
+      summary: "Returns a list of node profiles for the given model."
       responses:
         '200':
           description: "OK"
@@ -3525,10 +3525,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDeviceProfilesResponse'
+                $ref: '#/components/schemas/MultiProfilesResponse'
               examples:
-                GetAllDeviceProfilesResponse:
-                  $ref: '#/components/examples/GetAllDeviceProfilesResponse'
+                GetAllProfilesResponse:
+                  $ref: '#/components/examples/GetAllProfilesResponse'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -3565,7 +3565,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceresource/profile/{profileName}/resource/{resourceName}:
+  /resource/profile/{profileName}/resource/{resourceName}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: profileName
@@ -3573,15 +3573,15 @@ paths:
         required: true
         schema:
           type: string
-        description: "The unique name of a device profile"
+        description: "The unique name of a node profile"
       - name: resourceName
         in: path
         required: true
         schema:
           type: string
-        description: "The unique name of a device resource"
+        description: "The unique name of a node resource"
     get:
-      summary: "Returns a device resource for the given profileName and resourceName."
+      summary: "Returns a node resource for the given profileName and resourceName."
       responses:
         '200':
           description: "OK"
@@ -3591,7 +3591,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceResourceResponse'
+                $ref: '#/components/schemas/ResourceResponse'
               example:
                 apiVersion: "v3"
                 statusCode: 200
@@ -3637,11 +3637,11 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceservice:
+  /nodeservice:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
     post:
-      summary: "Add a new DeviceService - name must be unique."
+      summary: "Add a new NodeService - name must be unique."
       requestBody:
         required: true
         content:
@@ -3649,10 +3649,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/AddDeviceServiceRequest'
+                $ref: '#/components/schemas/AddNodeServiceRequest'
             examples:
-              AddDeviceServiceRequest:
-                $ref: '#/components/examples/AddDeviceServiceRequest'
+              AddNodeServiceRequest:
+                $ref: '#/components/examples/AddNodeServiceRequest'
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -3695,19 +3695,19 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     patch:
-      summary: "Allows updates to an existing device service"
+      summary: "Allows updates to an existing node service"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateDeviceServiceRequest'
+              $ref: '#/components/schemas/UpdateNodeServiceRequest'
             example:
               - requestId: "d3367878-c46b-4263-b0af-1ccac37aab6e"
                 apiVersion: v3
                 service:
                   id: "edaa7c0f-05c6-4368-89f1-3be5e197cf6a"
-                  name: "home-thermostat-device-service"
+                  name: "home-thermostat-node-service"
                   description: "Home automation system"
                   labels:
                     - "home"
@@ -3715,9 +3715,9 @@ paths:
                 apiVersion: v3
                 service:
                   id: "aee709c7-1b30-4db4-9256-2e7eb2073b2f"
-                  name: "Google-Home-device-service"
+                  name: "Google-Home-node-service"
                   adminState: "UNLOCKED"
-                  baseAddress: "http://home-device-service:49980"
+                  baseAddress: "http://home-node-service:49980"
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -3759,14 +3759,14 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /deviceservice/all:
+  /nodeservice/all:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
       - $ref: '#/components/parameters/labelsParam'
     get:
-      summary: "Given the entire range of device services sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Device services may also be filtered by label."
+      summary: "Given the entire range of node services sorted by last modified descending, returns a portion of that range according to the offset and limit parameters. Node services may also be filtered by label."
       responses:
         '200':
           description: "OK"
@@ -3776,7 +3776,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDeviceServicesResponse'
+                $ref: '#/components/schemas/MultiNodeServicesResponse'
               example:
                 apiVersion: "v3"
                 requestId: "4c7c47a7-10e0-4489-99c5-f639b7d7eb5c"
@@ -3784,14 +3784,14 @@ paths:
                 totalCount: 3
                 services:
                   - id: "1ff7762f-c432-4af0-9a5d-756bbc92744b"
-                    name: "device-virtual"
+                    name: "node-virtual"
                     created: 1600927134890
                     modified: 1600927134890
                     description: "Example"
                     adminState: "UNLOCKED"
                     labels:
                       - virtual
-                    baseAddress: "http://edgex-device-virtual:59990"
+                    baseAddress: "http://edgex-node-virtual:59990"
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -3828,7 +3828,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  '/deviceservice/name/{name}':
+  '/nodeservice/name/{name}':
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -3836,9 +3836,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The unique name of the device service you want to load."
+        description: "The unique name of the node service you want to load."
     get:
-      summary: "Returns a device service by its unique name"
+      summary: "Returns a node service by its unique name"
       responses:
         '200':
           description: "OK"
@@ -3848,21 +3848,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceServiceResponse'
+                $ref: '#/components/schemas/NodeServiceResponse'
               example:
                 apiVersion: "v3"
                 requestId: "5e46b1fe-fb3e-4bc5-b84c-0ea8f9e0b511"
                 statusCode: 200
                 service:
                   id: "1ff7762f-c432-4af0-9a5d-756bbc92744b"
-                  name: "device-virtual"
+                  name: "node-virtual"
                   description: "Example"
                   created: 1600927134890
                   modified: 1600927134890
                   adminState: "UNLOCKED"
                   labels:
                     - virtual
-                  baseAddress: "http://edgex-device-virtual:59990"
+                  baseAddress: "http://edgex-node-virtual:59990"
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -3900,7 +3900,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     delete:
-      summary: "Delete a device service by its unique name"
+      summary: "Delete a node service by its unique name"
       responses:
         '200':
           description: "Delete successful"
@@ -4032,9 +4032,9 @@ paths:
                 provisionwatcher:
                   id: "aee709c7-1b30-4db4-9256-2e7eb2073b2f"
                   name: "virtual-identifier"
-                  discoveredDevice:
-                    profileName: "device-virtual"
-                    serviceName: "device-virtual"
+                  discoveredNode:
+                    profileName: "node-virtual"
+                    serviceName: "node-virtual"
       responses:
         '207':
           description: "Indicates a multi-part response supportive of accepting multiple requests at once. The 'statusCode' property of each response in the returned array will indicate success or failure."
@@ -4174,18 +4174,18 @@ paths:
                       - "398"
                       - "399"
                   adminState: "UNLOCKED"
-                  discoveredDevice:
-                    profileName: "device-virtual"
-                    serviceName: "device-virtual"
+                  discoveredNode:
+                    profileName: "node-virtual"
+                    serviceName: "node-virtual"
                     adminState: "UNLOCKED"
                     autoEvents:
                       - sourceName: "Bool"
                         interval: "10s"
                         onChange: false
                     properties:
-                      DeviceNameTemplate:
+                      NodeNameTemplate:
                         valueReplace: true
-                        template: "device-name-{{Address}}-{{Port}"
+                        template: "node-name-{{Address}}-{{Port}"
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -4271,9 +4271,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The name identifying a device service"
+        description: "The name identifying a node service"
     get:
-      summary: "Returns all provision watchers with specified device service name"
+      summary: "Returns all provision watchers with specified node service name"
       responses:
         '200':
           description: "OK"
@@ -4333,9 +4333,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "The name identifying a device profile"
+        description: "The name identifying a node profile"
     get:
-      summary: "Returns all provision watchers with specified device profile name"
+      summary: "Returns all provision watchers with specified node profile name"
       responses:
         '200':
           description: "OK"
@@ -4451,12 +4451,12 @@ paths:
                     Port: 6379
                     Name: "metadata"
                   Notifications:
-                    Content: "Device update: "
-                    Description: "Metadata device notice"
+                    Content: "Node update: "
+                    Description: "Metadata node notice"
                     Label: "metadata"
-                    PostDeviceChanges: true
+                    PostNodeChanges: true
                     Sender: "edgex-core-metadata"
-                    Slug: "device-change-"
+                    Slug: "node-change-"
                   Registry:
                     Host: "edgex-core-keeper"
                     Port: 59890

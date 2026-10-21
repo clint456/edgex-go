@@ -172,7 +172,7 @@ func (rc *ReadingController) ReadingsByResourceName(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (rc *ReadingController) ReadingsByDeviceName(c echo.Context) error {
+func (rc *ReadingController) ReadingsByNodeName(c echo.Context) error {
 	lc := container.LoggingClientFrom(rc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -194,12 +194,12 @@ func (rc *ReadingController) ReadingsByDeviceName(c echo.Context) error {
 	if aggFuncParam != "" {
 		// Specify the app layer function to be invoked to get the aggregated reading values
 		aggReadingsFunc := func(aggFunc string) ([]dtos.BaseReading, errors.EdgeX) {
-			return rc.app.AggregateReadingsByDeviceName(name, aggFunc, rc.dic, parms)
+			return rc.app.AggregateReadingsByNodeName(name, aggFunc, rc.dic, parms)
 		}
 		return handleReadingAggregation(w, ctx, lc, aggFuncParam, aggReadingsFunc)
 	}
 
-	readings, totalCount, err := rc.app.ReadingsByDeviceName(parms, name, rc.dic)
+	readings, totalCount, err := rc.app.ReadingsByNodeName(parms, name, rc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -209,7 +209,7 @@ func (rc *ReadingController) ReadingsByDeviceName(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (rc *ReadingController) ReadingCountByDeviceName(c echo.Context) error {
+func (rc *ReadingController) ReadingCountByNodeName(c echo.Context) error {
 	// retrieve all the service injections from bootstrap
 	lc := container.LoggingClientFrom(rc.dic.Get)
 	r := c.Request()
@@ -217,10 +217,10 @@ func (rc *ReadingController) ReadingCountByDeviceName(c echo.Context) error {
 	ctx := r.Context()
 
 	// URL parameters
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 
-	// Count the event by device
-	count, err := rc.app.ReadingCountByDeviceName(deviceName, rc.dic)
+	// Count the event by node
+	count, err := rc.app.ReadingCountByNodeName(nodeName, rc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -268,14 +268,14 @@ func (rc *ReadingController) ReadingsByResourceNameAndTimeRange(c echo.Context) 
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (rc *ReadingController) ReadingsByDeviceNameAndResourceName(c echo.Context) error {
+func (rc *ReadingController) ReadingsByNodeNameAndResourceName(c echo.Context) error {
 	lc := container.LoggingClientFrom(rc.dic.Get)
 	r := c.Request()
 	w := c.Response()
 	ctx := r.Context()
 	config := dataContainer.ConfigurationFrom(rc.dic.Get)
 
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 	resourceName := c.Param(common.ResourceName)
 
 	// parse URL query string for offset, limit
@@ -291,12 +291,12 @@ func (rc *ReadingController) ReadingsByDeviceNameAndResourceName(c echo.Context)
 	if aggFuncParam != "" {
 		// Specify the app layer function to be invoked to get the aggregated reading values
 		aggReadingsFunc := func(aggFunc string) ([]dtos.BaseReading, errors.EdgeX) {
-			return rc.app.AggregateReadingsByDeviceNameAndResourceName(deviceName, resourceName, aggFunc, rc.dic, parms)
+			return rc.app.AggregateReadingsByNodeNameAndResourceName(nodeName, resourceName, aggFunc, rc.dic, parms)
 		}
 		return handleReadingAggregation(w, ctx, lc, aggFuncParam, aggReadingsFunc)
 	}
 
-	readings, totalCount, err := rc.app.ReadingsByDeviceNameAndResourceName(deviceName, resourceName, parms, rc.dic)
+	readings, totalCount, err := rc.app.ReadingsByNodeNameAndResourceName(nodeName, resourceName, parms, rc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -306,14 +306,14 @@ func (rc *ReadingController) ReadingsByDeviceNameAndResourceName(c echo.Context)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (rc *ReadingController) ReadingsByDeviceNameAndResourceNameAndTimeRange(c echo.Context) error {
+func (rc *ReadingController) ReadingsByNodeNameAndResourceNameAndTimeRange(c echo.Context) error {
 	lc := container.LoggingClientFrom(rc.dic.Get)
 	r := c.Request()
 	w := c.Response()
 	ctx := r.Context()
 	config := dataContainer.ConfigurationFrom(rc.dic.Get)
 
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 	resourceName := c.Param(common.ResourceName)
 
 	// parse time range (start, end), offset, and limit from incoming request
@@ -329,12 +329,12 @@ func (rc *ReadingController) ReadingsByDeviceNameAndResourceNameAndTimeRange(c e
 	if aggFuncParam != "" {
 		// Specify the app layer function to be invoked to get the aggregated reading values
 		aggReadingsFunc := func(aggFunc string) ([]dtos.BaseReading, errors.EdgeX) {
-			return rc.app.AggregateReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName, resourceName, aggFunc, parms, rc.dic)
+			return rc.app.AggregateReadingsByNodeNameAndResourceNameAndTimeRange(nodeName, resourceName, aggFunc, parms, rc.dic)
 		}
 		return handleReadingAggregation(w, ctx, lc, aggFuncParam, aggReadingsFunc)
 	}
 
-	readings, totalCount, err := rc.app.ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName, resourceName, parms, rc.dic)
+	readings, totalCount, err := rc.app.ReadingsByNodeNameAndResourceNameAndTimeRange(nodeName, resourceName, parms, rc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -344,14 +344,14 @@ func (rc *ReadingController) ReadingsByDeviceNameAndResourceNameAndTimeRange(c e
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (rc *ReadingController) ReadingsByDeviceNameAndResourceNamesAndTimeRange(c echo.Context) error {
+func (rc *ReadingController) ReadingsByNodeNameAndResourceNamesAndTimeRange(c echo.Context) error {
 	lc := container.LoggingClientFrom(rc.dic.Get)
 	r := c.Request()
 	w := c.Response()
 	ctx := r.Context()
 	config := dataContainer.ConfigurationFrom(rc.dic.Get)
 
-	deviceName := c.Param(common.Name)
+	nodeName := c.Param(common.Name)
 
 	// parse time range (start, end), offset, and limit from incoming request
 	start, end, offset, limit, err := utils.ParseTimeRangeOffsetLimit(c, minOffset, math.MaxInt32, -1, config.Service.MaxResultCount)
@@ -366,7 +366,7 @@ func (rc *ReadingController) ReadingsByDeviceNameAndResourceNamesAndTimeRange(c 
 	if aggFuncParam != "" {
 		// Specify the app layer function to be invoked to get the aggregated reading values
 		aggReadingsFunc := func(aggFunc string) ([]dtos.BaseReading, errors.EdgeX) {
-			return rc.app.AggregateReadingsByDeviceNameAndTimeRange(deviceName, aggFunc, parms, rc.dic)
+			return rc.app.AggregateReadingsByNodeNameAndTimeRange(nodeName, aggFunc, parms, rc.dic)
 		}
 		return handleReadingAggregation(w, ctx, lc, aggFuncParam, aggReadingsFunc)
 	}
@@ -394,7 +394,7 @@ func (rc *ReadingController) ReadingsByDeviceNameAndResourceNamesAndTimeRange(c 
 		}
 	}
 
-	readings, totalCount, err := rc.app.ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceName, resourceNames, parms, rc.dic)
+	readings, totalCount, err := rc.app.ReadingsByNodeNameAndResourceNamesAndTimeRange(nodeName, resourceNames, parms, rc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}

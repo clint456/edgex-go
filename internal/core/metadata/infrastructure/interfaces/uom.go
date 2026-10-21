@@ -8,7 +8,7 @@ package interfaces
 // UnitsOfMeasure defines required functionality to perform units of measure
 // validation in EdgeX
 type UnitsOfMeasure interface {
-	// Validate validates DeviceResource's unit against the list of
+	// Validate validates Resource's unit against the list of
 	// units of measure by core metadata.
 	Validate(string) bool
 }

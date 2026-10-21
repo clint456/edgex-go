@@ -140,7 +140,7 @@ func Batch(ctx context.Context, direction string, northPoints []model.NorthPoint
 	return repo.BySouthPoints(ctx, southPoints)
 }
 
-func ByNorthDeviceName(ctx context.Context, name string, offset, limit int, dic *di.Container) ([]model.Mapping, int64, error) {
+func ByNorthNodeName(ctx context.Context, name string, offset, limit int, dic *di.Container) ([]model.Mapping, int64, error) {
 	if strings.TrimSpace(name) == "" || offset < 0 || limit < 1 || limit > 1000 {
 		return nil, 0, model.ErrInvalidMapping
 	}
@@ -148,7 +148,7 @@ func ByNorthDeviceName(ctx context.Context, name string, offset, limit int, dic 
 	if err != nil {
 		return nil, 0, err
 	}
-	return repo.ByNorthDeviceName(ctx, name, offset, limit)
+	return repo.ByNorthNodeName(ctx, name, offset, limit)
 }
 
 func ByNorthProfileName(ctx context.Context, name string, offset, limit int, dic *di.Container) ([]model.Mapping, int64, error) {
@@ -162,7 +162,7 @@ func ByNorthProfileName(ctx context.Context, name string, offset, limit int, dic
 	return repo.ByNorthProfileName(ctx, name, offset, limit)
 }
 
-func BySouthDeviceName(ctx context.Context, name string, offset, limit int, dic *di.Container) ([]model.Mapping, int64, error) {
+func BySouthNodeName(ctx context.Context, name string, offset, limit int, dic *di.Container) ([]model.Mapping, int64, error) {
 	if strings.TrimSpace(name) == "" || offset < 0 || limit < 1 || limit > 1000 {
 		return nil, 0, model.ErrInvalidMapping
 	}
@@ -170,7 +170,7 @@ func BySouthDeviceName(ctx context.Context, name string, offset, limit int, dic 
 	if err != nil {
 		return nil, 0, err
 	}
-	return repo.BySouthDeviceName(ctx, name, offset, limit)
+	return repo.BySouthNodeName(ctx, name, offset, limit)
 }
 
 func BySouthProfileName(ctx context.Context, name string, offset, limit int, dic *di.Container) ([]model.Mapping, int64, error) {
@@ -184,7 +184,7 @@ func BySouthProfileName(ctx context.Context, name string, offset, limit int, dic
 	return repo.BySouthProfileName(ctx, name, offset, limit)
 }
 
-func DeleteByNorthDeviceName(ctx context.Context, name string, dic *di.Container) error {
+func DeleteByNorthNodeName(ctx context.Context, name string, dic *di.Container) error {
 	if strings.TrimSpace(name) == "" {
 		return model.ErrInvalidMapping
 	}
@@ -192,7 +192,7 @@ func DeleteByNorthDeviceName(ctx context.Context, name string, dic *di.Container
 	if err != nil {
 		return err
 	}
-	mappings, err := repo.DeleteByNorthDeviceName(ctx, name)
+	mappings, err := repo.DeleteByNorthNodeName(ctx, name)
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func DeleteByNorthProfileName(ctx context.Context, name string, dic *di.Containe
 	return publishDeleted(ctx, mappings, dic)
 }
 
-func DeleteBySouthDeviceName(ctx context.Context, name string, dic *di.Container) error {
+func DeleteBySouthNodeName(ctx context.Context, name string, dic *di.Container) error {
 	if strings.TrimSpace(name) == "" {
 		return model.ErrInvalidMapping
 	}
@@ -222,7 +222,7 @@ func DeleteBySouthDeviceName(ctx context.Context, name string, dic *di.Container
 	if err != nil {
 		return err
 	}
-	mappings, err := repo.DeleteBySouthDeviceName(ctx, name)
+	mappings, err := repo.DeleteBySouthNodeName(ctx, name)
 	if err != nil {
 		return err
 	}

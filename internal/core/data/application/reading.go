@@ -88,14 +88,14 @@ func (a *CoreDataApp) ReadingsByResourceName(parms query.Parameters, resourceNam
 	return readings, totalCount, err
 }
 
-// ReadingsByDeviceName query readings with offset, limit, and device name
-func (a *CoreDataApp) ReadingsByDeviceName(parms query.Parameters, name string, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
+// ReadingsByNodeName query readings with offset, limit, and node name
+func (a *CoreDataApp) ReadingsByNodeName(parms query.Parameters, name string, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
 	if name == "" {
 		return readings, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "name is empty", nil)
 	}
 	dbClient := container.DBClientFrom(dic.Get)
 
-	readingModels, err := dbClient.ReadingsByDeviceName(parms.Offset, parms.Limit, name)
+	readingModels, err := dbClient.ReadingsByNodeName(parms.Offset, parms.Limit, name)
 	if err != nil {
 		return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -105,7 +105,7 @@ func (a *CoreDataApp) ReadingsByDeviceName(parms query.Parameters, name string, 
 	if parms.Offset < 0 {
 		return readings, 0, err // skip total count
 	}
-	totalCount, err = dbClient.ReadingCountByDeviceName(name)
+	totalCount, err = dbClient.ReadingCountByNodeName(name)
 	if err != nil {
 		return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -149,13 +149,13 @@ func convertReadingModelsToDTOs(readingModels []models.Reading) (readings []dtos
 	return readings, nil
 }
 
-// ReadingCountByDeviceName return the count of all of readings associated with given device and error if any
-func (a *CoreDataApp) ReadingCountByDeviceName(deviceName string, dic *di.Container) (int64, errors.EdgeX) {
-	if deviceName == "" {
+// ReadingCountByNodeName return the count of all of readings associated with given node and error if any
+func (a *CoreDataApp) ReadingCountByNodeName(nodeName string, dic *di.Container) (int64, errors.EdgeX) {
+	if nodeName == "" {
 		return 0, errors.NewCommonEdgeX(errors.KindContractInvalid, "name is empty", nil)
 	}
 	dbClient := container.DBClientFrom(dic.Get)
-	count, err := dbClient.ReadingCountByDeviceName(deviceName)
+	count, err := dbClient.ReadingCountByNodeName(nodeName)
 	if err != nil {
 		return 0, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -191,10 +191,10 @@ func (a *CoreDataApp) ReadingsByResourceNameAndTimeRange(resourceName string, pa
 	return readings, totalCount, err
 }
 
-// ReadingsByDeviceNameAndResourceName query readings with offset, limit, device name and its associated resource name
-func (a *CoreDataApp) ReadingsByDeviceNameAndResourceName(deviceName string, resourceName string, parms query.Parameters, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
-	if deviceName == "" {
-		return readings, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "device name is empty", nil)
+// ReadingsByNodeNameAndResourceName query readings with offset, limit, node name and its associated resource name
+func (a *CoreDataApp) ReadingsByNodeNameAndResourceName(nodeName string, resourceName string, parms query.Parameters, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
+	if nodeName == "" {
+		return readings, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "node name is empty", nil)
 	}
 	if resourceName == "" {
 		return readings, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "resource name is empty", nil)
@@ -202,7 +202,7 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceName(deviceName string, res
 
 	dbClient := container.DBClientFrom(dic.Get)
 
-	readingModels, err := dbClient.ReadingsByDeviceNameAndResourceName(deviceName, resourceName, parms.Offset, parms.Limit)
+	readingModels, err := dbClient.ReadingsByNodeNameAndResourceName(nodeName, resourceName, parms.Offset, parms.Limit)
 	if err != nil {
 		return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -212,7 +212,7 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceName(deviceName string, res
 	if parms.Offset < 0 {
 		return readings, 0, err // skip total count
 	}
-	totalCount, err = dbClient.ReadingCountByDeviceNameAndResourceName(deviceName, resourceName)
+	totalCount, err = dbClient.ReadingCountByNodeNameAndResourceName(nodeName, resourceName)
 	if err != nil {
 		return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -223,9 +223,9 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceName(deviceName string, res
 	return readings, totalCount, err
 }
 
-// ReadingsByDeviceNameAndResourceNameAndTimeRange query readings with offset, limit, device name, its associated resource name and specified time range
-func (a *CoreDataApp) ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, parms query.Parameters, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
-	readingModels, err := getFilteredReadingModelsByResource(deviceName, resourceName, parms, dic)
+// ReadingsByNodeNameAndResourceNameAndTimeRange query readings with offset, limit, node name, its associated resource name and specified time range
+func (a *CoreDataApp) ReadingsByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, parms query.Parameters, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
+	readingModels, err := getFilteredReadingModelsByResource(nodeName, resourceName, parms, dic)
 	if err != nil {
 		return readings, totalCount, err
 	}
@@ -236,7 +236,7 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName
 		return readings, 0, err // skip total count
 	}
 	dbClient := container.DBClientFrom(dic.Get)
-	totalCount, err = dbClient.ReadingCountByDeviceNameAndResourceNameAndTimeRange(deviceName, resourceName, parms.Start, parms.End)
+	totalCount, err = dbClient.ReadingCountByNodeNameAndResourceNameAndTimeRange(nodeName, resourceName, parms.Start, parms.End)
 	if err != nil {
 		return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -247,14 +247,14 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName
 	return readings, totalCount, err
 }
 
-// ReadingsByDeviceNameAndResourceNamesAndTimeRange query readings with offset, limit, device name, its associated resource name and specified time range
-func (a *CoreDataApp) ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceName string, resourceNames []string, parms query.Parameters, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
-	if deviceName == "" {
-		return readings, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "device name is empty", nil)
+// ReadingsByNodeNameAndResourceNamesAndTimeRange query readings with offset, limit, node name, its associated resource name and specified time range
+func (a *CoreDataApp) ReadingsByNodeNameAndResourceNamesAndTimeRange(nodeName string, resourceNames []string, parms query.Parameters, dic *di.Container) (readings []dtos.BaseReading, totalCount int64, err errors.EdgeX) {
+	if nodeName == "" {
+		return readings, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "node name is empty", nil)
 	}
 
 	if parms.Offset >= 0 {
-		totalCount, err = getFilteredReadingCount(deviceName, resourceNames, parms.Start, parms.End, dic)
+		totalCount, err = getFilteredReadingCount(nodeName, resourceNames, parms.Start, parms.End, dic)
 		if err != nil {
 			return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 		}
@@ -263,7 +263,7 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceNam
 		}
 	}
 
-	readingModels, err := getFilteredReadingModelsByMultipleResources(deviceName, resourceNames, parms, dic)
+	readingModels, err := getFilteredReadingModelsByMultipleResources(nodeName, resourceNames, parms, dic)
 	if err != nil {
 		return readings, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -273,9 +273,9 @@ func (a *CoreDataApp) ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceNam
 	return readings, totalCount, err
 }
 
-func getFilteredReadingModelsByResource(deviceName, resourceName string, parms query.Parameters, dic *di.Container) (readingModels []models.Reading, err errors.EdgeX) {
-	if deviceName == "" {
-		return readingModels, errors.NewCommonEdgeX(errors.KindContractInvalid, "device name is empty", nil)
+func getFilteredReadingModelsByResource(nodeName, resourceName string, parms query.Parameters, dic *di.Container) (readingModels []models.Reading, err errors.EdgeX) {
+	if nodeName == "" {
+		return readingModels, errors.NewCommonEdgeX(errors.KindContractInvalid, "node name is empty", nil)
 	}
 	if resourceName == "" {
 		return readingModels, errors.NewCommonEdgeX(errors.KindContractInvalid, "resource name is empty", nil)
@@ -283,7 +283,7 @@ func getFilteredReadingModelsByResource(deviceName, resourceName string, parms q
 
 	dbClient := container.DBClientFrom(dic.Get)
 
-	readingModels, err = dbClient.ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName, resourceName, parms.Start, parms.End, parms.Offset, parms.Limit)
+	readingModels, err = dbClient.ReadingsByNodeNameAndResourceNameAndTimeRange(nodeName, resourceName, parms.Start, parms.End, parms.Offset, parms.Limit)
 	if err != nil {
 		return readingModels, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -291,21 +291,21 @@ func getFilteredReadingModelsByResource(deviceName, resourceName string, parms q
 	return readingModels, nil
 }
 
-func getFilteredReadingCount(deviceName string, resourceNames []string, start, end int64, dic *di.Container) (int64, errors.EdgeX) {
+func getFilteredReadingCount(nodeName string, resourceNames []string, start, end int64, dic *di.Container) (int64, errors.EdgeX) {
 	dbClient := container.DBClientFrom(dic.Get)
 	if len(resourceNames) > 0 {
-		return dbClient.ReadingCountByDeviceNameAndResourceNamesAndTimeRange(deviceName, resourceNames, start, end)
+		return dbClient.ReadingCountByNodeNameAndResourceNamesAndTimeRange(nodeName, resourceNames, start, end)
 	}
-	return dbClient.ReadingCountByDeviceNameAndTimeRange(deviceName, start, end)
+	return dbClient.ReadingCountByNodeNameAndTimeRange(nodeName, start, end)
 }
 
-func getFilteredReadingModelsByMultipleResources(deviceName string, resourceNames []string, parms query.Parameters, dic *di.Container) (readingModels []models.Reading, err errors.EdgeX) {
+func getFilteredReadingModelsByMultipleResources(nodeName string, resourceNames []string, parms query.Parameters, dic *di.Container) (readingModels []models.Reading, err errors.EdgeX) {
 	dbClient := container.DBClientFrom(dic.Get)
 
 	if len(resourceNames) > 0 {
-		return dbClient.ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceName, resourceNames, parms.Start, parms.End, parms.Offset, parms.Limit)
+		return dbClient.ReadingsByNodeNameAndResourceNamesAndTimeRange(nodeName, resourceNames, parms.Start, parms.End, parms.Offset, parms.Limit)
 	}
-	return dbClient.ReadingsByDeviceNameAndTimeRange(deviceName, parms.Start, parms.End, parms.Offset, parms.Limit)
+	return dbClient.ReadingsByNodeNameAndTimeRange(nodeName, parms.Start, parms.End, parms.Offset, parms.Limit)
 }
 
 func processNumericReadings(isNumeric bool, readings []dtos.BaseReading) {

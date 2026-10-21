@@ -27,24 +27,24 @@ import (
 )
 
 const (
-	bypassValidationQueryParam = "bypassValidation" // query param to specify whether to skip the Device Service Validation API call
-	forceQueryParam            = "force"            // query param to specify whether to force add a device
+	bypassValidationQueryParam = "bypassValidation" // query param to specify whether to skip the Node Service Validation API call
+	forceQueryParam            = "force"            // query param to specify whether to force add a node
 )
 
-type DeviceController struct {
+type NodeController struct {
 	reader io.DtoReader
 	dic    *di.Container
 }
 
-// NewDeviceController creates and initializes an DeviceController
-func NewDeviceController(dic *di.Container) *DeviceController {
-	return &DeviceController{
+// NewNodeController creates and initializes an NodeController
+func NewNodeController(dic *di.Container) *NodeController {
+	return &NodeController{
 		reader: io.NewJsonDtoReader(),
 		dic:    dic,
 	}
 }
 
-func (dc *DeviceController) AddDevice(c echo.Context) error {
+func (dc *NodeController) AddNode(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -62,24 +62,24 @@ func (dc *DeviceController) AddDevice(c echo.Context) error {
 	if bypassValidationParamStr == common.ValueTrue {
 		bypassValidation = true
 	}
-	// parse URL query string for force add device
+	// parse URL query string for force add node
 	forceParamStr := utils.ParseQueryStringToString(r, forceQueryParam, common.ValueFalse)
 	if forceParamStr == common.ValueTrue {
 		force = true
 	}
 
-	var reqDTOs []requestDTO.AddDeviceRequest
+	var reqDTOs []requestDTO.AddNodeRequest
 	err := dc.reader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	devices := requestDTO.AddDeviceReqToDeviceModels(reqDTOs)
+	nodes := requestDTO.AddNodeReqToNodeModels(reqDTOs)
 
 	var addResponses []interface{}
-	for i, d := range devices {
+	for i, d := range nodes {
 		var response interface{}
 		reqId := reqDTOs[i].RequestId
-		newId, err := application.AddDevice(d, ctx, dc.dic, bypassValidation, force)
+		newId, err := application.AddNode(d, ctx, dc.dic, bypassValidation, force)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -101,7 +101,7 @@ func (dc *DeviceController) AddDevice(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(addResponses, w, lc)
 }
 
-func (dc *DeviceController) DeleteDeviceByName(c echo.Context) error {
+func (dc *NodeController) DeleteNodeByName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -110,7 +110,7 @@ func (dc *DeviceController) DeleteDeviceByName(c echo.Context) error {
 	// URL parameters
 	name := c.Param(common.Name)
 
-	err := application.DeleteDeviceByName(name, ctx, dc.dic)
+	err := application.DeleteNodeByName(name, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -120,7 +120,7 @@ func (dc *DeviceController) DeleteDeviceByName(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceController) DevicesByServiceName(c echo.Context) error {
+func (dc *NodeController) NodesByServiceName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -134,17 +134,17 @@ func (dc *DeviceController) DevicesByServiceName(c echo.Context) error {
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	devices, totalCount, err := application.DevicesByServiceName(offset, limit, name, ctx, dc.dic)
+	nodes, totalCount, err := application.NodesByServiceName(offset, limit, name, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDevicesResponse("", "", http.StatusOK, totalCount, devices)
+	response := responseDTO.NewMultiNodesResponse("", "", http.StatusOK, totalCount, nodes)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceController) DeviceNameExists(c echo.Context) error {
+func (dc *NodeController) NodeNameExists(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -156,7 +156,7 @@ func (dc *DeviceController) DeviceNameExists(c echo.Context) error {
 	var response interface{}
 	var statusCode int
 
-	exists, err := application.DeviceNameExists(name, dc.dic)
+	exists, err := application.NodeNameExists(name, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -172,7 +172,7 @@ func (dc *DeviceController) DeviceNameExists(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceController) PatchDevice(c echo.Context) error {
+func (dc *NodeController) PatchNode(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -192,7 +192,7 @@ func (dc *DeviceController) PatchDevice(c echo.Context) error {
 		bypassValidation = true
 	}
 
-	var reqDTOs []requestDTO.UpdateDeviceRequest
+	var reqDTOs []requestDTO.UpdateNodeRequest
 	err := dc.reader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
@@ -202,7 +202,7 @@ func (dc *DeviceController) PatchDevice(c echo.Context) error {
 	for _, dto := range reqDTOs {
 		var response interface{}
 		reqId := dto.RequestId
-		err := application.PatchDevice(dto.Device, ctx, dc.dic, bypassValidation)
+		err := application.PatchNode(dto.Node, ctx, dc.dic, bypassValidation)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -223,7 +223,7 @@ func (dc *DeviceController) PatchDevice(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(updateResponses, w, lc)
 }
 
-func (dc *DeviceController) AllDevices(c echo.Context) error {
+func (dc *NodeController) AllNodes(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -243,17 +243,17 @@ func (dc *DeviceController) AllDevices(c echo.Context) error {
 	if levels < 0 {
 		levels = math.MaxInt32
 	}
-	devices, totalCount, err := application.AllDevices(offset, limit, labels, parent, levels, dc.dic)
+	nodes, totalCount, err := application.AllNodes(offset, limit, labels, parent, levels, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDevicesResponse("", "", http.StatusOK, totalCount, devices)
+	response := responseDTO.NewMultiNodesResponse("", "", http.StatusOK, totalCount, nodes)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceController) DeviceByName(c echo.Context) error {
+func (dc *NodeController) NodeByName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -262,17 +262,17 @@ func (dc *DeviceController) DeviceByName(c echo.Context) error {
 	// URL parameters
 	name := c.Param(common.Name)
 
-	device, err := application.DeviceByName(name, dc.dic)
+	node, err := application.NodeByName(name, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewDeviceResponse("", "", http.StatusOK, device)
+	response := responseDTO.NewNodeResponse("", "", http.StatusOK, node)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceController) DeviceById(c echo.Context) error {
+func (dc *NodeController) NodeById(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -281,17 +281,17 @@ func (dc *DeviceController) DeviceById(c echo.Context) error {
 	// URL parameters
 	id := c.Param(common.Id)
 
-	device, err := application.DeviceById(id, dc.dic)
+	node, err := application.NodeById(id, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewDeviceResponse("", "", http.StatusOK, device)
+	response := responseDTO.NewNodeResponse("", "", http.StatusOK, node)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceController) DevicesByProfileName(c echo.Context) error {
+func (dc *NodeController) NodesByProfileName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -305,12 +305,12 @@ func (dc *DeviceController) DevicesByProfileName(c echo.Context) error {
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	devices, totalCount, err := application.DevicesByProfileName(offset, limit, name, dc.dic)
+	nodes, totalCount, err := application.NodesByProfileName(offset, limit, name, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDevicesResponse("", "", http.StatusOK, totalCount, devices)
+	response := responseDTO.NewMultiNodesResponse("", "", http.StatusOK, totalCount, nodes)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }

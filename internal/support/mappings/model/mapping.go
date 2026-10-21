@@ -10,13 +10,13 @@ import (
 )
 
 type NorthPoint struct {
-	NorthDeviceName   string `json:"northDeviceName"`
+	NorthNodeName     string `json:"northNodeName"`
 	NorthProfileName  string `json:"northProfileName"`
 	NorthResourceName string `json:"northResourceName"`
 }
 
 type SouthPoint struct {
-	SouthDeviceName   string `json:"southDeviceName"`
+	SouthNodeName     string `json:"southNodeName"`
 	SouthProfileName  string `json:"southProfileName"`
 	SouthResourceName string `json:"southResourceName"`
 }
@@ -44,11 +44,11 @@ func (m Mapping) Validate() error {
 }
 
 func (p NorthPoint) Valid() bool {
-	return strings.TrimSpace(p.NorthDeviceName) != "" && strings.TrimSpace(p.NorthProfileName) != "" && strings.TrimSpace(p.NorthResourceName) != ""
+	return strings.TrimSpace(p.NorthNodeName) != "" && strings.TrimSpace(p.NorthProfileName) != "" && strings.TrimSpace(p.NorthResourceName) != ""
 }
 
 func (p SouthPoint) Valid() bool {
-	return strings.TrimSpace(p.SouthDeviceName) != "" && strings.TrimSpace(p.SouthProfileName) != "" && strings.TrimSpace(p.SouthResourceName) != ""
+	return strings.TrimSpace(p.SouthNodeName) != "" && strings.TrimSpace(p.SouthProfileName) != "" && strings.TrimSpace(p.SouthResourceName) != ""
 }
 
 func (m Mapping) PrepareForCreate() (Mapping, error) {

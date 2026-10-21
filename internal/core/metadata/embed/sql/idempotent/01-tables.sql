@@ -3,20 +3,20 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
--- core_metadata.device_service is used to store the device_service information
-CREATE TABLE IF NOT EXISTS core_metadata.device_service (
+-- core_metadata.node_service is used to store the node_service information
+CREATE TABLE IF NOT EXISTS core_metadata.node_service (
     id UUID PRIMARY KEY,
     content JSONB NOT NULL
 );
 
--- core_metadata.device_profile is used to store the device_profile information
-CREATE TABLE IF NOT EXISTS core_metadata.device_profile (
+-- core_metadata.node_profile is used to store the node_profile information
+CREATE TABLE IF NOT EXISTS core_metadata.node_profile (
     id UUID PRIMARY KEY,
     content JSONB NOT NULL
 );
 
--- core_metadata.device is used to store the device information
-CREATE TABLE IF NOT EXISTS core_metadata.device (
+-- core_metadata.node is used to store the node information
+CREATE TABLE IF NOT EXISTS core_metadata.node (
     id UUID PRIMARY KEY,
     content JSONB NOT NULL
 );

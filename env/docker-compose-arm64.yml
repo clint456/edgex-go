@@ -59,7 +59,7 @@ services:
       ALL_SERVICES_MESSAGEBUS_HOST: edgex-mqtt-broker
       ALL_SERVICES_REGISTRY_HOST: edgex-core-keeper
       APP_SERVICES_CLIENTS_CORE_METADATA_HOST: edgex-core-metadata
-      DEVICE_SERVICES_CLIENTS_CORE_METADATA_HOST: edgex-core-metadata
+      NODE_SERVICES_CLIENTS_CORE_METADATA_HOST: edgex-core-metadata
       EDGEX_SECURITY_SECRET_STORE: "false"
     hostname: edgex-core-common-config-bootstrapper
     image: edge-hy/core-common-config-bootstrapper:4.0.3-dev
@@ -302,11 +302,11 @@ services:
         target: /etc/localtime
         read_only: true
         bind: {}
-  device-virtual:
+  node-virtual:
     command:
       - -cp=keeper.http://edgex-core-keeper:59890
       - --registry
-    container_name: edgex-device-virtual
+    container_name: edgex-node-virtual
     depends_on:
       core-common-config-bootstrapper:
         condition: service_started
@@ -322,9 +322,9 @@ services:
         required: true
     environment:
       EDGEX_SECURITY_SECRET_STORE: "false"
-      SERVICE_HOST: edgex-device-virtual
-    hostname: edgex-device-virtual
-    image: edgexfoundry/device-virtual:4.0.0
+      SERVICE_HOST: edgex-node-virtual
+    hostname: edgex-node-virtual
+    image: edgexfoundry/node-virtual:4.0.0
     networks:
       edgex-network: null
     ports:

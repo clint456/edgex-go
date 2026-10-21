@@ -31,18 +31,18 @@ var (
 	source2             = "resource2"
 	command1            = "command1"
 	command2            = "command2"
-	deviceProfile       = models.DeviceProfile{
-		Name:            profile,
-		DeviceResources: []models.DeviceResource{{Name: source1}, {Name: source2}},
-		DeviceCommands:  []models.DeviceCommand{{Name: command1}, {Name: command2}},
+	profileModel        = models.Profile{
+		Name:      profile,
+		Resources: []models.Resource{{Name: source1}, {Name: source2}},
+		Commands:  []models.Command{{Name: command1}, {Name: command2}},
 	}
 )
 
 func TestValidateParentProfileAndAutoEvents(t *testing.T) {
 	dic := di.NewContainer(di.ServiceConstructorMap{})
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceProfileByName", profile).Return(deviceProfile, nil)
-	dbClientMock.On("DeviceProfileByName", notFountProfileName).Return(models.DeviceProfile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "not found", nil))
+	dbClientMock.On("ProfileByName", profile).Return(profileModel, nil)
+	dbClientMock.On("ProfileByName", notFountProfileName).Return(models.Profile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "not found", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -51,68 +51,68 @@ func TestValidateParentProfileAndAutoEvents(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		device        models.Device
+		node          models.Node
 		errorExpected bool
 	}{
 		{"empty profile",
-			models.Device{},
+			models.Node{},
 			false,
 		},
 		{"not found profile",
-			models.Device{
+			models.Node{
 				ProfileName: notFountProfileName,
 			},
 			true,
 		},
 		{"no auto events",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 			},
 			false,
 		},
 		{"resource exist",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents:  []models.AutoEvent{{SourceName: source1, Interval: "1s"}},
 			},
 			false,
 		},
 		{"command exist",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents:  []models.AutoEvent{{SourceName: source1, Interval: "1s"}, {SourceName: command1, Interval: "1s"}},
 			},
 			false,
 		},
 		{"resource not exist",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents:  []models.AutoEvent{{SourceName: "notFoundSource", Interval: "1s"}},
 			},
 			true,
 		},
 		{"interval format not valid",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents:  []models.AutoEvent{{SourceName: source1, Interval: "1"}},
 			},
 			true,
 		},
 		{"no profile",
-			models.Device{
+			models.Node{
 				AutoEvents: []models.AutoEvent{{SourceName: source1, Interval: "1s"}},
 			},
 			false,
 		},
 		{"resource match regex",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents:  []models.AutoEvent{{SourceName: "res.*", Interval: "1s"}},
 			},
 			false,
 		},
 		{"is own parent",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				Parent:      "me",
 				Name:        "me",
@@ -122,7 +122,7 @@ func TestValidateParentProfileAndAutoEvents(t *testing.T) {
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			err := validateParentProfileAndAutoEvent(dic, testCase.device)
+			err := validateParentProfileAndAutoEvent(dic, testCase.node)
 			if testCase.errorExpected {
 				assert.Error(t, err)
 			} else {
@@ -135,8 +135,8 @@ func TestValidateParentProfileAndAutoEvents(t *testing.T) {
 func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 	dic := di.NewContainer(di.ServiceConstructorMap{})
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceProfileByName", profile).Return(deviceProfile, nil)
-	dbClientMock.On("DeviceProfileByName", notFountProfileName).Return(models.DeviceProfile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "not found", nil))
+	dbClientMock.On("ProfileByName", profile).Return(profileModel, nil)
+	dbClientMock.On("ProfileByName", notFountProfileName).Return(models.Profile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "not found", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -148,31 +148,31 @@ func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		device             models.Device
+		node               models.Node
 		expectedAutoEvents int
 		errorExpected      bool
 	}{
 		{"empty profile",
-			models.Device{},
+			models.Node{},
 			0,
 			false,
 		},
 		{"not found profile",
-			models.Device{
+			models.Node{
 				ProfileName: notFountProfileName,
 			},
 			0,
 			true,
 		},
 		{"no auto events",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 			},
 			0,
 			false,
 		},
 		{"is own parent",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				Parent:      "me",
 				Name:        "me",
@@ -182,7 +182,7 @@ func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 			true,
 		},
 		{"all valid",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents:  []models.AutoEvent{{SourceName: source1, Interval: "1s"}},
 			},
@@ -190,7 +190,7 @@ func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 			false,
 		},
 		{"one invalid",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents: []models.AutoEvent{
 					{SourceName: source1, Interval: "1s"},
@@ -201,7 +201,7 @@ func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 			false,
 		},
 		{"all invalid",
-			models.Device{
+			models.Node{
 				ProfileName: profile,
 				AutoEvents: []models.AutoEvent{
 					{SourceName: "invalid1", Interval: "1s"},
@@ -214,7 +214,7 @@ func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			d, err := validateParentProfileAndAutoEventDropInvalid(dic, testCase.device)
+			d, err := validateParentProfileAndAutoEventDropInvalid(dic, testCase.node)
 			if testCase.errorExpected {
 				assert.Error(t, err)
 			} else {
@@ -225,13 +225,13 @@ func TestValidateParentProfileAndAutoEventsDropInvalid(t *testing.T) {
 	}
 }
 
-func TestForceAddDevice(t *testing.T) {
-	invalidDeviceName := "invalidDevice"
-	validDeviceName := "validDevice"
-	invalidDeviceName2 := "invalidDevice2"
-	invalidDevice := models.Device{Name: invalidDeviceName}
-	invalidDevice2 := models.Device{Name: invalidDeviceName2}
-	returnedDevice := models.Device{Name: validDeviceName}
+func TestForceAddNode(t *testing.T) {
+	invalidNodeName := "invalidNode"
+	validNodeName := "validNode"
+	invalidNodeName2 := "invalidNode2"
+	invalidNode := models.Node{Name: invalidNodeName}
+	invalidNode2 := models.Node{Name: invalidNodeName2}
+	returnedNode := models.Node{Name: validNodeName}
 
 	dic := di.NewContainer(di.ServiceConstructorMap{
 		bootstrapContainer.LoggingClientInterfaceName: func(get di.Get) interface{} {
@@ -247,11 +247,11 @@ func TestForceAddDevice(t *testing.T) {
 	})
 
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceByName", invalidDeviceName).Return(models.Device{}, errors.NewCommonEdgeX(errors.KindDatabaseError, "failed to query", nil))
-	dbClientMock.On("DeviceByName", validDeviceName).Return(returnedDevice, nil)
-	dbClientMock.On("DeviceByName", invalidDeviceName2).Return(invalidDevice2, nil)
-	dbClientMock.On("UpdateDevice", returnedDevice).Return(nil)
-	dbClientMock.On("UpdateDevice", invalidDevice2).Return(errors.NewCommonEdgeX(errors.KindDatabaseError, "failed to update", nil))
+	dbClientMock.On("NodeByName", invalidNodeName).Return(models.Node{}, errors.NewCommonEdgeX(errors.KindDatabaseError, "failed to query", nil))
+	dbClientMock.On("NodeByName", validNodeName).Return(returnedNode, nil)
+	dbClientMock.On("NodeByName", invalidNodeName2).Return(invalidNode2, nil)
+	dbClientMock.On("UpdateNode", returnedNode).Return(nil)
+	dbClientMock.On("UpdateNode", invalidNode2).Return(errors.NewCommonEdgeX(errors.KindDatabaseError, "failed to update", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -260,31 +260,31 @@ func TestForceAddDevice(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		device        models.Device
+		node          models.Node
 		errorExpected bool
 	}{
-		{"invalid - DeviceByName error", invalidDevice, true},
-		{"valid", returnedDevice, false},
-		{"invalid - UpdateDevice error", invalidDevice2, true},
+		{"invalid - NodeByName error", invalidNode, true},
+		{"valid", returnedNode, false},
+		{"invalid - UpdateNode error", invalidNode2, true},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctx, _ := correlation.FromContextOrNew(context.Background())
-			result, err := updateDevice(testCase.device, ctx, dic)
+			result, err := updateNode(testCase.node, ctx, dic)
 			if testCase.errorExpected {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, returnedDevice.Id, result)
+				require.Equal(t, returnedNode.Id, result)
 			}
 		})
 	}
 }
 
-func TestDeviceById(t *testing.T) {
+func TestNodeById(t *testing.T) {
 	validId := "82eb2e26-0f24-48aa-ae4c-de9dac3fb9bc"
 	notFoundId := "00000000-0000-0000-0000-000000000000"
-	returnedDevice := models.Device{Id: validId, Name: "testDevice"}
+	returnedNode := models.Node{Id: validId, Name: "testNode"}
 
 	dic := di.NewContainer(di.ServiceConstructorMap{
 		bootstrapContainer.LoggingClientInterfaceName: func(get di.Get) interface{} {
@@ -293,8 +293,8 @@ func TestDeviceById(t *testing.T) {
 	})
 
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceById", validId).Return(returnedDevice, nil)
-	dbClientMock.On("DeviceById", notFoundId).Return(models.Device{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "device doesn't exist in the database", nil))
+	dbClientMock.On("NodeById", validId).Return(returnedNode, nil)
+	dbClientMock.On("NodeById", notFoundId).Return(models.Node{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "node doesn't exist in the database", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -306,19 +306,19 @@ func TestDeviceById(t *testing.T) {
 		id            string
 		errorExpected bool
 	}{
-		{"Valid - find device by id", validId, false},
+		{"Valid - find node by id", validId, false},
 		{"Invalid - empty id", "", true},
-		{"Invalid - device not found by id", notFoundId, true},
+		{"Invalid - node not found by id", notFoundId, true},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			device, err := DeviceById(testCase.id, dic)
+			node, err := NodeById(testCase.id, dic)
 			if testCase.errorExpected {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
-				assert.Equal(t, validId, device.Id)
-				assert.Equal(t, returnedDevice.Name, device.Name)
+				assert.Equal(t, validId, node.Id)
+				assert.Equal(t, returnedNode.Name, node.Name)
 			}
 		})
 	}

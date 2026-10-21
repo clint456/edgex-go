@@ -11,9 +11,9 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/v4/di"
 )
 
-var DeviceInfoCacheInterfaceName = di.TypeInstanceToName((*cache.DeviceInfoCache)(nil))
+var NodeInfoCacheInterfaceName = di.TypeInstanceToName((*cache.NodeInfoCache)(nil))
 
-// DeviceInfoCacheFrom helper function queries the DIC and returns the cache.DeviceInfoCache implementation.
-func DeviceInfoCacheFrom(get di.Get) cache.DeviceInfoCache {
-	return get(DeviceInfoCacheInterfaceName).(cache.DeviceInfoCache)
+// NodeInfoCacheFrom helper function queries the DIC and returns the cache.NodeInfoCache implementation.
+func NodeInfoCacheFrom(get di.Get) cache.NodeInfoCache {
+	return get(NodeInfoCacheInterfaceName).(cache.NodeInfoCache)
 }

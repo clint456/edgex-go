@@ -17,7 +17,7 @@ import (
 
 const (
 	exampleUUID      = "82eb2e26-0f24-48aa-ae4c-de9dac3fb9bc"
-	testDeviceName   = "testDeviceName"
+	testNodeName     = "testNodeName"
 	testProfileName  = "testProfileName"
 	testResourceName = "testResourceName"
 )
@@ -27,7 +27,7 @@ func simpleReadingData() models.SimpleReading {
 		BaseReading: models.BaseReading{
 			Id:           exampleUUID,
 			Origin:       1616728256236000000,
-			DeviceName:   testDeviceName,
+			NodeName:     testNodeName,
 			ProfileName:  testProfileName,
 			ResourceName: testResourceName,
 			ValueType:    common.ValueTypeString,
@@ -41,7 +41,7 @@ func binaryReadingData() models.BinaryReading {
 		BaseReading: models.BaseReading{
 			Id:           exampleUUID,
 			Origin:       1616728256236000001,
-			DeviceName:   testDeviceName,
+			NodeName:     testNodeName,
 			ProfileName:  testProfileName,
 			ResourceName: testResourceName,
 			ValueType:    common.ValueTypeBinary,
@@ -56,7 +56,7 @@ func objectReadingData() models.ObjectReading {
 		BaseReading: models.BaseReading{
 			Id:           exampleUUID,
 			Origin:       1616728256236000001,
-			DeviceName:   testDeviceName,
+			NodeName:     testNodeName,
 			ProfileName:  testProfileName,
 			ResourceName: testResourceName,
 			ValueType:    common.ValueTypeObject,
@@ -73,7 +73,7 @@ func nullReadingData() models.NullReading {
 		BaseReading: models.BaseReading{
 			Id:           exampleUUID,
 			Origin:       1616728256236000000,
-			DeviceName:   testDeviceName,
+			NodeName:     testNodeName,
 			ProfileName:  testProfileName,
 			ResourceName: testResourceName,
 			ValueType:    common.ValueTypeFloat32,

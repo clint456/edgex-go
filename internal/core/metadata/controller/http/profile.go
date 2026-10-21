@@ -31,22 +31,22 @@ import (
 
 const yamlFileName = "file"
 
-type DeviceProfileController struct {
+type ProfileController struct {
 	jsonDtoReader io.DtoReader
 	yamlDtoReader io.DtoReader
 	dic           *di.Container
 }
 
-// NewDeviceProfileController creates and initializes an DeviceProfileController
-func NewDeviceProfileController(dic *di.Container) *DeviceProfileController {
-	return &DeviceProfileController{
+// NewProfileController creates and initializes an ProfileController
+func NewProfileController(dic *di.Container) *ProfileController {
+	return &ProfileController{
 		jsonDtoReader: io.NewJsonDtoReader(),
 		yamlDtoReader: io.NewYamlDtoReader(),
 		dic:           dic,
 	}
 }
 
-func (dc *DeviceProfileController) AddDeviceProfile(c echo.Context) error {
+func (dc *ProfileController) AddProfile(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -58,40 +58,40 @@ func (dc *DeviceProfileController) AddDeviceProfile(c echo.Context) error {
 	ctx := r.Context()
 	correlationId := correlation.FromContext(ctx)
 
-	var reqDTOs []requestDTO.DeviceProfileRequest
+	var reqDTOs []requestDTO.ProfileRequest
 	err := dc.jsonDtoReader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfiles := requestDTO.DeviceProfileReqToDeviceProfileModels(reqDTOs)
+	profiles := requestDTO.ProfileReqToProfileModels(reqDTOs)
 
 	var addResponses []interface{}
-	for i, d := range deviceProfiles {
-		var addDeviceProfileResponse interface{}
+	for i, d := range profiles {
+		var addProfileResponse interface{}
 		reqId := reqDTOs[i].RequestId
-		newId, err := application.AddDeviceProfile(d, ctx, dc.dic)
+		newId, err := application.AddProfile(d, ctx, dc.dic)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
-			addDeviceProfileResponse = commonDTO.NewBaseResponse(
+			addProfileResponse = commonDTO.NewBaseResponse(
 				reqId,
 				err.Message(),
 				err.Code())
 		} else {
-			addDeviceProfileResponse = commonDTO.NewBaseWithIdResponse(
+			addProfileResponse = commonDTO.NewBaseWithIdResponse(
 				reqId,
 				"",
 				http.StatusCreated,
 				newId)
 		}
-		addResponses = append(addResponses, addDeviceProfileResponse)
+		addResponses = append(addResponses, addProfileResponse)
 	}
 
 	utils.WriteHttpHeader(w, ctx, http.StatusMultiStatus)
 	return pkg.EncodeAndWriteResponse(addResponses, w, lc)
 }
 
-func (dc *DeviceProfileController) UpdateDeviceProfile(c echo.Context) error {
+func (dc *ProfileController) UpdateProfile(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -103,23 +103,23 @@ func (dc *DeviceProfileController) UpdateDeviceProfile(c echo.Context) error {
 	ctx := r.Context()
 	correlationId := correlation.FromContext(ctx)
 
-	strictProfileChanges := metadataContainer.ConfigurationFrom(dc.dic.Get).Writable.ProfileChange.StrictDeviceProfileChanges
+	strictProfileChanges := metadataContainer.ConfigurationFrom(dc.dic.Get).Writable.ProfileChange.StrictProfileChanges
 	if strictProfileChanges {
-		return utils.WriteErrorResponse(w, ctx, lc, errors.NewCommonEdgeX(errors.KindServiceLocked, "profile change is not allowed when StrictDeviceProfileChanges config is enabled", nil), "")
+		return utils.WriteErrorResponse(w, ctx, lc, errors.NewCommonEdgeX(errors.KindServiceLocked, "profile change is not allowed when StrictProfileChanges config is enabled", nil), "")
 	}
 
-	var reqDTOs []requestDTO.DeviceProfileRequest
+	var reqDTOs []requestDTO.ProfileRequest
 	err := dc.jsonDtoReader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfiles := requestDTO.DeviceProfileReqToDeviceProfileModels(reqDTOs)
+	profiles := requestDTO.ProfileReqToProfileModels(reqDTOs)
 
 	var responses []interface{}
-	for i, d := range deviceProfiles {
+	for i, d := range profiles {
 		var response interface{}
 		reqId := reqDTOs[i].RequestId
-		err := application.UpdateDeviceProfile(d, ctx, dc.dic)
+		err := application.UpdateProfile(d, ctx, dc.dic)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -140,7 +140,7 @@ func (dc *DeviceProfileController) UpdateDeviceProfile(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(responses, w, lc)
 }
 
-func (dc *DeviceProfileController) AddDeviceProfileByYaml(c echo.Context) error {
+func (dc *ProfileController) AddProfileByYaml(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -157,14 +157,14 @@ func (dc *DeviceProfileController) AddDeviceProfileByYaml(c echo.Context) error 
 		return utils.WriteErrorResponse(w, ctx, lc, errors.NewCommonEdgeX(errors.KindServerError, fileErr.Error(), nil), "")
 	}
 
-	var deviceProfileDTO dtos.DeviceProfile
-	err := dc.yamlDtoReader.Read(file, &deviceProfileDTO)
+	var profileDTO dtos.Profile
+	err := dc.yamlDtoReader.Read(file, &profileDTO)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfile := dtos.ToDeviceProfileModel(deviceProfileDTO)
+	profile := dtos.ToProfileModel(profileDTO)
 
-	newId, err := application.AddDeviceProfile(deviceProfile, ctx, dc.dic)
+	newId, err := application.AddProfile(profile, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -175,7 +175,7 @@ func (dc *DeviceProfileController) AddDeviceProfileByYaml(c echo.Context) error 
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) UpdateDeviceProfileByYaml(c echo.Context) error {
+func (dc *ProfileController) UpdateProfileByYaml(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -192,19 +192,19 @@ func (dc *DeviceProfileController) UpdateDeviceProfileByYaml(c echo.Context) err
 		return utils.WriteErrorResponse(w, ctx, lc, errors.NewCommonEdgeX(errors.KindServerError, fileErr.Error(), nil), "")
 	}
 
-	strictProfileChanges := metadataContainer.ConfigurationFrom(dc.dic.Get).Writable.ProfileChange.StrictDeviceProfileChanges
+	strictProfileChanges := metadataContainer.ConfigurationFrom(dc.dic.Get).Writable.ProfileChange.StrictProfileChanges
 	if strictProfileChanges {
-		return utils.WriteErrorResponse(w, ctx, lc, errors.NewCommonEdgeX(errors.KindServiceLocked, "profile change is not allowed when StrictDeviceProfileChanges config is enabled", nil), "")
+		return utils.WriteErrorResponse(w, ctx, lc, errors.NewCommonEdgeX(errors.KindServiceLocked, "profile change is not allowed when StrictProfileChanges config is enabled", nil), "")
 	}
 
-	var deviceProfileDTO dtos.DeviceProfile
-	err := dc.yamlDtoReader.Read(file, &deviceProfileDTO)
+	var profileDTO dtos.Profile
+	err := dc.yamlDtoReader.Read(file, &profileDTO)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	deviceProfile := dtos.ToDeviceProfileModel(deviceProfileDTO)
-	err = application.UpdateDeviceProfile(deviceProfile, ctx, dc.dic)
+	profile := dtos.ToProfileModel(profileDTO)
+	err = application.UpdateProfile(profile, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -214,7 +214,7 @@ func (dc *DeviceProfileController) UpdateDeviceProfileByYaml(c echo.Context) err
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) DeviceProfileByName(c echo.Context) error {
+func (dc *ProfileController) ProfileByName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -223,17 +223,17 @@ func (dc *DeviceProfileController) DeviceProfileByName(c echo.Context) error {
 	// URL parameters
 	name := c.Param(common.Name)
 
-	deviceProfile, err := application.DeviceProfileByName(name, ctx, dc.dic)
+	profile, err := application.ProfileByName(name, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewDeviceProfileResponse("", "", http.StatusOK, deviceProfile)
+	response := responseDTO.NewProfileResponse("", "", http.StatusOK, profile)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc) // encode and send out the response
 }
 
-func (dc *DeviceProfileController) DeleteDeviceProfileByName(c echo.Context) error {
+func (dc *ProfileController) DeleteProfileByName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -242,7 +242,7 @@ func (dc *DeviceProfileController) DeleteDeviceProfileByName(c echo.Context) err
 	// URL parameters
 	name := c.Param(common.Name)
 
-	err := application.DeleteDeviceProfileByName(name, ctx, dc.dic)
+	err := application.DeleteProfileByName(name, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -252,7 +252,7 @@ func (dc *DeviceProfileController) DeleteDeviceProfileByName(c echo.Context) err
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) AllDeviceProfiles(c echo.Context) error {
+func (dc *ProfileController) AllProfiles(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -264,17 +264,17 @@ func (dc *DeviceProfileController) AllDeviceProfiles(c echo.Context) error {
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfiles, totalCount, err := application.AllDeviceProfiles(offset, limit, labels, dc.dic)
+	profiles, totalCount, err := application.AllProfiles(offset, limit, labels, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceProfilesResponse("", "", http.StatusOK, totalCount, deviceProfiles)
+	response := responseDTO.NewMultiProfilesResponse("", "", http.StatusOK, totalCount, profiles)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) DeviceProfilesByModel(c echo.Context) error {
+func (dc *ProfileController) ProfilesByModel(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -288,17 +288,17 @@ func (dc *DeviceProfileController) DeviceProfilesByModel(c echo.Context) error {
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfiles, totalCount, err := application.DeviceProfilesByModel(offset, limit, model, dc.dic)
+	profiles, totalCount, err := application.ProfilesByModel(offset, limit, model, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceProfilesResponse("", "", http.StatusOK, totalCount, deviceProfiles)
+	response := responseDTO.NewMultiProfilesResponse("", "", http.StatusOK, totalCount, profiles)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) DeviceProfilesByManufacturer(c echo.Context) error {
+func (dc *ProfileController) ProfilesByManufacturer(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -312,17 +312,17 @@ func (dc *DeviceProfileController) DeviceProfilesByManufacturer(c echo.Context) 
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfiles, totalCount, err := application.DeviceProfilesByManufacturer(offset, limit, manufacturer, dc.dic)
+	profiles, totalCount, err := application.ProfilesByManufacturer(offset, limit, manufacturer, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceProfilesResponse("", "", http.StatusOK, totalCount, deviceProfiles)
+	response := responseDTO.NewMultiProfilesResponse("", "", http.StatusOK, totalCount, profiles)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) DeviceProfilesByManufacturerAndModel(c echo.Context) error {
+func (dc *ProfileController) ProfilesByManufacturerAndModel(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -337,17 +337,17 @@ func (dc *DeviceProfileController) DeviceProfilesByManufacturerAndModel(c echo.C
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfiles, totalCount, err := application.DeviceProfilesByManufacturerAndModel(offset, limit, manufacturer, model, dc.dic)
+	profiles, totalCount, err := application.ProfilesByManufacturerAndModel(offset, limit, manufacturer, model, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceProfilesResponse("", "", http.StatusOK, totalCount, deviceProfiles)
+	response := responseDTO.NewMultiProfilesResponse("", "", http.StatusOK, totalCount, profiles)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) PatchDeviceProfileBasicInfo(c echo.Context) error {
+func (dc *ProfileController) PatchProfileBasicInfo(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -358,7 +358,7 @@ func (dc *DeviceProfileController) PatchDeviceProfileBasicInfo(c echo.Context) e
 	correlationId := correlation.FromContext(ctx)
 	lc := container.LoggingClientFrom(dc.dic.Get)
 
-	var reqDTOs []requestDTO.DeviceProfileBasicInfoRequest
+	var reqDTOs []requestDTO.ProfileBasicInfoRequest
 	err := dc.jsonDtoReader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
@@ -368,7 +368,7 @@ func (dc *DeviceProfileController) PatchDeviceProfileBasicInfo(c echo.Context) e
 	for _, dto := range reqDTOs {
 		var response interface{}
 		reqId := dto.RequestId
-		err := application.PatchDeviceProfileBasicInfo(ctx, dto.BasicInfo, dc.dic)
+		err := application.PatchProfileBasicInfo(ctx, dto.BasicInfo, dc.dic)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -383,7 +383,7 @@ func (dc *DeviceProfileController) PatchDeviceProfileBasicInfo(c echo.Context) e
 	return pkg.EncodeAndWriteResponse(updateResponses, w, lc)
 }
 
-func (dc *DeviceProfileController) AllDeviceProfileBasicInfos(c echo.Context) error {
+func (dc *ProfileController) AllProfileBasicInfos(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -395,17 +395,17 @@ func (dc *DeviceProfileController) AllDeviceProfileBasicInfos(c echo.Context) er
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceProfileBasicInfos, totalCount, err := application.AllDeviceProfileBasicInfos(offset, limit, labels, dc.dic)
+	profileBasicInfos, totalCount, err := application.AllProfileBasicInfos(offset, limit, labels, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceProfileBasicInfosResponse("", "", http.StatusOK, totalCount, deviceProfileBasicInfos)
+	response := responseDTO.NewMultiProfileBasicInfosResponse("", "", http.StatusOK, totalCount, profileBasicInfos)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceProfileController) PatchDeviceProfileTags(c echo.Context) error {
+func (dc *ProfileController) PatchProfileTags(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -419,14 +419,14 @@ func (dc *DeviceProfileController) PatchDeviceProfileTags(c echo.Context) error 
 	// URL parameters
 	name := c.Param(common.Name)
 
-	var reqDTO requestDTO.DeviceProfileTagsRequest
+	var reqDTO requestDTO.ProfileTagsRequest
 	err := dc.jsonDtoReader.Read(r.Body, &reqDTO)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
 	reqId := reqDTO.RequestId
-	err = application.PatchDeviceProfileTags(name, reqDTO.UpdateDeviceProfileTags, ctx, dc.dic)
+	err = application.PatchProfileTags(name, reqDTO.UpdateProfileTags, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, reqId)
 	}

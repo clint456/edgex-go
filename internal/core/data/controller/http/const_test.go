@@ -6,15 +6,14 @@
 package http
 
 const (
-	ExampleUUID            = "82eb2e26-0f24-48aa-ae4c-de9dac3fb9bc"
-	TestServiceName        = "TestService"
-	TestDeviceName         = "TestDevice"
-	TestProfileName        = "TestProfileName"
-	TestCreatedTime        = 1600666214495
-	TestOriginTime         = 1600666185705354000
-	TestDeviceResourceName = "TestDeviceResourceName"
-	TestDeviceProfileName  = "TestDeviceProfileName"
-	TestSourceName         = "TestSourceName"
+	ExampleUUID      = "82eb2e26-0f24-48aa-ae4c-de9dac3fb9bc"
+	TestServiceName  = "TestService"
+	TestNodeName     = "TestNode"
+	TestProfileName  = "TestProfileName"
+	TestCreatedTime  = 1600666214495
+	TestOriginTime   = 1600666185705354000
+	TestResourceName = "TestResourceName"
+	TestSourceName   = "TestSourceName"
 
 	TestReadingValue           = "45"
 	TestBinaryReadingMediaType = "File"

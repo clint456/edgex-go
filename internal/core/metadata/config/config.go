@@ -37,13 +37,13 @@ type WritableInfo struct {
 	UoM             WritableUoM
 	InsecureSecrets bootstrapConfig.InsecureSecrets
 	Telemetry       bootstrapConfig.TelemetryInfo
-	MaxDevices      uint32
+	MaxNodes        uint32
 	MaxResources    uint32
 }
 
 type ProfileChange struct {
-	StrictDeviceProfileChanges bool
-	StrictDeviceProfileDeletes bool
+	StrictProfileChanges bool
+	StrictProfileDeletes bool
 }
 
 type WritableUoM struct {

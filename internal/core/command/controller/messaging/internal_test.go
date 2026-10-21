@@ -37,22 +37,22 @@ var baseTopic = "edgex"
 
 func TestSubscribeCommandRequests(t *testing.T) {
 	wg := sync.WaitGroup{}
-	expectedServiceName := "device-simple"
+	expectedServiceName := "node-simple"
 	expectedRequestId := uuid.NewString()
 	expectedCorrelationId := uuid.NewString()
-	expectedDevice := "device1"
+	expectedNode := "node1"
 	expectedResource := "resource"
 	expectedMethod := "get"
-	expectedDeviceResponseTopicPrefix := strings.Join([]string{expectedResponseTopicPrefix, expectedServiceName}, "/")
+	expectedNodeResponseTopicPrefix := strings.Join([]string{expectedResponseTopicPrefix, expectedServiceName}, "/")
 	expectedCommandResponseTopic := strings.Join([]string{expectedResponseTopicPrefix, common.CoreCommandServiceKey, expectedRequestId}, "/")
 	expectedCommandRequestSubscribeTopic := common.BuildTopic(baseTopic, common.CoreCommandRequestSubscribeTopic)
 	expectedCommandRequestReceivedTopic := common.BuildTopic(strings.Replace(expectedCommandRequestSubscribeTopic, "/#", "", 1),
-		expectedServiceName, expectedDevice, expectedResource, expectedMethod)
-	expectedDeviceCommandRequestRequestTopic := common.BuildTopic(baseTopic, common.CoreCommandDeviceRequestPublishTopic, expectedServiceName, expectedDevice, expectedResource, expectedMethod)
+		expectedServiceName, expectedNode, expectedResource, expectedMethod)
+	expectedCommandRequestRequestTopic := common.BuildTopic(baseTopic, common.CoreCommandNodeRequestPublishTopic, expectedServiceName, expectedNode, expectedResource, expectedMethod)
 	mockLogger := &lcMocks.LoggingClient{}
-	mockDeviceClient := &mocks2.DeviceClient{}
-	mockDeviceProfileClient := &mocks2.DeviceProfileClient{}
-	mockDeviceServiceClient := &mocks2.DeviceServiceClient{}
+	mockNodeClient := &mocks2.NodeClient{}
+	mockProfileClient := &mocks2.ProfileClient{}
+	mockNodeServiceClient := &mocks2.NodeServiceClient{}
 	mockMessaging := &mocks.MessageClient{}
 
 	mockLogger.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
@@ -73,7 +73,7 @@ func TestSubscribeCommandRequests(t *testing.T) {
 		}()
 	}).Return(nil)
 
-	mockMessaging.On("Request", mock.Anything, expectedDeviceCommandRequestRequestTopic, expectedDeviceResponseTopicPrefix, mock.Anything).Run(func(args mock.Arguments) {
+	mockMessaging.On("Request", mock.Anything, expectedCommandRequestRequestTopic, expectedNodeResponseTopicPrefix, mock.Anything).Run(func(args mock.Arguments) {
 	}).Return(&types.MessageEnvelope{
 		RequestID:     expectedRequestId,
 		CorrelationID: expectedCorrelationId,
@@ -89,18 +89,18 @@ func TestSubscribeCommandRequests(t *testing.T) {
 		assert.NotEmpty(t, response.Payload)
 	}).Return(nil)
 
-	mockDeviceClient.On("DeviceByName", mock.Anything, expectedDevice).Return(
-		responses.DeviceResponse{
-			Device: dtos.Device{
+	mockNodeClient.On("NodeByName", mock.Anything, expectedNode).Return(
+		responses.NodeResponse{
+			Node: dtos.Node{
 				ProfileName: expectedProfileName,
 				ServiceName: expectedServiceName,
 			},
 		},
 		nil)
 
-	mockDeviceServiceClient.On("DeviceServiceByName", mock.Anything, expectedServiceName).Return(
-		responses.DeviceServiceResponse{
-			Service: dtos.DeviceService{
+	mockNodeServiceClient.On("NodeServiceByName", mock.Anything, expectedServiceName).Return(
+		responses.NodeServiceResponse{
+			Service: dtos.NodeService{
 				Name: expectedServiceName,
 			},
 		},
@@ -120,14 +120,14 @@ func TestSubscribeCommandRequests(t *testing.T) {
 		bootstrapContainer.MessagingClientName: func(get di.Get) interface{} {
 			return mockMessaging
 		},
-		bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
-			return mockDeviceClient
+		bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
+			return mockNodeClient
 		},
-		bootstrapContainer.DeviceProfileClientName: func(get di.Get) interface{} {
-			return mockDeviceProfileClient
+		bootstrapContainer.ProfileClientName: func(get di.Get) interface{} {
+			return mockProfileClient
 		},
-		bootstrapContainer.DeviceServiceClientName: func(get di.Get) interface{} {
-			return mockDeviceServiceClient
+		bootstrapContainer.NodeServiceClientName: func(get di.Get) interface{} {
+			return mockNodeServiceClient
 		},
 		bootstrapContainer.ConfigurationInterfaceName: func(get di.Get) interface{} {
 			return &config.ConfigurationStruct{
@@ -151,19 +151,19 @@ func TestSubscribeCommandQueryRequests(t *testing.T) {
 	expectedResponseTopic := strings.Join([]string{expectedResponseTopicPrefix, common.CoreCommandServiceKey, expectedRequestId}, "/")
 
 	tests := []struct {
-		Name               string
-		ExpectedDeviceName string
+		Name             string
+		ExpectedNodeName string
 	}{
-		{"By Device", "Device1"},
-		{"All Devices", "All"},
+		{"By Node", "Node1"},
+		{"All Nodes", "All"},
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 
 			mockLogger := &lcMocks.LoggingClient{}
-			mockDeviceClient := &mocks2.DeviceClient{}
-			mockDeviceProfileClient := &mocks2.DeviceProfileClient{}
+			mockNodeClient := &mocks2.NodeClient{}
+			mockProfileClient := &mocks2.ProfileClient{}
 			mockMessaging := &mocks.MessageClient{}
 
 			mockLogger.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
@@ -176,19 +176,19 @@ func TestSubscribeCommandQueryRequests(t *testing.T) {
 			})
 
 			expectedSubscribeTopic := common.BuildTopic(baseTopic, common.CoreCommandQueryRequestSubscribeTopic)
-			expectedReceivedTopic := common.BuildTopic(strings.Replace(expectedSubscribeTopic, "/#", "", 1), test.ExpectedDeviceName)
+			expectedReceivedTopic := common.BuildTopic(strings.Replace(expectedSubscribeTopic, "/#", "", 1), test.ExpectedNodeName)
 
-			mockDeviceClient.On("DeviceByName", mock.Anything, test.ExpectedDeviceName).Return(
-				responses.DeviceResponse{
-					Device: dtos.Device{
+			mockNodeClient.On("NodeByName", mock.Anything, test.ExpectedNodeName).Return(
+				responses.NodeResponse{
+					Node: dtos.Node{
 						ProfileName: expectedProfileName,
 					},
 				},
 				nil)
 
-			mockDeviceClient.On("AllDevices", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(
-				responses.MultiDevicesResponse{
-					Devices: []dtos.Device{
+			mockNodeClient.On("AllNodes", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(
+				responses.MultiNodesResponse{
+					Nodes: []dtos.Node{
 						{
 							ProfileName: expectedProfileName,
 						},
@@ -196,8 +196,8 @@ func TestSubscribeCommandQueryRequests(t *testing.T) {
 				},
 				nil)
 
-			mockDeviceProfileClient.On("DeviceProfileByName", mock.Anything, expectedProfileName).Return(
-				responses.DeviceProfileResponse{},
+			mockProfileClient.On("ProfileByName", mock.Anything, expectedProfileName).Return(
+				responses.ProfileResponse{},
 				nil)
 
 			mockMessaging.On("Subscribe", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
@@ -237,11 +237,11 @@ func TestSubscribeCommandQueryRequests(t *testing.T) {
 				bootstrapContainer.MessagingClientName: func(get di.Get) interface{} {
 					return mockMessaging
 				},
-				bootstrapContainer.DeviceClientName: func(get di.Get) interface{} {
-					return mockDeviceClient
+				bootstrapContainer.NodeClientName: func(get di.Get) interface{} {
+					return mockNodeClient
 				},
-				bootstrapContainer.DeviceProfileClientName: func(get di.Get) interface{} {
-					return mockDeviceProfileClient
+				bootstrapContainer.ProfileClientName: func(get di.Get) interface{} {
+					return mockProfileClient
 				},
 			})
 

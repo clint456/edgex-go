@@ -92,7 +92,7 @@ func (c *Client) ProvisionWatchersByServiceName(offset int, limit int, name stri
 func (c *Client) ProvisionWatchersByProfileName(offset int, limit int, name string) ([]model.ProvisionWatcher, errors.EdgeX) {
 	ctx := context.Background()
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
-	queryObj := map[string]any{"DiscoveredDevice": map[string]any{profileNameField: name}}
+	queryObj := map[string]any{"DiscoveredNode": map[string]any{profileNameField: name}}
 	return queryProvisionWatchers(ctx, c.ConnPool, sqlQueryContentByJSONFieldWithPaginationAsNamedArgs(provisionWatcherTableName),
 		pgx.NamedArgs{jsonContentCondition: queryObj, offsetCondition: offset, limitCondition: validLimit})
 }
@@ -180,7 +180,7 @@ func (c *Client) ProvisionWatcherCountByServiceName(name string) (int64, errors.
 // ProvisionWatcherCountByProfileName returns the count of Provision Watcher associated with specified profile
 func (c *Client) ProvisionWatcherCountByProfileName(name string) (int64, errors.EdgeX) {
 	ctx := context.Background()
-	queryObj := map[string]any{"DiscoveredDevice": map[string]any{profileNameField: name}}
+	queryObj := map[string]any{"DiscoveredNode": map[string]any{profileNameField: name}}
 	return getTotalRowsCount(ctx, c.ConnPool, sqlQueryCountByJSONField(provisionWatcherTableName), queryObj)
 }
 

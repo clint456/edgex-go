@@ -21,10 +21,10 @@ import (
 )
 
 const (
-	EventsCollection           = "cd|evt"
-	EventsCollectionOrigin     = EventsCollection + DBKeySeparator + common.Origin
-	EventsCollectionDeviceName = EventsCollection + DBKeySeparator + common.Device + DBKeySeparator + common.Name
-	EventsCollectionReadings   = EventsCollection + DBKeySeparator + "readings"
+	EventsCollection         = "cd|evt"
+	EventsCollectionOrigin   = EventsCollection + DBKeySeparator + common.Origin
+	EventsCollectionNodeName = EventsCollection + DBKeySeparator + common.Node + DBKeySeparator + common.Name
+	EventsCollectionReadings = EventsCollection + DBKeySeparator + "readings"
 )
 
 // asyncDeleteEventsByIds deletes all events with given event Ids.  This function is implemented to be run as a separate
@@ -56,7 +56,7 @@ func (c *Client) asyncDeleteEventsByIds(eventIds []string) {
 		_ = conn.Send(UNLINK, CreateKey(EventsCollectionReadings, e.Id))
 		_ = conn.Send(ZREM, EventsCollection, storedKey)
 		_ = conn.Send(ZREM, EventsCollectionOrigin, storedKey)
-		_ = conn.Send(ZREM, CreateKey(EventsCollectionDeviceName, e.DeviceName), storedKey)
+		_ = conn.Send(ZREM, CreateKey(EventsCollectionNodeName, e.NodeName), storedKey)
 		queriesInQueue++
 
 		if queriesInQueue >= c.BatchSize {
@@ -82,13 +82,13 @@ func (c *Client) asyncDeleteEventsByIds(eventIds []string) {
 	}
 }
 
-// DeleteEventsByDeviceName deletes specific device's events and corresponding readings.  This function is implemented to starts up
+// DeleteEventsByNodeName deletes specific node's events and corresponding readings.  This function is implemented to starts up
 // two goroutines to delete readings and events in the background to achieve better performance.
-func (c *Client) DeleteEventsByDeviceName(deviceName string) (edgeXerr errors.EdgeX) {
+func (c *Client) DeleteEventsByNodeName(nodeName string) (edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	eventIds, readingIds, err := getEventReadingIdsByKeyScoreRange(conn, CreateKey(EventsCollectionDeviceName, deviceName), GreaterThanZero, InfiniteMax)
+	eventIds, readingIds, err := getEventReadingIdsByKeyScoreRange(conn, CreateKey(EventsCollectionNodeName, nodeName), GreaterThanZero, InfiniteMax)
 	if err != nil {
 		return errors.NewCommonEdgeXWrapper(err)
 	}
@@ -136,7 +136,7 @@ func addEvent(conn redis.Conn, e models.Event) (addedEvent models.Event, edgeXer
 
 	event := models.Event{
 		Id:          e.Id,
-		DeviceName:  e.DeviceName,
+		NodeName:    e.NodeName,
 		ProfileName: e.ProfileName,
 		SourceName:  e.SourceName,
 		Origin:      e.Origin,
@@ -154,10 +154,10 @@ func addEvent(conn redis.Conn, e models.Event) (addedEvent models.Event, edgeXer
 	_ = conn.Send(SET, storedKey, m)
 	_ = conn.Send(ZADD, EventsCollection, e.Origin, storedKey)
 	_ = conn.Send(ZADD, EventsCollectionOrigin, e.Origin, storedKey)
-	_ = conn.Send(ZADD, CreateKey(EventsCollectionDeviceName, e.DeviceName), e.Origin, storedKey)
+	_ = conn.Send(ZADD, CreateKey(EventsCollectionNodeName, e.NodeName), e.Origin, storedKey)
 
 	// add reading ids as sorted set under each event id
-	// sort by the order provided by device service
+	// sort by the order provided by node service
 	rids := make([]interface{}, len(e.Readings)*2+1)
 	rids[0] = CreateKey(EventsCollectionReadings, e.Id)
 	var newReadings []models.Reading
@@ -206,7 +206,7 @@ func deleteEventById(conn redis.Conn, id string) (edgeXerr errors.EdgeX) {
 	_ = conn.Send(UNLINK, CreateKey(EventsCollectionReadings, e.Id))
 	_ = conn.Send(ZREM, EventsCollection, storedKey)
 	_ = conn.Send(ZREM, EventsCollectionOrigin, storedKey)
-	_ = conn.Send(ZREM, CreateKey(EventsCollectionDeviceName, e.DeviceName), storedKey)
+	_ = conn.Send(ZREM, CreateKey(EventsCollectionNodeName, e.NodeName), storedKey)
 
 	res, err := redis.Values(conn.Do(EXEC))
 	if err != nil {
@@ -258,9 +258,9 @@ func (c *Client) allEvents(conn redis.Conn, offset int, limit int) (events []mod
 	return convertObjectsToEvents(conn, objects)
 }
 
-// eventsByDeviceName query events by offset, limit and device name
-func eventsByDeviceName(conn redis.Conn, offset int, limit int, name string) (events []models.Event, edgeXerr errors.EdgeX) {
-	objects, err := getObjectsByRevRange(conn, CreateKey(EventsCollectionDeviceName, name), offset, limit)
+// eventsByNodeName query events by offset, limit and node name
+func eventsByNodeName(conn redis.Conn, offset int, limit int, name string) (events []models.Event, edgeXerr errors.EdgeX) {
+	objects, err := getObjectsByRevRange(conn, CreateKey(EventsCollectionNodeName, name), offset, limit)
 	if err != nil {
 		return events, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -293,32 +293,32 @@ func convertObjectsToEvents(conn redis.Conn, objects [][]byte) (events []models.
 	return events, nil
 }
 
-func (c *Client) EventCountByDeviceNameAndSourceNameAndLimit(deviceName, sourceName string, limit int) (int64, errors.EdgeX) {
-	c.loggingClient.Warn("EventCountByDeviceNameAndSourceNameAndLimit function didn't implement")
+func (c *Client) EventCountByNodeNameAndSourceNameAndLimit(nodeName, sourceName string, limit int) (int64, errors.EdgeX) {
+	c.loggingClient.Warn("EventCountByNodeNameAndSourceNameAndLimit function didn't implement")
 	return 0, nil
 }
 
-func (c *Client) DeleteEventsByDeviceNameAndSourceName(deviceName, sourceName string) errors.EdgeX {
-	c.loggingClient.Warn("DeleteEventsByDeviceNameAndSourceName function didn't implement")
+func (c *Client) DeleteEventsByNodeNameAndSourceName(nodeName, sourceName string) errors.EdgeX {
+	c.loggingClient.Warn("DeleteEventsByNodeNameAndSourceName function didn't implement")
 	return nil
 }
 
-func (c *Client) DeleteEventsByAgeAndDeviceNameAndSourceName(age int64, deviceName, sourceName string) errors.EdgeX {
-	c.loggingClient.Warn("DeleteEventsByAgeAndDeviceNameAndSourceName function didn't implement")
+func (c *Client) DeleteEventsByAgeAndNodeNameAndSourceName(age int64, nodeName, sourceName string) errors.EdgeX {
+	c.loggingClient.Warn("DeleteEventsByAgeAndNodeNameAndSourceName function didn't implement")
 	return nil
 }
 
-func (c *Client) LatestEventByDeviceNameAndSourceNameAndOffset(deviceName string, sourceName string, offset int64) (models.Event, errors.EdgeX) {
-	c.loggingClient.Warn("LatestEventByDeviceNameAndSourceNameAndOffset function didn't implement")
+func (c *Client) LatestEventByNodeNameAndSourceNameAndOffset(nodeName string, sourceName string, offset int64) (models.Event, errors.EdgeX) {
+	c.loggingClient.Warn("LatestEventByNodeNameAndSourceNameAndOffset function didn't implement")
 	return models.Event{}, nil
 }
 
-func (c *Client) LatestEventByDeviceNameAndSourceNameAndAgeAndOffset(deviceName string, sourceName string, age, offset int64) (models.Event, errors.EdgeX) {
-	c.loggingClient.Warn("LatestEventByDeviceNameAndSourceNameAndAgeAndOffset function didn't implement")
+func (c *Client) LatestEventByNodeNameAndSourceNameAndAgeAndOffset(nodeName string, sourceName string, age, offset int64) (models.Event, errors.EdgeX) {
+	c.loggingClient.Warn("LatestEventByNodeNameAndSourceNameAndAgeAndOffset function didn't implement")
 	return models.Event{}, nil
 }
 
-func (c *Client) AllDeviceInfos(offset int, limit int) ([]dbModels.DeviceInfo, errors.EdgeX) {
-	c.loggingClient.Warn("AllDeviceInfos function didn't implement")
-	return []dbModels.DeviceInfo{}, nil
+func (c *Client) AllNodeInfos(offset int, limit int) ([]dbModels.NodeInfo, errors.EdgeX) {
+	c.loggingClient.Warn("AllNodeInfos function didn't implement")
+	return []dbModels.NodeInfo{}, nil
 }

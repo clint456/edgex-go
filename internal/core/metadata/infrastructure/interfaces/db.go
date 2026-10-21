@@ -13,48 +13,48 @@ import (
 type DBClient interface {
 	CloseSession()
 
-	AddDeviceProfile(e model.DeviceProfile) (model.DeviceProfile, errors.EdgeX)
-	UpdateDeviceProfile(e model.DeviceProfile) errors.EdgeX
-	DeviceProfileById(id string) (model.DeviceProfile, errors.EdgeX)
-	DeviceProfileByName(name string) (model.DeviceProfile, errors.EdgeX)
-	DeleteDeviceProfileById(id string) errors.EdgeX
-	DeleteDeviceProfileByName(name string) errors.EdgeX
-	DeviceProfileNameExists(name string) (bool, errors.EdgeX)
-	AllDeviceProfiles(offset int, limit int, labels []string) ([]model.DeviceProfile, errors.EdgeX)
-	DeviceProfilesByModel(offset int, limit int, model string) ([]model.DeviceProfile, errors.EdgeX)
-	DeviceProfilesByManufacturer(offset int, limit int, manufacturer string) ([]model.DeviceProfile, errors.EdgeX)
-	DeviceProfilesByManufacturerAndModel(offset int, limit int, manufacturer string, model string) ([]model.DeviceProfile, errors.EdgeX)
-	DeviceProfileCountByLabels(labels []string) (int64, errors.EdgeX)
-	DeviceProfileCountByManufacturer(manufacturer string) (int64, errors.EdgeX)
-	DeviceProfileCountByModel(model string) (int64, errors.EdgeX)
-	DeviceProfileCountByManufacturerAndModel(manufacturer string, model string) (int64, errors.EdgeX)
+	AddProfile(e model.Profile) (model.Profile, errors.EdgeX)
+	UpdateProfile(e model.Profile) errors.EdgeX
+	ProfileById(id string) (model.Profile, errors.EdgeX)
+	ProfileByName(name string) (model.Profile, errors.EdgeX)
+	DeleteProfileById(id string) errors.EdgeX
+	DeleteProfileByName(name string) errors.EdgeX
+	ProfileNameExists(name string) (bool, errors.EdgeX)
+	AllProfiles(offset int, limit int, labels []string) ([]model.Profile, errors.EdgeX)
+	ProfilesByModel(offset int, limit int, model string) ([]model.Profile, errors.EdgeX)
+	ProfilesByManufacturer(offset int, limit int, manufacturer string) ([]model.Profile, errors.EdgeX)
+	ProfilesByManufacturerAndModel(offset int, limit int, manufacturer string, model string) ([]model.Profile, errors.EdgeX)
+	ProfileCountByLabels(labels []string) (int64, errors.EdgeX)
+	ProfileCountByManufacturer(manufacturer string) (int64, errors.EdgeX)
+	ProfileCountByModel(model string) (int64, errors.EdgeX)
+	ProfileCountByManufacturerAndModel(manufacturer string, model string) (int64, errors.EdgeX)
 	InUseResourceCount() (int64, errors.EdgeX)
 
-	AddDeviceService(ds model.DeviceService) (model.DeviceService, errors.EdgeX)
-	DeviceServiceById(id string) (model.DeviceService, errors.EdgeX)
-	DeviceServiceByName(name string) (model.DeviceService, errors.EdgeX)
-	DeleteDeviceServiceById(id string) errors.EdgeX
-	DeleteDeviceServiceByName(name string) errors.EdgeX
-	DeviceServiceNameExists(name string) (bool, errors.EdgeX)
-	AllDeviceServices(offset int, limit int, labels []string) ([]model.DeviceService, errors.EdgeX)
-	UpdateDeviceService(ds model.DeviceService) errors.EdgeX
-	DeviceServiceCountByLabels(labels []string) (int64, errors.EdgeX)
+	AddNodeService(ds model.NodeService) (model.NodeService, errors.EdgeX)
+	NodeServiceById(id string) (model.NodeService, errors.EdgeX)
+	NodeServiceByName(name string) (model.NodeService, errors.EdgeX)
+	DeleteNodeServiceById(id string) errors.EdgeX
+	DeleteNodeServiceByName(name string) errors.EdgeX
+	NodeServiceNameExists(name string) (bool, errors.EdgeX)
+	AllNodeServices(offset int, limit int, labels []string) ([]model.NodeService, errors.EdgeX)
+	UpdateNodeService(ds model.NodeService) errors.EdgeX
+	NodeServiceCountByLabels(labels []string) (int64, errors.EdgeX)
 
-	AddDevice(d model.Device) (model.Device, errors.EdgeX)
-	DeleteDeviceById(id string) errors.EdgeX
-	DeleteDeviceByName(name string) errors.EdgeX
-	DevicesByServiceName(offset int, limit int, name string) ([]model.Device, errors.EdgeX)
-	DeviceIdExists(id string) (bool, errors.EdgeX)
-	DeviceNameExists(name string) (bool, errors.EdgeX)
-	DeviceById(id string) (model.Device, errors.EdgeX)
-	DeviceByName(name string) (model.Device, errors.EdgeX)
-	AllDevices(offset int, limit int, labels []string) ([]model.Device, errors.EdgeX)
-	DevicesByProfileName(offset int, limit int, profileName string) ([]model.Device, errors.EdgeX)
-	UpdateDevice(d model.Device) errors.EdgeX
-	DeviceCountByLabels(labels []string) (int64, errors.EdgeX)
-	DeviceCountByProfileName(profileName string) (int64, errors.EdgeX)
-	DeviceCountByServiceName(serviceName string) (int64, errors.EdgeX)
-	DeviceTree(parent string, levels int, offset int, limit int, labels []string) (int64, []model.Device, errors.EdgeX)
+	AddNode(d model.Node) (model.Node, errors.EdgeX)
+	DeleteNodeById(id string) errors.EdgeX
+	DeleteNodeByName(name string) errors.EdgeX
+	NodesByServiceName(offset int, limit int, name string) ([]model.Node, errors.EdgeX)
+	NodeIdExists(id string) (bool, errors.EdgeX)
+	NodeNameExists(name string) (bool, errors.EdgeX)
+	NodeById(id string) (model.Node, errors.EdgeX)
+	NodeByName(name string) (model.Node, errors.EdgeX)
+	AllNodes(offset int, limit int, labels []string) ([]model.Node, errors.EdgeX)
+	NodesByProfileName(offset int, limit int, profileName string) ([]model.Node, errors.EdgeX)
+	UpdateNode(d model.Node) errors.EdgeX
+	NodeCountByLabels(labels []string) (int64, errors.EdgeX)
+	NodeCountByProfileName(profileName string) (int64, errors.EdgeX)
+	NodeCountByServiceName(serviceName string) (int64, errors.EdgeX)
+	NodeTree(parent string, levels int, offset int, limit int, labels []string) (int64, []model.Node, errors.EdgeX)
 	AddProvisionWatcher(pw model.ProvisionWatcher) (model.ProvisionWatcher, errors.EdgeX)
 	ProvisionWatcherById(id string) (model.ProvisionWatcher, errors.EdgeX)
 	ProvisionWatcherByName(name string) (model.ProvisionWatcher, errors.EdgeX)

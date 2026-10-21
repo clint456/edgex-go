@@ -11,12 +11,12 @@ import (
 	"github.com/edgexfoundry/go-mod-core-contracts/v4/errors"
 )
 
-// ValidateEvent checks if the incoming event's profileName, deviceName and sourceName match the message topic where the event received from
+// ValidateEvent checks if the incoming event's profileName, nodeName and sourceName match the message topic where the event received from
 func ValidateEvent(messageTopic string, e dtos.Event) errors.EdgeX {
-	// Parse messageTopic by the pattern `edgex/events/device/<device-service-name>/<device-profile-name>/<device-name>/<source-name>`
+	// Parse messageTopic by the pattern `edgex/events/node/<node-service-name>/<node-profile-name>/<node-name>/<source-name>`
 	fields := strings.Split(messageTopic, "/")
 
-	// assumes a non-empty base topic with events/device/<device-service-name>/<device-profile-name>/<device-name>/<source-name>
+	// assumes a non-empty base topic with events/node/<node-service-name>/<node-profile-name>/<node-name>/<source-name>
 	if len(fields) < 6 {
 		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("invalid message topic %s", messageTopic), nil)
 	}
@@ -26,7 +26,7 @@ func ValidateEvent(messageTopic string, e dtos.Event) errors.EdgeX {
 	if err != nil {
 		return errors.NewCommonEdgeXWrapper(err)
 	}
-	deviceName, err := url.PathUnescape(fields[len-2])
+	nodeName, err := url.PathUnescape(fields[len-2])
 	if err != nil {
 		return errors.NewCommonEdgeXWrapper(err)
 	}
@@ -39,8 +39,8 @@ func ValidateEvent(messageTopic string, e dtos.Event) errors.EdgeX {
 	if e.ProfileName != profileName {
 		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's profileName %s mismatches with the name %s received in topic", e.ProfileName, profileName), nil)
 	}
-	if e.DeviceName != deviceName {
-		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's deviceName %s mismatches with the name %s received in topic", e.DeviceName, deviceName), nil)
+	if e.NodeName != nodeName {
+		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's nodeName %s mismatches with the name %s received in topic", e.NodeName, nodeName), nil)
 	}
 	if e.SourceName != sourceName {
 		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's sourceName %s mismatches with the name %s received in topic", e.SourceName, sourceName), nil)

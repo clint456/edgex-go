@@ -23,32 +23,32 @@ import (
 	"github.com/clint456/edgex-go/internal/core/command/application"
 )
 
-// retrieveServiceNameByDevice validates the existence of device and device service,
+// retrieveServiceNameByNode validates the existence of node and node service,
 // returns the service name to which the command request will be sent.
-func retrieveServiceNameByDevice(deviceName string, dic *di.Container) (string, error) {
-	// retrieve device information through Metadata DeviceClient
-	dc := bootstrapContainer.DeviceClientFrom(dic.Get)
+func retrieveServiceNameByNode(nodeName string, dic *di.Container) (string, error) {
+	// retrieve node information through Metadata NodeClient
+	dc := bootstrapContainer.NodeClientFrom(dic.Get)
 	if dc == nil {
-		return "", errors.New("nil Device Client")
+		return "", errors.New("nil Node Client")
 	}
-	deviceResponse, err := dc.DeviceByName(context.Background(), deviceName)
+	nodeResponse, err := dc.NodeByName(context.Background(), nodeName)
 	if err != nil {
-		return "", fmt.Errorf("failed to get Device by name %s: %v", deviceName, err)
+		return "", fmt.Errorf("failed to get Node by name %s: %v", nodeName, err)
 	}
 
-	// retrieve device service information through Metadata DeviceClient
-	dsc := bootstrapContainer.DeviceServiceClientFrom(dic.Get)
+	// retrieve node service information through Metadata NodeClient
+	dsc := bootstrapContainer.NodeServiceClientFrom(dic.Get)
 	if dsc == nil {
-		return "", errors.New("nil DeviceService Client")
+		return "", errors.New("nil NodeService Client")
 	}
-	deviceServiceResponse, err := dsc.DeviceServiceByName(context.Background(), deviceResponse.Device.ServiceName)
+	nodeServiceResponse, err := dsc.NodeServiceByName(context.Background(), nodeResponse.Node.ServiceName)
 	if err != nil {
-		return "", fmt.Errorf("failed to get DeviceService by name %s: %v", deviceResponse.Device.ServiceName, err)
+		return "", fmt.Errorf("failed to get NodeService by name %s: %v", nodeResponse.Node.ServiceName, err)
 	}
-	return deviceServiceResponse.Service.Name, nil
+	return nodeServiceResponse.Service.Name, nil
 }
 
-// validateGetCommandQueryParameters validates the value is valid for device service's reserved query parameters
+// validateGetCommandQueryParameters validates the value is valid for node service's reserved query parameters
 func validateGetCommandQueryParameters(queryParams map[string]string) error {
 	if dsReturnEvent, ok := queryParams[common.ReturnEvent]; ok {
 		if dsReturnEvent != common.ValueTrue && dsReturnEvent != common.ValueFalse {
@@ -64,12 +64,12 @@ func validateGetCommandQueryParameters(queryParams map[string]string) error {
 	return nil
 }
 
-// getCommandQueryResponseEnvelope returns the MessageEnvelope containing the DeviceCoreCommand payload bytes
-func getCommandQueryResponseEnvelope(requestEnvelope types.MessageEnvelope, deviceName string, dic *di.Container) (types.MessageEnvelope, error) {
+// getCommandQueryResponseEnvelope returns the MessageEnvelope containing the NodeCoreCommand payload bytes
+func getCommandQueryResponseEnvelope(requestEnvelope types.MessageEnvelope, nodeName string, dic *di.Container) (types.MessageEnvelope, error) {
 	var commandsResponse any
 	var err error
 
-	switch deviceName {
+	switch nodeName {
 	case common.All:
 		offset, limit := common.DefaultOffset, common.DefaultLimit
 		if requestEnvelope.QueryParams != nil {
@@ -92,14 +92,14 @@ func getCommandQueryResponseEnvelope(requestEnvelope types.MessageEnvelope, devi
 			return types.MessageEnvelope{}, fmt.Errorf("failed to get all commands: %s", edgexError.Error())
 		}
 
-		commandsResponse = responses.NewMultiDeviceCoreCommandsResponse(requestEnvelope.RequestID, "", http.StatusOK, totalCounts, commands)
+		commandsResponse = responses.NewMultiNodeCoreCommandsResponse(requestEnvelope.RequestID, "", http.StatusOK, totalCounts, commands)
 	default:
-		commands, edgexError := application.CommandsByDeviceName(deviceName, dic)
+		commands, edgexError := application.CommandsByNodeName(nodeName, dic)
 		if edgexError != nil {
-			return types.MessageEnvelope{}, fmt.Errorf("failed to get commands by device name '%s': %s", deviceName, edgexError.Error())
+			return types.MessageEnvelope{}, fmt.Errorf("failed to get commands by node name '%s': %s", nodeName, edgexError.Error())
 		}
 
-		commandsResponse = responses.NewDeviceCoreCommandResponse(requestEnvelope.RequestID, "", http.StatusOK, commands)
+		commandsResponse = responses.NewNodeCoreCommandResponse(requestEnvelope.RequestID, "", http.StatusOK, commands)
 	}
 
 	responseEnvelope, err := types.NewMessageEnvelopeForResponse(commandsResponse, requestEnvelope.RequestID, requestEnvelope.CorrelationID, common.ContentTypeJSON)

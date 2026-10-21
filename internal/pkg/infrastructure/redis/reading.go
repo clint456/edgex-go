@@ -20,11 +20,11 @@ import (
 )
 
 const (
-	ReadingsCollection                       = "cd|rd"
-	ReadingsCollectionOrigin                 = ReadingsCollection + DBKeySeparator + common.Origin
-	ReadingsCollectionDeviceName             = ReadingsCollection + DBKeySeparator + common.DeviceName
-	ReadingsCollectionResourceName           = ReadingsCollection + DBKeySeparator + common.ResourceName
-	ReadingsCollectionDeviceNameResourceName = ReadingsCollection + DBKeySeparator + common.DeviceName + DBKeySeparator + common.ResourceName
+	ReadingsCollection                     = "cd|rd"
+	ReadingsCollectionOrigin               = ReadingsCollection + DBKeySeparator + common.Origin
+	ReadingsCollectionNodeName             = ReadingsCollection + DBKeySeparator + common.NodeName
+	ReadingsCollectionResourceName         = ReadingsCollection + DBKeySeparator + common.ResourceName
+	ReadingsCollectionNodeNameResourceName = ReadingsCollection + DBKeySeparator + common.NodeName + DBKeySeparator + common.ResourceName
 )
 
 var emptyBinaryValue = make([]byte, 0)
@@ -58,9 +58,9 @@ func (c *Client) asyncDeleteReadingsByIds(readingIds []string) {
 		_ = conn.Send(UNLINK, storedKey)
 		_ = conn.Send(ZREM, ReadingsCollection, storedKey)
 		_ = conn.Send(ZREM, ReadingsCollectionOrigin, storedKey)
-		_ = conn.Send(ZREM, CreateKey(ReadingsCollectionDeviceName, r.DeviceName), storedKey)
+		_ = conn.Send(ZREM, CreateKey(ReadingsCollectionNodeName, r.NodeName), storedKey)
 		_ = conn.Send(ZREM, CreateKey(ReadingsCollectionResourceName, r.ResourceName), storedKey)
-		_ = conn.Send(ZREM, CreateKey(ReadingsCollectionDeviceNameResourceName, r.DeviceName, r.ResourceName), storedKey)
+		_ = conn.Send(ZREM, CreateKey(ReadingsCollectionNodeNameResourceName, r.NodeName, r.ResourceName), storedKey)
 		queriesInQueue++
 
 		if queriesInQueue >= c.BatchSize {
@@ -140,9 +140,9 @@ func addReading(conn redis.Conn, r models.Reading) (reading models.Reading, edge
 	_ = conn.Send(SET, storedKey, m)
 	_ = conn.Send(ZADD, ReadingsCollection, 0, storedKey)
 	_ = conn.Send(ZADD, ReadingsCollectionOrigin, baseReading.Origin, storedKey)
-	_ = conn.Send(ZADD, CreateKey(ReadingsCollectionDeviceName, baseReading.DeviceName), baseReading.Origin, storedKey)
+	_ = conn.Send(ZADD, CreateKey(ReadingsCollectionNodeName, baseReading.NodeName), baseReading.Origin, storedKey)
 	_ = conn.Send(ZADD, CreateKey(ReadingsCollectionResourceName, baseReading.ResourceName), baseReading.Origin, storedKey)
-	_ = conn.Send(ZADD, CreateKey(ReadingsCollectionDeviceNameResourceName, baseReading.DeviceName, baseReading.ResourceName), baseReading.Origin, storedKey)
+	_ = conn.Send(ZADD, CreateKey(ReadingsCollectionNodeNameResourceName, baseReading.NodeName, baseReading.ResourceName), baseReading.Origin, storedKey)
 
 	return reading, nil
 }
@@ -160,9 +160,9 @@ func deleteReadingById(conn redis.Conn, id string) (edgeXerr errors.EdgeX) {
 	_ = conn.Send(UNLINK, storedKey)
 	_ = conn.Send(ZREM, ReadingsCollection, storedKey)
 	_ = conn.Send(ZREM, ReadingsCollectionOrigin, storedKey)
-	_ = conn.Send(ZREM, CreateKey(ReadingsCollectionDeviceName, r.DeviceName), storedKey)
+	_ = conn.Send(ZREM, CreateKey(ReadingsCollectionNodeName, r.NodeName), storedKey)
 	_ = conn.Send(ZREM, CreateKey(ReadingsCollectionResourceName, r.ResourceName), storedKey)
-	_ = conn.Send(ZREM, CreateKey(ReadingsCollectionDeviceNameResourceName, r.DeviceName, r.ResourceName), storedKey)
+	_ = conn.Send(ZREM, CreateKey(ReadingsCollectionNodeNameResourceName, r.NodeName, r.ResourceName), storedKey)
 	_, err := conn.Do(EXEC)
 	if err != nil {
 		return errors.NewCommonEdgeX(errors.KindDatabaseError, fmt.Sprintf("reading[id:%s] delete failed", id), err)
@@ -214,9 +214,9 @@ func readingsByResourceName(conn redis.Conn, offset int, limit int, resourceName
 	return convertObjectsToReadings(objects)
 }
 
-// readingsByDeviceName query readings by offset, limit, and device name
-func readingsByDeviceName(conn redis.Conn, offset int, limit int, name string) (readings []models.Reading, edgeXerr errors.EdgeX) {
-	objects, err := getObjectsByRevRange(conn, CreateKey(ReadingsCollectionDeviceName, name), offset, limit)
+// readingsByNodeName query readings by offset, limit, and node name
+func readingsByNodeName(conn redis.Conn, offset int, limit int, name string) (readings []models.Reading, edgeXerr errors.EdgeX) {
+	objects, err := getObjectsByRevRange(conn, CreateKey(ReadingsCollectionNodeName, name), offset, limit)
 	if err != nil {
 		return readings, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -224,8 +224,8 @@ func readingsByDeviceName(conn redis.Conn, offset int, limit int, name string) (
 	return convertObjectsToReadings(objects)
 }
 
-func readingsByDeviceNameAndResourceName(conn redis.Conn, deviceName string, resourceName string, offset int, limit int) (readings []models.Reading, err errors.EdgeX) {
-	objects, err := getObjectsByRevRange(conn, CreateKey(ReadingsCollectionDeviceNameResourceName, deviceName, resourceName), offset, limit)
+func readingsByNodeNameAndResourceName(conn redis.Conn, nodeName string, resourceName string, offset int, limit int) (readings []models.Reading, err errors.EdgeX) {
+	objects, err := getObjectsByRevRange(conn, CreateKey(ReadingsCollectionNodeNameResourceName, nodeName, resourceName), offset, limit)
 	if err != nil {
 		return readings, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -233,8 +233,8 @@ func readingsByDeviceNameAndResourceName(conn redis.Conn, deviceName string, res
 	return convertObjectsToReadings(objects)
 }
 
-func readingsByDeviceNameAndResourceNameAndTimeRange(conn redis.Conn, deviceName string, resourceName string, startTime int64, endTime int64, offset int, limit int) (readings []models.Reading, err errors.EdgeX) {
-	objects, err := getObjectsByScoreRange(conn, CreateKey(ReadingsCollectionDeviceNameResourceName, deviceName, resourceName), startTime, endTime, offset, limit)
+func readingsByNodeNameAndResourceNameAndTimeRange(conn redis.Conn, nodeName string, resourceName string, startTime int64, endTime int64, offset int, limit int) (readings []models.Reading, err errors.EdgeX) {
+	objects, err := getObjectsByScoreRange(conn, CreateKey(ReadingsCollectionNodeNameResourceName, nodeName, resourceName), startTime, endTime, offset, limit)
 	if err != nil {
 		return readings, err
 	}
@@ -242,10 +242,10 @@ func readingsByDeviceNameAndResourceNameAndTimeRange(conn redis.Conn, deviceName
 	return convertObjectsToReadings(objects)
 }
 
-func readingsByDeviceNameAndResourceNamesAndTimeRange(conn redis.Conn, deviceName string, resourceNames []string, startTime int64, endTime int64, offset int, limit int) (readings []models.Reading, err errors.EdgeX) {
+func readingsByNodeNameAndResourceNamesAndTimeRange(conn redis.Conn, nodeName string, resourceNames []string, startTime int64, endTime int64, offset int, limit int) (readings []models.Reading, err errors.EdgeX) {
 	var redisKeys []string
 	for _, resourceName := range resourceNames {
-		redisKeys = append(redisKeys, CreateKey(ReadingsCollectionDeviceNameResourceName, deviceName, resourceName))
+		redisKeys = append(redisKeys, CreateKey(ReadingsCollectionNodeNameResourceName, nodeName, resourceName))
 	}
 
 	objects, err := unionObjectsByKeysAndScoreRange(conn, startTime, endTime, offset, limit, redisKeys...)
@@ -273,8 +273,8 @@ func readingsByResourceNameAndTimeRange(conn redis.Conn, resourceName string, st
 	return convertObjectsToReadings(objects)
 }
 
-func readingsByDeviceNameAndTimeRange(conn redis.Conn, deviceName string, startTime int64, endTime int64, offset int, limit int) (readings []models.Reading, edgeXerr errors.EdgeX) {
-	objects, edgeXerr := getObjectsByScoreRange(conn, CreateKey(ReadingsCollectionDeviceName, deviceName), startTime, endTime, offset, limit)
+func readingsByNodeNameAndTimeRange(conn redis.Conn, nodeName string, startTime int64, endTime int64, offset int, limit int) (readings []models.Reading, edgeXerr errors.EdgeX) {
+	objects, edgeXerr := getObjectsByScoreRange(conn, CreateKey(ReadingsCollectionNodeName, nodeName), startTime, endTime, offset, limit)
 	if edgeXerr != nil {
 		return readings, edgeXerr
 	}

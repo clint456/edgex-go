@@ -24,19 +24,19 @@ import (
 )
 
 // AddProvisionWatcher function accepts the new provision watcher model from the controller function
-// and then invokes AddProvisionWatcher function of infrastructure layer to add new device service
+// and then invokes AddProvisionWatcher function of infrastructure layer to add new node service
 func AddProvisionWatcher(pw models.ProvisionWatcher, ctx context.Context, dic *di.Container) (id string, err errors.EdgeX) {
 	dbClient := container.DBClientFrom(dic.Get)
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
 	correlationId := correlation.FromContext(ctx)
 
 	// check the associated ProfileName existence
-	if pw.DiscoveredDevice.ProfileName != "" {
-		exists, err := dbClient.DeviceProfileNameExists(pw.DiscoveredDevice.ProfileName)
+	if pw.DiscoveredNode.ProfileName != "" {
+		exists, err := dbClient.ProfileNameExists(pw.DiscoveredNode.ProfileName)
 		if err != nil {
 			return "", errors.NewCommonEdgeXWrapper(err)
 		} else if !exists {
-			return "", errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, fmt.Sprintf("device profile '%s' does not exists", pw.DiscoveredDevice.ProfileName), err)
+			return "", errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, fmt.Sprintf("node profile '%s' does not exists", pw.DiscoveredNode.ProfileName), err)
 		}
 	}
 

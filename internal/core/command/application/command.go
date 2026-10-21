@@ -17,86 +17,86 @@ import (
 )
 
 // AllCommands query commands by offset, and limit
-func AllCommands(offset int, limit int, dic *di.Container) (deviceCoreCommands []dtos.DeviceCoreCommand, totalCount int64, err errors.EdgeX) {
-	// retrieve device information through Metadata DeviceClient
-	dc := bootstrapContainer.DeviceClientFrom(dic.Get)
+func AllCommands(offset int, limit int, dic *di.Container) (nodeCoreCommands []dtos.NodeCoreCommand, totalCount int64, err errors.EdgeX) {
+	// retrieve node information through Metadata NodeClient
+	dc := bootstrapContainer.NodeClientFrom(dic.Get)
 	if dc == nil {
-		return deviceCoreCommands, totalCount, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceClient returned", nil)
+		return nodeCoreCommands, totalCount, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeClient returned", nil)
 	}
-	multiDevicesResponse, err := dc.AllDevices(context.Background(), nil, offset, limit)
+	multiNodesResponse, err := dc.AllNodes(context.Background(), nil, offset, limit)
 	if err != nil {
-		return deviceCoreCommands, totalCount, errors.NewCommonEdgeXWrapper(err)
+		return nodeCoreCommands, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	// retrieve device profile information through Metadata DeviceProfileClient
-	dpc := bootstrapContainer.DeviceProfileClientFrom(dic.Get)
+	// retrieve node profile information through Metadata ProfileClient
+	dpc := bootstrapContainer.ProfileClientFrom(dic.Get)
 	if dpc == nil {
-		return deviceCoreCommands, totalCount, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceProfileClient returned", nil)
+		return nodeCoreCommands, totalCount, errors.NewCommonEdgeX(errors.KindServerError, "nil ProfileClient returned", nil)
 	}
 
 	// Prepare the url for command
 	configuration := commandContainer.ConfigurationFrom(dic.Get)
 	serviceUrl := configuration.Service.Url()
 
-	for _, device := range multiDevicesResponse.Devices {
-		if len(device.ProfileName) == 0 {
+	for _, node := range multiNodesResponse.Nodes {
+		if len(node.ProfileName) == 0 {
 			// if the profile is not set, skip the profile query
 			continue
 		}
-		deviceProfileResponse, err := dpc.DeviceProfileByName(context.Background(), device.ProfileName)
+		profileResponse, err := dpc.ProfileByName(context.Background(), node.ProfileName)
 		if err != nil {
-			return deviceCoreCommands, totalCount, errors.NewCommonEdgeXWrapper(err)
+			return nodeCoreCommands, totalCount, errors.NewCommonEdgeXWrapper(err)
 		}
-		commands, err := dtos.BuildCoreCommands(device.Name, serviceUrl, deviceProfileResponse.Profile)
+		commands, err := dtos.BuildCoreCommands(node.Name, serviceUrl, profileResponse.Profile)
 		if err != nil {
 			return nil, totalCount, errors.NewCommonEdgeXWrapper(err)
 		}
-		deviceCoreCommands = append(deviceCoreCommands, dtos.DeviceCoreCommand{
-			DeviceName:   device.Name,
-			ProfileName:  device.ProfileName,
+		nodeCoreCommands = append(nodeCoreCommands, dtos.NodeCoreCommand{
+			NodeName:     node.Name,
+			ProfileName:  node.ProfileName,
 			CoreCommands: commands,
 		})
 	}
-	return deviceCoreCommands, multiDevicesResponse.TotalCount, nil
+	return nodeCoreCommands, multiNodesResponse.TotalCount, nil
 }
 
-// IssueGetCommandByName issues the specified get(read) command referenced by the command name to the device/sensor, also
+// IssueGetCommandByName issues the specified get(read) command referenced by the command name to the node/sensor, also
 // referenced by name.
-func IssueGetCommandByName(deviceName string, commandName string, queryParams string, dic *di.Container) (res *responses.EventResponse, err errors.EdgeX) {
-	if deviceName == "" {
-		return res, errors.NewCommonEdgeX(errors.KindContractInvalid, "device name cannot be empty", nil)
+func IssueGetCommandByName(nodeName string, commandName string, queryParams string, dic *di.Container) (res *responses.EventResponse, err errors.EdgeX) {
+	if nodeName == "" {
+		return res, errors.NewCommonEdgeX(errors.KindContractInvalid, "node name cannot be empty", nil)
 	}
 
 	if commandName == "" {
 		return res, errors.NewCommonEdgeX(errors.KindContractInvalid, "command name cannot be empty", nil)
 	}
 
-	// retrieve device information through Metadata DeviceClient
-	dc := bootstrapContainer.DeviceClientFrom(dic.Get)
+	// retrieve node information through Metadata NodeClient
+	dc := bootstrapContainer.NodeClientFrom(dic.Get)
 	if dc == nil {
-		return res, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceClient returned", nil)
+		return res, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeClient returned", nil)
 	}
-	deviceResponse, err := dc.DeviceByName(context.Background(), deviceName)
+	nodeResponse, err := dc.NodeByName(context.Background(), nodeName)
 	if err != nil {
 		return res, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	// retrieve device service information through Metadata DeviceClient
-	dsc := bootstrapContainer.DeviceServiceClientFrom(dic.Get)
+	// retrieve node service information through Metadata NodeClient
+	dsc := bootstrapContainer.NodeServiceClientFrom(dic.Get)
 	if dsc == nil {
-		return res, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceServiceClient returned", nil)
+		return res, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeServiceClient returned", nil)
 	}
-	deviceServiceResponse, err := dsc.DeviceServiceByName(context.Background(), deviceResponse.Device.ServiceName)
+	nodeServiceResponse, err := dsc.NodeServiceByName(context.Background(), nodeResponse.Node.ServiceName)
 	if err != nil {
 		return res, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	// Issue command by passing the base address of device service into DeviceServiceCommandClient
-	dscc := bootstrapContainer.DeviceServiceCommandClientFrom(dic.Get)
+	// Issue command by passing the base address of node service into NodeServiceCommandClient
+	dscc := bootstrapContainer.NodeServiceCommandClientFrom(dic.Get)
 	if dscc == nil {
-		return res, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceServiceCommandClient returned", nil)
+		return res, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeServiceCommandClient returned", nil)
 	}
-	res, err = dscc.GetCommand(context.Background(), deviceServiceResponse.Service.BaseAddress, deviceName, commandName, queryParams)
+	res, err = dscc.GetCommand(context.Background(), nodeServiceResponse.Service.BaseAddress, nodeName, commandName, queryParams)
 	if err != nil {
 		return res, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -104,84 +104,84 @@ func IssueGetCommandByName(deviceName string, commandName string, queryParams st
 	return res, nil
 }
 
-// IssueSetCommandByName issues the specified set(write) command referenced by the command name to the device/sensor, also
+// IssueSetCommandByName issues the specified set(write) command referenced by the command name to the node/sensor, also
 // referenced by name.
-func IssueSetCommandByName(deviceName string, commandName string, queryParams string, settings map[string]interface{}, dic *di.Container) (response commonDTO.BaseResponse, err errors.EdgeX) {
-	if deviceName == "" {
-		return response, errors.NewCommonEdgeX(errors.KindContractInvalid, "device name cannot be empty", nil)
+func IssueSetCommandByName(nodeName string, commandName string, queryParams string, settings map[string]interface{}, dic *di.Container) (response commonDTO.BaseResponse, err errors.EdgeX) {
+	if nodeName == "" {
+		return response, errors.NewCommonEdgeX(errors.KindContractInvalid, "node name cannot be empty", nil)
 	}
 
 	if commandName == "" {
 		return response, errors.NewCommonEdgeX(errors.KindContractInvalid, "command name cannot be empty", nil)
 	}
 
-	// retrieve device information through Metadata DeviceClient
-	dc := bootstrapContainer.DeviceClientFrom(dic.Get)
+	// retrieve node information through Metadata NodeClient
+	dc := bootstrapContainer.NodeClientFrom(dic.Get)
 	if dc == nil {
-		return response, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceClient returned", nil)
+		return response, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeClient returned", nil)
 	}
-	deviceResponse, err := dc.DeviceByName(context.Background(), deviceName)
+	nodeResponse, err := dc.NodeByName(context.Background(), nodeName)
 	if err != nil {
 		return response, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	// retrieve device service information through Metadata DeviceClient
-	dsc := bootstrapContainer.DeviceServiceClientFrom(dic.Get)
+	// retrieve node service information through Metadata NodeClient
+	dsc := bootstrapContainer.NodeServiceClientFrom(dic.Get)
 	if dsc == nil {
-		return response, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceServiceClient returned", nil)
+		return response, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeServiceClient returned", nil)
 	}
-	deviceServiceResponse, err := dsc.DeviceServiceByName(context.Background(), deviceResponse.Device.ServiceName)
+	nodeServiceResponse, err := dsc.NodeServiceByName(context.Background(), nodeResponse.Node.ServiceName)
 	if err != nil {
 		return response, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	// Issue command by passing the base address of device service into DeviceServiceCommandClient
-	dscc := bootstrapContainer.DeviceServiceCommandClientFrom(dic.Get)
+	// Issue command by passing the base address of node service into NodeServiceCommandClient
+	dscc := bootstrapContainer.NodeServiceCommandClientFrom(dic.Get)
 	if dscc == nil {
-		return response, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceServiceCommandClient returned", nil)
+		return response, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeServiceCommandClient returned", nil)
 	}
-	return dscc.SetCommandWithObject(context.Background(), deviceServiceResponse.Service.BaseAddress, deviceName, commandName, queryParams, settings)
+	return dscc.SetCommandWithObject(context.Background(), nodeServiceResponse.Service.BaseAddress, nodeName, commandName, queryParams, settings)
 }
 
-// CommandsByDeviceName query coreCommands with device name
-func CommandsByDeviceName(name string, dic *di.Container) (deviceCoreCommand dtos.DeviceCoreCommand, err errors.EdgeX) {
+// CommandsByNodeName query coreCommands with node name
+func CommandsByNodeName(name string, dic *di.Container) (nodeCoreCommand dtos.NodeCoreCommand, err errors.EdgeX) {
 	if name == "" {
-		return deviceCoreCommand, errors.NewCommonEdgeX(errors.KindContractInvalid, "device name is empty", nil)
+		return nodeCoreCommand, errors.NewCommonEdgeX(errors.KindContractInvalid, "node name is empty", nil)
 	}
 
-	// retrieve device information through Metadata DeviceClient
-	dc := bootstrapContainer.DeviceClientFrom(dic.Get)
+	// retrieve node information through Metadata NodeClient
+	dc := bootstrapContainer.NodeClientFrom(dic.Get)
 	if dc == nil {
-		return deviceCoreCommand, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceClient returned", nil)
+		return nodeCoreCommand, errors.NewCommonEdgeX(errors.KindServerError, "nil NodeClient returned", nil)
 	}
-	deviceResponse, err := dc.DeviceByName(context.Background(), name)
+	nodeResponse, err := dc.NodeByName(context.Background(), name)
 	if err != nil {
-		return deviceCoreCommand, errors.NewCommonEdgeXWrapper(err)
+		return nodeCoreCommand, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	// retrieve device profile information through Metadata DeviceProfileClient
-	dpc := bootstrapContainer.DeviceProfileClientFrom(dic.Get)
+	// retrieve node profile information through Metadata ProfileClient
+	dpc := bootstrapContainer.ProfileClientFrom(dic.Get)
 	if dpc == nil {
-		return deviceCoreCommand, errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceProfileClient returned", nil)
+		return nodeCoreCommand, errors.NewCommonEdgeX(errors.KindServerError, "nil ProfileClient returned", nil)
 	}
-	deviceProfileResponse, err := dpc.DeviceProfileByName(context.Background(), deviceResponse.Device.ProfileName)
+	profileResponse, err := dpc.ProfileByName(context.Background(), nodeResponse.Node.ProfileName)
 	if err != nil {
-		return deviceCoreCommand, errors.NewCommonEdgeXWrapper(err)
+		return nodeCoreCommand, errors.NewCommonEdgeXWrapper(err)
 	}
 
 	// Prepare the url for command
 	configuration := commandContainer.ConfigurationFrom(dic.Get)
 	serviceUrl := configuration.Service.Url()
 
-	commands, err := dtos.BuildCoreCommands(deviceResponse.Device.Name, serviceUrl, deviceProfileResponse.Profile)
+	commands, err := dtos.BuildCoreCommands(nodeResponse.Node.Name, serviceUrl, profileResponse.Profile)
 	if err != nil {
-		return deviceCoreCommand, errors.NewCommonEdgeXWrapper(err)
+		return nodeCoreCommand, errors.NewCommonEdgeXWrapper(err)
 	}
 
-	deviceCoreCommand = dtos.DeviceCoreCommand{
-		DeviceName:   deviceResponse.Device.Name,
-		ProfileName:  deviceResponse.Device.ProfileName,
+	nodeCoreCommand = dtos.NodeCoreCommand{
+		NodeName:     nodeResponse.Node.Name,
+		ProfileName:  nodeResponse.Node.ProfileName,
 		CoreCommands: commands,
 	}
-	return deviceCoreCommand, nil
+	return nodeCoreCommand, nil
 }

@@ -85,8 +85,8 @@ func TestDeleteEvents(t *testing.T) {
 
 func TestDeleteReadingsBySubQuery(t *testing.T) {
 	ctx := context.Background()
-	subQuerySql := "SELECT id FROM event WHERE devicename = @devicename"
-	args := pgx.NamedArgs{"devicename": "test-device"}
+	subQuerySql := "SELECT id FROM event WHERE nodename = @nodename"
+	args := pgx.NamedArgs{"nodename": "test-node"}
 
 	tests := []struct {
 		name            string

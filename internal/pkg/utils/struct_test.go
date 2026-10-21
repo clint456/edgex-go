@@ -17,7 +17,7 @@ func TestOnlyOneFieldUpdated(t *testing.T) {
 	testService := "test-service"
 	testDescription := "test-description"
 	testAdminState := models.Locked
-	oneUpdated := dtos.UpdateDeviceService{
+	oneUpdated := dtos.UpdateNodeService{
 		Name:        &testService,
 		Description: &testDescription,
 	}

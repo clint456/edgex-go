@@ -30,14 +30,14 @@ import (
 
 const CoreDataEventTopicPrefix = "core"
 
-// ValidateEvent validates if e is a valid event with corresponding device profile name and device name and source name
-// ValidateEvent throws error when profileName or deviceName doesn't match to e
-func (a *CoreDataApp) ValidateEvent(e models.Event, profileName string, deviceName string, sourceName string, _ context.Context, _ *di.Container) errors.EdgeX {
+// ValidateEvent validates if e is a valid event with corresponding node profile name and node name and source name
+// ValidateEvent throws error when profileName or nodeName doesn't match to e
+func (a *CoreDataApp) ValidateEvent(e models.Event, profileName string, nodeName string, sourceName string, _ context.Context, _ *di.Container) errors.EdgeX {
 	if e.ProfileName != profileName {
 		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's profileName %s mismatches %s", e.ProfileName, profileName), nil)
 	}
-	if e.DeviceName != deviceName {
-		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's deviceName %s mismatches %s", e.DeviceName, deviceName), nil)
+	if e.NodeName != nodeName {
+		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's nodeName %s mismatches %s", e.NodeName, nodeName), nil)
 	}
 	if e.SourceName != sourceName {
 		return errors.NewCommonEdgeX(errors.KindContractInvalid, fmt.Sprintf("event's sourceName %s mismatches %s", e.SourceName, sourceName), nil)
@@ -78,7 +78,7 @@ func (a *CoreDataApp) AddEvent(e models.Event, ctx context.Context, dic *di.Cont
 }
 
 // PublishEvent publishes incoming AddEventRequest in the format of []byte through MessageClient
-func (a *CoreDataApp) PublishEvent(data requestDTO.AddEventRequest, serviceName string, profileName string, deviceName string, sourceName string, ctx context.Context, dic *di.Container) {
+func (a *CoreDataApp) PublishEvent(data requestDTO.AddEventRequest, serviceName string, profileName string, nodeName string, sourceName string, ctx context.Context, dic *di.Container) {
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
 	msgClient := bootstrapContainer.MessagingClientFrom(dic.Get)
 	configuration := container.ConfigurationFrom(dic.Get)
@@ -86,14 +86,14 @@ func (a *CoreDataApp) PublishEvent(data requestDTO.AddEventRequest, serviceName 
 
 	basePrefix := configuration.MessageBus.GetBaseTopicPrefix()
 	publishTopic := common.NewPathBuilder().EnableNameFieldEscape(configuration.Service.EnableNameFieldEscape).
-		SetPath(basePrefix).SetPath(common.EventsPublishTopic).SetPath(CoreDataEventTopicPrefix).SetNameFieldPath(serviceName).SetNameFieldPath(profileName).SetNameFieldPath(deviceName).SetNameFieldPath(sourceName).BuildPath()
+		SetPath(basePrefix).SetPath(common.EventsPublishTopic).SetPath(CoreDataEventTopicPrefix).SetNameFieldPath(serviceName).SetNameFieldPath(profileName).SetNameFieldPath(nodeName).SetNameFieldPath(sourceName).BuildPath()
 	lc.Debugf("Publishing AddEventRequest to MessageBus. Topic: %s; %s: %s", publishTopic, common.CorrelationHeader, correlationId)
 
 	msgEnvelope := msgTypes.NewMessageEnvelope(data, ctx)
 	err := msgClient.PublishWithSizeLimit(msgEnvelope, publishTopic, configuration.MaxEventSize)
 	if err != nil {
 		lc.Errorf("Unable to send message for API event. Correlation-id: %s, Profile Name: %s, "+
-			"Device Name: %s, Source Name: %s, Error: %v", correlationId, profileName, deviceName, sourceName, err)
+			"Node Name: %s, Source Name: %s, Error: %v", correlationId, profileName, nodeName, sourceName, err)
 	} else {
 		lc.Debugf("Event Published to MessageBus. Topic: %s, Correlation-id: %s ", publishTopic, correlationId)
 	}
@@ -157,11 +157,11 @@ func (a *CoreDataApp) EventTotalCount(dic *di.Container) (int64, errors.EdgeX) {
 	return count, nil
 }
 
-// EventCountByDeviceName return the count of all events associated with given device and error if any
-func (a *CoreDataApp) EventCountByDeviceName(deviceName string, dic *di.Container) (int64, errors.EdgeX) {
+// EventCountByNodeName return the count of all events associated with given node and error if any
+func (a *CoreDataApp) EventCountByNodeName(nodeName string, dic *di.Container) (int64, errors.EdgeX) {
 	dbClient := container.DBClientFrom(dic.Get)
 
-	count, err := dbClient.EventCountByDeviceName(deviceName)
+	count, err := dbClient.EventCountByNodeName(nodeName)
 	if err != nil {
 		return 0, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -169,20 +169,20 @@ func (a *CoreDataApp) EventCountByDeviceName(deviceName string, dic *di.Containe
 	return count, nil
 }
 
-// The DeleteEventsByDeviceName function will be invoked by controller functions
-// and then invokes DeleteEventsByDeviceName function in the infrastructure layer to remove
-// all events/readings that are associated with the given deviceName
-func (a *CoreDataApp) DeleteEventsByDeviceName(deviceName string, dic *di.Container) errors.EdgeX {
-	if len(strings.TrimSpace(deviceName)) <= 0 {
-		return errors.NewCommonEdgeX(errors.KindInvalidId, "blank device name is not allowed", nil)
+// The DeleteEventsByNodeName function will be invoked by controller functions
+// and then invokes DeleteEventsByNodeName function in the infrastructure layer to remove
+// all events/readings that are associated with the given nodeName
+func (a *CoreDataApp) DeleteEventsByNodeName(nodeName string, dic *di.Container) errors.EdgeX {
+	if len(strings.TrimSpace(nodeName)) <= 0 {
+		return errors.NewCommonEdgeX(errors.KindInvalidId, "blank node name is not allowed", nil)
 	}
 	dbClient := container.DBClientFrom(dic.Get)
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
 
 	go func() {
-		err := dbClient.DeleteEventsByDeviceName(deviceName)
+		err := dbClient.DeleteEventsByNodeName(nodeName)
 		if err != nil {
-			lc.Errorf("Delete events by device name failed: %v", err)
+			lc.Errorf("Delete events by node name failed: %v", err)
 		}
 	}()
 	return nil
@@ -217,14 +217,14 @@ func (a *CoreDataApp) AllEvents(parms query.Parameters, dic *di.Container) (even
 	return events, totalCount, nil
 }
 
-// EventsByDeviceName query events with offset, limit and name
-func (a *CoreDataApp) EventsByDeviceName(parms query.Parameters, name string, dic *di.Container) (events []dtos.Event, totalCount int64, err errors.EdgeX) {
+// EventsByNodeName query events with offset, limit and name
+func (a *CoreDataApp) EventsByNodeName(parms query.Parameters, name string, dic *di.Container) (events []dtos.Event, totalCount int64, err errors.EdgeX) {
 	if name == "" {
 		return events, totalCount, errors.NewCommonEdgeX(errors.KindContractInvalid, "name is empty", nil)
 	}
 	dbClient := container.DBClientFrom(dic.Get)
 
-	eventModels, err := dbClient.EventsByDeviceName(parms.Offset, parms.Limit, name)
+	eventModels, err := dbClient.EventsByNodeName(parms.Offset, parms.Limit, name)
 	if err != nil {
 		return events, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -237,7 +237,7 @@ func (a *CoreDataApp) EventsByDeviceName(parms query.Parameters, name string, di
 		return events, 0, err // skip total count
 	}
 
-	totalCount, err = dbClient.EventCountByDeviceName(name)
+	totalCount, err = dbClient.EventCountByNodeName(name)
 	if err != nil {
 		return events, totalCount, errors.NewCommonEdgeXWrapper(err)
 	}

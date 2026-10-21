@@ -132,9 +132,9 @@ func TestReadingsByResourceName(t *testing.T) {
 
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByResourceName", testDeviceResourceName).Return(totalCount, nil)
-	dbClientMock.On("ReadingsByResourceName", 0, 20, testDeviceResourceName).Return(readings, nil)
-	dbClientMock.On("ReadingsByResourceName", len(readings)+1, 10, testDeviceResourceName).Return([]models.Reading{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
+	dbClientMock.On("ReadingCountByResourceName", testResourceName).Return(totalCount, nil)
+	dbClientMock.On("ReadingsByResourceName", 0, 20, testResourceName).Return(readings, nil)
+	dbClientMock.On("ReadingsByResourceName", len(readings)+1, 10, testResourceName).Return([]models.Reading{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -154,8 +154,8 @@ func TestReadingsByResourceName(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - all readings", 0, 20, testDeviceResourceName, false, "", len(readings), totalCount, http.StatusOK},
-		{"Invalid - bounds out of range", len(readings) + 1, 10, testDeviceResourceName, true, errors.KindRangeNotSatisfiable, 0, 0, http.StatusRequestedRangeNotSatisfiable},
+		{"Valid - all readings", 0, 20, testResourceName, false, "", len(readings), totalCount, http.StatusOK},
+		{"Invalid - bounds out of range", len(readings) + 1, 10, testResourceName, true, errors.KindRangeNotSatisfiable, 0, 0, http.StatusRequestedRangeNotSatisfiable},
 		{"Invalid - empty resource name", len(readings) + 1, 10, "", true, errors.KindContractInvalid, 0, 0, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
@@ -175,15 +175,15 @@ func TestReadingsByResourceName(t *testing.T) {
 	}
 }
 
-func TestReadingsByDeviceName(t *testing.T) {
+func TestReadingsByNodeName(t *testing.T) {
 	readings := buildReadings()
 	totalCount := int64(len(readings))
 
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceName", testDeviceName).Return(totalCount, nil)
-	dbClientMock.On("ReadingsByDeviceName", 0, 20, testDeviceName).Return(readings, nil)
-	dbClientMock.On("ReadingsByDeviceName", 3, 10, testDeviceName).Return([]models.Reading{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
+	dbClientMock.On("ReadingCountByNodeName", testNodeName).Return(totalCount, nil)
+	dbClientMock.On("ReadingsByNodeName", 0, 20, testNodeName).Return(readings, nil)
+	dbClientMock.On("ReadingsByNodeName", 3, 10, testNodeName).Return([]models.Reading{}, errors.NewCommonEdgeX(errors.KindRangeNotSatisfiable, "query objects bounds out of range.", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -196,19 +196,19 @@ func TestReadingsByDeviceName(t *testing.T) {
 		name               string
 		offset             int
 		limit              int
-		deviceName         string
+		nodeName           string
 		errorExpected      bool
 		ExpectedErrKind    errors.ErrKind
 		expectedCount      int
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - all readings", 0, 20, testDeviceName, false, "", len(readings), totalCount, http.StatusOK},
-		{"Invalid - bounds out of range", 3, 10, testDeviceName, true, errors.KindRangeNotSatisfiable, 0, 0, http.StatusRequestedRangeNotSatisfiable},
+		{"Valid - all readings", 0, 20, testNodeName, false, "", len(readings), totalCount, http.StatusOK},
+		{"Invalid - bounds out of range", 3, 10, testNodeName, true, errors.KindRangeNotSatisfiable, 0, 0, http.StatusRequestedRangeNotSatisfiable},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			readings, total, err := app.ReadingsByDeviceName(query.Parameters{Offset: testCase.offset, Limit: testCase.limit}, testCase.deviceName, dic)
+			readings, total, err := app.ReadingsByNodeName(query.Parameters{Offset: testCase.offset, Limit: testCase.limit}, testCase.nodeName, dic)
 			if testCase.errorExpected {
 				require.Error(t, err)
 				assert.NotEmpty(t, err.Error(), "Error message is empty")
@@ -223,11 +223,11 @@ func TestReadingsByDeviceName(t *testing.T) {
 	}
 }
 
-func TestReadingCountByDeviceName(t *testing.T) {
+func TestReadingCountByNodeName(t *testing.T) {
 	expectedReadingCount := int64(656672)
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceName", testDeviceName).Return(expectedReadingCount, nil)
+	dbClientMock.On("ReadingCountByNodeName", testNodeName).Return(expectedReadingCount, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -238,18 +238,18 @@ func TestReadingCountByDeviceName(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		errorExpected      bool
 		ExpectedErrKind    errors.ErrKind
 		expectedCount      int64
 		expectedStatusCode int
 	}{
-		{"Valid - all readings", testDeviceName, false, "", expectedReadingCount, http.StatusOK},
-		{"Invalid - empty device name", "", true, errors.KindContractInvalid, 0, http.StatusBadRequest},
+		{"Valid - all readings", testNodeName, false, "", expectedReadingCount, http.StatusOK},
+		{"Invalid - empty node name", "", true, errors.KindContractInvalid, 0, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			count, err := app.ReadingCountByDeviceName(testCase.deviceName, dic)
+			count, err := app.ReadingCountByNodeName(testCase.nodeName, dic)
 			if testCase.errorExpected {
 				require.Error(t, err)
 				assert.NotEmpty(t, err.Error(), "Error message is empty")
@@ -293,7 +293,7 @@ func TestProcessNumericReadings_SimpleReadingToNumeric(t *testing.T) {
 	}
 	for _, testCase := range test {
 		t.Run(testCase.name, func(t *testing.T) {
-			r, err := dtos.NewSimpleReading(testProfileName, testDeviceName, testDeviceResourceName, testCase.valueType, testCase.value)
+			r, err := dtos.NewSimpleReading(testProfileName, testNodeName, testResourceName, testCase.valueType, testCase.value)
 			require.NoError(t, err)
 			readings := []dtos.BaseReading{r}
 			processNumericReadings(true, readings)
@@ -322,7 +322,7 @@ func TestProcessNumericReadings_NumericReadingToString(t *testing.T) {
 	}
 	for _, testCase := range test {
 		t.Run(testCase.name, func(t *testing.T) {
-			r := dtos.NewNumericReading(testProfileName, testDeviceName, testDeviceResourceName, testCase.valueType, testCase.value)
+			r := dtos.NewNumericReading(testProfileName, testNodeName, testResourceName, testCase.valueType, testCase.value)
 			readings := []dtos.BaseReading{r}
 			processNumericReadings(false, readings)
 

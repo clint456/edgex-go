@@ -168,7 +168,7 @@ components:
           $ref: '#/components/schemas/HealthCheck'
         lastConnected:
           type: integer
-          description: Time (milliseconds) that the device last provided any feedback or responded to any request
+          description: Time (milliseconds) that the node last provided any feedback or responded to any request
     AddRegistration:
       type: object
       properties:

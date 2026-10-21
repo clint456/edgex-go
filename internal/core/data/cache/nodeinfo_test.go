@@ -21,12 +21,12 @@ import (
 )
 
 var (
-	testDeviceName   = "test-device"
+	testNodeName     = "test-node"
 	testResourceName = "test-resource"
 	testSourceName   = "testSource"
-	testDeviceInfo   = models.DeviceInfo{
+	testNodeInfo     = models.NodeInfo{
 		Id:           1,
-		DeviceName:   testDeviceName,
+		NodeName:     testNodeName,
 		SourceName:   testSourceName,
 		ResourceName: testResourceName,
 		ValueType:    common.ValueTypeString,
@@ -47,57 +47,57 @@ func mockDic() *di.Container {
 	})
 }
 
-func TestDeviceInfoCache_GetDeviceInfoId(t *testing.T) {
+func TestNodeInfoCache_GetNodeInfoId(t *testing.T) {
 	dic := mockDic()
-	cache := NewDeviceInfoCache(dic, []models.DeviceInfo{testDeviceInfo})
+	cache := NewNodeInfoCache(dic, []models.NodeInfo{testNodeInfo})
 
-	id, exist := cache.GetDeviceInfoId(testDeviceInfo)
-	assert.Equal(t, testDeviceInfo.Id, id)
+	id, exist := cache.GetNodeInfoId(testNodeInfo)
+	assert.Equal(t, testNodeInfo.Id, id)
 	assert.True(t, exist)
 
-	invalidDeviceInfo := testDeviceInfo
-	invalidDeviceInfo.Id = 2
-	invalidDeviceInfo.SourceName = "invalid"
-	_, exist = cache.GetDeviceInfoId(invalidDeviceInfo)
+	invalidNodeInfo := testNodeInfo
+	invalidNodeInfo.Id = 2
+	invalidNodeInfo.SourceName = "invalid"
+	_, exist = cache.GetNodeInfoId(invalidNodeInfo)
 	assert.False(t, exist)
 }
 
-func TestDeviceInfoCache_GetDeviceInfoMap(t *testing.T) {
+func TestNodeInfoCache_GetNodeInfoMap(t *testing.T) {
 	dic := mockDic()
-	cache := NewDeviceInfoCache(dic, []models.DeviceInfo{testDeviceInfo})
+	cache := NewNodeInfoCache(dic, []models.NodeInfo{testNodeInfo})
 
-	result := cache.CloneDeviceInfoMapWithSourceName()
+	result := cache.CloneNodeInfoMapWithSourceName()
 	assert.Equal(t, 1, len(result))
-	assert.Equal(t, testDeviceInfo, result[1])
+	assert.Equal(t, testNodeInfo, result[1])
 }
 
-func TestDeviceInfoCache_Add(t *testing.T) {
+func TestNodeInfoCache_Add(t *testing.T) {
 	dic := mockDic()
-	cache := NewDeviceInfoCache(dic, []models.DeviceInfo{})
+	cache := NewNodeInfoCache(dic, []models.NodeInfo{})
 
-	cache.Add(testDeviceInfo)
-	result := cache.CloneDeviceInfoMapWithSourceName()
+	cache.Add(testNodeInfo)
+	result := cache.CloneNodeInfoMapWithSourceName()
 	assert.Equal(t, 1, len(result))
-	assert.Equal(t, testDeviceInfo, result[1])
+	assert.Equal(t, testNodeInfo, result[1])
 }
 
-func TestDeviceInfoCache_Remove(t *testing.T) {
+func TestNodeInfoCache_Remove(t *testing.T) {
 	dic := mockDic()
 
-	testDeviceInfo2 := testDeviceInfo
-	testDeviceInfo2.Id = 2
-	testDeviceInfo2.DeviceName = "testDevice2"
-	cache := NewDeviceInfoCache(dic, []models.DeviceInfo{testDeviceInfo, testDeviceInfo2})
+	testNodeInfo2 := testNodeInfo
+	testNodeInfo2.Id = 2
+	testNodeInfo2.NodeName = "testNode2"
+	cache := NewNodeInfoCache(dic, []models.NodeInfo{testNodeInfo, testNodeInfo2})
 
-	cache.Remove(testDeviceInfo)
-	result := cache.CloneDeviceInfoMapWithSourceName()
+	cache.Remove(testNodeInfo)
+	result := cache.CloneNodeInfoMapWithSourceName()
 	assert.Equal(t, 1, len(result))
-	_, exists := cache.GetDeviceInfoId(testDeviceInfo)
+	_, exists := cache.GetNodeInfoId(testNodeInfo)
 	assert.False(t, exists)
 
-	cache.Remove(testDeviceInfo2)
-	result = cache.CloneDeviceInfoMapWithSourceName()
+	cache.Remove(testNodeInfo2)
+	result = cache.CloneNodeInfoMapWithSourceName()
 	assert.Equal(t, 0, len(result))
-	_, exists = cache.GetDeviceInfoId(testDeviceInfo)
+	_, exists = cache.GetNodeInfoId(testNodeInfo)
 	assert.False(t, exists)
 }

@@ -15,15 +15,15 @@ import (
 )
 
 const (
-	TestDeviceName         = "TestDevice"
-	TestDeviceResourceName = "TestDeviceResourceName"
-	TestDeviceProfileName  = "TestDeviceProfileName"
-	TestReadingValue       = uint8(45)
+	TestNodeName     = "TestNode"
+	TestResourceName = "TestResourceName"
+	TestProfileName  = "TestProfileName"
+	TestReadingValue = uint8(45)
 )
 
 func buildTestAddEvent() dto.AddEventRequest {
-	testEvent := dtos.NewEvent(TestDeviceProfileName, TestDeviceName, TestDeviceResourceName)
-	_ = testEvent.AddSimpleReading(TestDeviceResourceName, common.ValueTypeUint8, TestReadingValue)
+	testEvent := dtos.NewEvent(TestProfileName, TestNodeName, TestResourceName)
+	_ = testEvent.AddSimpleReading(TestResourceName, common.ValueTypeUint8, TestReadingValue)
 	return dto.NewAddEventRequest(testEvent)
 }
 

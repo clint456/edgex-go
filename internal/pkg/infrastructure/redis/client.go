@@ -83,39 +83,39 @@ func (c *Client) DeleteEventById(id string) (edgeXerr errors.EdgeX) {
 	return
 }
 
-// Add a new device profle
-func (c *Client) AddDeviceProfile(dp model.DeviceProfile) (model.DeviceProfile, errors.EdgeX) {
+// Add a new node profle
+func (c *Client) AddProfile(dp model.Profile) (model.Profile, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
 	if dp.Id != "" {
 		_, err := uuid.Parse(dp.Id)
 		if err != nil {
-			return model.DeviceProfile{}, errors.NewCommonEdgeX(errors.KindInvalidId, "ID failed UUID parsing", err)
+			return model.Profile{}, errors.NewCommonEdgeX(errors.KindInvalidId, "ID failed UUID parsing", err)
 		}
 	} else {
 		dp.Id = uuid.New().String()
 	}
 
-	return addDeviceProfile(conn, dp)
+	return addProfile(conn, dp)
 }
 
-// UpdateDeviceProfile updates a new device profile
-func (c *Client) UpdateDeviceProfile(dp model.DeviceProfile) errors.EdgeX {
+// UpdateProfile updates a new node profile
+func (c *Client) UpdateProfile(dp model.Profile) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
-	return updateDeviceProfile(conn, dp)
+	return updateProfile(conn, dp)
 }
 
-// DeviceProfileNameExists checks the device profile exists by name
-func (c *Client) DeviceProfileNameExists(name string) (bool, errors.EdgeX) {
+// ProfileNameExists checks the node profile exists by name
+func (c *Client) ProfileNameExists(name string) (bool, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
-	return deviceProfileNameExists(conn, name)
+	return profileNameExists(conn, name)
 }
 
-// AddDeviceService adds a new device service
-func (c *Client) AddDeviceService(ds model.DeviceService) (model.DeviceService, errors.EdgeX) {
+// AddNodeService adds a new node service
+func (c *Client) AddNodeService(ds model.NodeService) (model.NodeService, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
@@ -123,173 +123,173 @@ func (c *Client) AddDeviceService(ds model.DeviceService) (model.DeviceService, 
 		ds.Id = uuid.New().String()
 	}
 
-	return addDeviceService(conn, ds)
+	return addNodeService(conn, ds)
 }
 
-// DeviceServiceByName gets a device service by name
-func (c *Client) DeviceServiceByName(name string) (deviceService model.DeviceService, edgeXerr errors.EdgeX) {
+// NodeServiceByName gets a node service by name
+func (c *Client) NodeServiceByName(name string) (nodeService model.NodeService, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceService, edgeXerr = deviceServiceByName(conn, name)
+	nodeService, edgeXerr = nodeServiceByName(conn, name)
 	if edgeXerr != nil {
-		return deviceService, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return nodeService, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
 
 	return
 }
 
-// DeviceServiceById gets a device service by id
-func (c *Client) DeviceServiceById(id string) (deviceService model.DeviceService, edgeXerr errors.EdgeX) {
+// NodeServiceById gets a node service by id
+func (c *Client) NodeServiceById(id string) (nodeService model.NodeService, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceService, edgeXerr = deviceServiceById(conn, id)
+	nodeService, edgeXerr = nodeServiceById(conn, id)
 	if edgeXerr != nil {
-		return deviceService, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return nodeService, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
 
 	return
 }
 
-// DeleteDeviceServiceById deletes a device service by id
-func (c *Client) DeleteDeviceServiceById(id string) errors.EdgeX {
+// DeleteNodeServiceById deletes a node service by id
+func (c *Client) DeleteNodeServiceById(id string) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	edgeXerr := deleteDeviceServiceById(conn, id)
+	edgeXerr := deleteNodeServiceById(conn, id)
 	if edgeXerr != nil {
-		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the device service with id %s", id), edgeXerr)
+		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the node service with id %s", id), edgeXerr)
 	}
 
 	return nil
 }
 
-// DeleteDeviceServiceByName deletes a device service by name
-func (c *Client) DeleteDeviceServiceByName(name string) errors.EdgeX {
+// DeleteNodeServiceByName deletes a node service by name
+func (c *Client) DeleteNodeServiceByName(name string) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	edgeXerr := deleteDeviceServiceByName(conn, name)
+	edgeXerr := deleteNodeServiceByName(conn, name)
 	if edgeXerr != nil {
-		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the device service with name %s", name), edgeXerr)
+		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the node service with name %s", name), edgeXerr)
 	}
 
 	return nil
 }
 
-// DeviceServiceNameExists checks the device service exists by name
-func (c *Client) DeviceServiceNameExists(name string) (bool, errors.EdgeX) {
+// NodeServiceNameExists checks the node service exists by name
+func (c *Client) NodeServiceNameExists(name string) (bool, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
-	return deviceServiceNameExist(conn, name)
+	return nodeServiceNameExist(conn, name)
 }
 
-// UpdateDeviceService updates a device service
-func (c *Client) UpdateDeviceService(ds model.DeviceService) errors.EdgeX {
+// UpdateNodeService updates a node service
+func (c *Client) UpdateNodeService(ds model.NodeService) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
-	return updateDeviceService(conn, ds)
+	return updateNodeService(conn, ds)
 }
 
-// DeviceProfileById gets a device profile by id
-func (c *Client) DeviceProfileById(id string) (deviceProfile model.DeviceProfile, err errors.EdgeX) {
+// ProfileById gets a node profile by id
+func (c *Client) ProfileById(id string) (profile model.Profile, err errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceProfile, err = deviceProfileById(conn, id)
+	profile, err = profileById(conn, id)
 	if err != nil {
-		return deviceProfile, errors.NewCommonEdgeXWrapper(err)
+		return profile, errors.NewCommonEdgeXWrapper(err)
 	}
 
 	return
 }
 
-// DeviceProfileByName gets a device profile by name
-func (c *Client) DeviceProfileByName(name string) (deviceProfile model.DeviceProfile, edgeXerr errors.EdgeX) {
+// ProfileByName gets a node profile by name
+func (c *Client) ProfileByName(name string) (profile model.Profile, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceProfile, edgeXerr = deviceProfileByName(conn, name)
+	profile, edgeXerr = profileByName(conn, name)
 	if edgeXerr != nil {
-		return deviceProfile, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return profile, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
 
 	return
 }
 
-// DeleteDeviceProfileById deletes a device profile by id
-func (c *Client) DeleteDeviceProfileById(id string) errors.EdgeX {
+// DeleteProfileById deletes a node profile by id
+func (c *Client) DeleteProfileById(id string) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	edgeXerr := deleteDeviceProfileById(conn, id)
+	edgeXerr := deleteProfileById(conn, id)
 	if edgeXerr != nil {
-		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the device profile with id %s", id), edgeXerr)
+		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the node profile with id %s", id), edgeXerr)
 	}
 
 	return nil
 }
 
-// DeleteDeviceProfileByName deletes a device profile by name
-func (c *Client) DeleteDeviceProfileByName(name string) errors.EdgeX {
+// DeleteProfileByName deletes a node profile by name
+func (c *Client) DeleteProfileByName(name string) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	edgeXerr := deleteDeviceProfileByName(conn, name)
+	edgeXerr := deleteProfileByName(conn, name)
 	if edgeXerr != nil {
-		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the device profile with name %s", name), edgeXerr)
+		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the node profile with name %s", name), edgeXerr)
 	}
 
 	return nil
 }
 
-// AllDeviceProfiles query device profiles with offset and limit
-func (c *Client) AllDeviceProfiles(offset int, limit int, labels []string) ([]model.DeviceProfile, errors.EdgeX) {
+// AllProfiles query node profiles with offset and limit
+func (c *Client) AllProfiles(offset int, limit int, labels []string) ([]model.Profile, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceProfiles, edgeXerr := deviceProfilesByLabels(conn, offset, limit, labels)
+	profiles, edgeXerr := profilesByLabels(conn, offset, limit, labels)
 	if edgeXerr != nil {
-		return deviceProfiles, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return profiles, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return deviceProfiles, nil
+	return profiles, nil
 }
 
-// DeviceProfilesByModel query device profiles with offset, limit and model
-func (c *Client) DeviceProfilesByModel(offset int, limit int, model string) ([]model.DeviceProfile, errors.EdgeX) {
+// ProfilesByModel query node profiles with offset, limit and model
+func (c *Client) ProfilesByModel(offset int, limit int, model string) ([]model.Profile, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceProfiles, edgeXerr := deviceProfilesByModel(conn, offset, limit, model)
+	profiles, edgeXerr := profilesByModel(conn, offset, limit, model)
 	if edgeXerr != nil {
-		return deviceProfiles, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return profiles, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return deviceProfiles, nil
+	return profiles, nil
 }
 
-// DeviceProfilesByManufacturer query device profiles with offset, limit and manufacturer
-func (c *Client) DeviceProfilesByManufacturer(offset int, limit int, manufacturer string) ([]model.DeviceProfile, errors.EdgeX) {
+// ProfilesByManufacturer query node profiles with offset, limit and manufacturer
+func (c *Client) ProfilesByManufacturer(offset int, limit int, manufacturer string) ([]model.Profile, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceProfiles, edgeXerr := deviceProfilesByManufacturer(conn, offset, limit, manufacturer)
+	profiles, edgeXerr := profilesByManufacturer(conn, offset, limit, manufacturer)
 	if edgeXerr != nil {
-		return deviceProfiles, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return profiles, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return deviceProfiles, nil
+	return profiles, nil
 }
 
-// DeviceProfilesByManufacturerAndModel query device profiles with offset, limit, manufacturer and model
-func (c *Client) DeviceProfilesByManufacturerAndModel(offset int, limit int, manufacturer string, model string) ([]model.DeviceProfile, errors.EdgeX) {
+// ProfilesByManufacturerAndModel query node profiles with offset, limit, manufacturer and model
+func (c *Client) ProfilesByManufacturerAndModel(offset int, limit int, manufacturer string, model string) ([]model.Profile, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceProfiles, edgeXerr := deviceProfilesByManufacturerAndModel(conn, offset, limit, manufacturer, model)
+	profiles, edgeXerr := profilesByManufacturerAndModel(conn, offset, limit, manufacturer, model)
 	if edgeXerr != nil {
-		return deviceProfiles, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return profiles, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return deviceProfiles, nil
+	return profiles, nil
 }
 
 // EventTotalCount returns the total count of Event from the database
@@ -305,12 +305,12 @@ func (c *Client) EventTotalCount() (int64, errors.EdgeX) {
 	return count, nil
 }
 
-// EventCountByDeviceName returns the count of Event associated a specific Device from the database
-func (c *Client) EventCountByDeviceName(deviceName string) (int64, errors.EdgeX) {
+// EventCountByNodeName returns the count of Event associated a specific Node from the database
+func (c *Client) EventCountByNodeName(nodeName string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(EventsCollectionDeviceName, deviceName))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(EventsCollectionNodeName, nodeName))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -331,23 +331,23 @@ func (c *Client) EventCountByTimeRange(startTime int64, endTime int64) (int64, e
 	return count, nil
 }
 
-// AllDeviceServices returns multiple device services per query criteria, including
+// AllNodeServices returns multiple node services per query criteria, including
 // offset: the number of items to skip before starting to collect the result set
 // limit: The numbers of items to return
 // labels: allows for querying a given object by associated user-defined labels
-func (c *Client) AllDeviceServices(offset int, limit int, labels []string) (deviceServices []model.DeviceService, edgeXerr errors.EdgeX) {
+func (c *Client) AllNodeServices(offset int, limit int, labels []string) (nodeServices []model.NodeService, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	deviceServices, edgeXerr = deviceServicesByLabels(conn, offset, limit, labels)
+	nodeServices, edgeXerr = nodeServicesByLabels(conn, offset, limit, labels)
 	if edgeXerr != nil {
-		return deviceServices, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return nodeServices, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return deviceServices, nil
+	return nodeServices, nil
 }
 
-// Add a new device
-func (c *Client) AddDevice(d model.Device) (model.Device, errors.EdgeX) {
+// Add a new node
+func (c *Client) AddNode(d model.Node) (model.Node, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
@@ -355,115 +355,115 @@ func (c *Client) AddDevice(d model.Device) (model.Device, errors.EdgeX) {
 		d.Id = uuid.New().String()
 	}
 
-	return addDevice(conn, d)
+	return addNode(conn, d)
 }
 
-// DeleteDeviceById deletes a device by id
-func (c *Client) DeleteDeviceById(id string) errors.EdgeX {
+// DeleteNodeById deletes a node by id
+func (c *Client) DeleteNodeById(id string) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	edgeXerr := deleteDeviceById(conn, id)
+	edgeXerr := deleteNodeById(conn, id)
 	if edgeXerr != nil {
-		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the device with id %s", id), edgeXerr)
+		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the node with id %s", id), edgeXerr)
 	}
 
 	return nil
 }
 
-// DeleteDeviceByName deletes a device by name
-func (c *Client) DeleteDeviceByName(name string) errors.EdgeX {
+// DeleteNodeByName deletes a node by name
+func (c *Client) DeleteNodeByName(name string) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	edgeXerr := deleteDeviceByName(conn, name)
+	edgeXerr := deleteNodeByName(conn, name)
 	if edgeXerr != nil {
-		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the device with name %s", name), edgeXerr)
+		return errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to delete the node with name %s", name), edgeXerr)
 	}
 
 	return nil
 }
 
-// DevicesByServiceName query devices by offset, limit and name
-func (c *Client) DevicesByServiceName(offset int, limit int, name string) (devices []model.Device, edgeXerr errors.EdgeX) {
+// NodesByServiceName query nodes by offset, limit and name
+func (c *Client) NodesByServiceName(offset int, limit int, name string) (nodes []model.Node, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	devices, edgeXerr = devicesByServiceName(conn, offset, limit, name)
+	nodes, edgeXerr = nodesByServiceName(conn, offset, limit, name)
 	if edgeXerr != nil {
-		return devices, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
-			fmt.Sprintf("fail to query devices by offset %d, limit %d and name %s", offset, limit, name), edgeXerr)
+		return nodes, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
+			fmt.Sprintf("fail to query nodes by offset %d, limit %d and name %s", offset, limit, name), edgeXerr)
 	}
-	return devices, nil
+	return nodes, nil
 }
 
-// DeviceIdExists checks the device existence by id
-func (c *Client) DeviceIdExists(id string) (bool, errors.EdgeX) {
+// NodeIdExists checks the node existence by id
+func (c *Client) NodeIdExists(id string) (bool, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
-	exists, err := deviceIdExists(conn, id)
+	exists, err := nodeIdExists(conn, id)
 	if err != nil {
-		return exists, errors.NewCommonEdgeX(errors.Kind(err), fmt.Sprintf("fail to check the device existence by id %s", id), err)
+		return exists, errors.NewCommonEdgeX(errors.Kind(err), fmt.Sprintf("fail to check the node existence by id %s", id), err)
 	}
 	return exists, nil
 }
 
-// DeviceNameExists checks the device existence by name
-func (c *Client) DeviceNameExists(name string) (bool, errors.EdgeX) {
+// NodeNameExists checks the node existence by name
+func (c *Client) NodeNameExists(name string) (bool, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
-	exists, err := deviceNameExists(conn, name)
+	exists, err := nodeNameExists(conn, name)
 	if err != nil {
-		return exists, errors.NewCommonEdgeX(errors.Kind(err), fmt.Sprintf("fail to check the device existence by name %s", name), err)
+		return exists, errors.NewCommonEdgeX(errors.Kind(err), fmt.Sprintf("fail to check the node existence by name %s", name), err)
 	}
 	return exists, nil
 }
 
-// DeviceById gets a device by id
-func (c *Client) DeviceById(id string) (device model.Device, edgeXerr errors.EdgeX) {
+// NodeById gets a node by id
+func (c *Client) NodeById(id string) (node model.Node, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	device, edgeXerr = deviceById(conn, id)
+	node, edgeXerr = nodeById(conn, id)
 	if edgeXerr != nil {
-		return device, errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to query device by id %s", id), edgeXerr)
+		return node, errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to query node by id %s", id), edgeXerr)
 	}
 
 	return
 }
 
-// DeviceByName gets a device by name
-func (c *Client) DeviceByName(name string) (device model.Device, edgeXerr errors.EdgeX) {
+// NodeByName gets a node by name
+func (c *Client) NodeByName(name string) (node model.Node, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	device, edgeXerr = deviceByName(conn, name)
+	node, edgeXerr = nodeByName(conn, name)
 	if edgeXerr != nil {
-		return device, errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to query device by name %s", name), edgeXerr)
+		return node, errors.NewCommonEdgeX(errors.Kind(edgeXerr), fmt.Sprintf("fail to query node by name %s", name), edgeXerr)
 	}
 
 	return
 }
 
-// DevicesByProfileName query devices by offset, limit and profile name
-func (c *Client) DevicesByProfileName(offset int, limit int, profileName string) (devices []model.Device, edgeXerr errors.EdgeX) {
+// NodesByProfileName query nodes by offset, limit and profile name
+func (c *Client) NodesByProfileName(offset int, limit int, profileName string) (nodes []model.Node, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	devices, edgeXerr = devicesByProfileName(conn, offset, limit, profileName)
+	nodes, edgeXerr = nodesByProfileName(conn, offset, limit, profileName)
 	if edgeXerr != nil {
-		return devices, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
-			fmt.Sprintf("fail to query devices by offset %d, limit %d and name %s", offset, limit, profileName), edgeXerr)
+		return nodes, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
+			fmt.Sprintf("fail to query nodes by offset %d, limit %d and name %s", offset, limit, profileName), edgeXerr)
 	}
-	return devices, nil
+	return nodes, nil
 }
 
-// Update a device
-func (c *Client) UpdateDevice(d model.Device) errors.EdgeX {
+// Update a node
+func (c *Client) UpdateNode(d model.Node) errors.EdgeX {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	return updateDevice(conn, d)
+	return updateNode(conn, d)
 }
 
 // AllEvents query events by offset and limit
@@ -479,35 +479,35 @@ func (c *Client) AllEvents(offset int, limit int) ([]model.Event, errors.EdgeX) 
 	return events, nil
 }
 
-// AllDevices query the devices with offset, limit, and labels
-func (c *Client) AllDevices(offset int, limit int, labels []string) ([]model.Device, errors.EdgeX) {
+// AllNodes query the nodes with offset, limit, and labels
+func (c *Client) AllNodes(offset int, limit int, labels []string) ([]model.Node, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	devices, edgeXerr := devicesByLabels(conn, offset, limit, labels)
+	nodes, edgeXerr := nodesByLabels(conn, offset, limit, labels)
 	if edgeXerr != nil {
-		return devices, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return nodes, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return devices, nil
+	return nodes, nil
 }
 
-func (c *Client) DeviceTree(parent string, levels int, offset int, limit int, labels []string) (int64, []model.Device, errors.EdgeX) {
+func (c *Client) NodeTree(parent string, levels int, offset int, limit int, labels []string) (int64, []model.Node, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	totalCount, devices, edgeXerr := deviceTree(conn, parent, levels, offset, limit, labels)
+	totalCount, nodes, edgeXerr := nodeTree(conn, parent, levels, offset, limit, labels)
 	if edgeXerr != nil {
-		return totalCount, devices, errors.NewCommonEdgeXWrapper(edgeXerr)
+		return totalCount, nodes, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
-	return totalCount, devices, nil
+	return totalCount, nodes, nil
 }
 
-// EventsByDeviceName query events by offset, limit and device name
-func (c *Client) EventsByDeviceName(offset int, limit int, name string) (events []model.Event, edgeXerr errors.EdgeX) {
+// EventsByNodeName query events by offset, limit and node name
+func (c *Client) EventsByNodeName(offset int, limit int, name string) (events []model.Event, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	events, edgeXerr = eventsByDeviceName(conn, offset, limit, name)
+	events, edgeXerr = eventsByNodeName(conn, offset, limit, name)
 	if edgeXerr != nil {
 		return events, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
 			fmt.Sprintf("fail to query events by offset %d, limit %d and name %s", offset, limit, name), edgeXerr)
@@ -580,12 +580,12 @@ func (c *Client) ReadingsByResourceName(offset int, limit int, resourceName stri
 	return readings, nil
 }
 
-// ReadingsByDeviceName query readings by offset, limit and device name
-func (c *Client) ReadingsByDeviceName(offset int, limit int, name string) (readings []model.Reading, edgeXerr errors.EdgeX) {
+// ReadingsByNodeName query readings by offset, limit and node name
+func (c *Client) ReadingsByNodeName(offset int, limit int, name string) (readings []model.Reading, edgeXerr errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	readings, edgeXerr = readingsByDeviceName(conn, offset, limit, name)
+	readings, edgeXerr = readingsByNodeName(conn, offset, limit, name)
 	if edgeXerr != nil {
 		return readings, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
 			fmt.Sprintf("fail to query readings by offset %d, limit %d and name %s", offset, limit, name), edgeXerr)
@@ -593,12 +593,12 @@ func (c *Client) ReadingsByDeviceName(offset int, limit int, name string) (readi
 	return readings, nil
 }
 
-// ReadingCountByDeviceName returns the count of Readings associated a specific Device from the database
-func (c *Client) ReadingCountByDeviceName(deviceName string) (int64, errors.EdgeX) {
+// ReadingCountByNodeName returns the count of Readings associated a specific Node from the database
+func (c *Client) ReadingCountByNodeName(nodeName string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(ReadingsCollectionDeviceName, deviceName))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(ReadingsCollectionNodeName, nodeName))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -632,12 +632,12 @@ func (c *Client) ReadingCountByResourceNameAndTimeRange(resourceName string, sta
 	return count, nil
 }
 
-// ReadingCountByDeviceNameAndResourceName returns the count of Readings associated with specified Resource and Device from the database
-func (c *Client) ReadingCountByDeviceNameAndResourceName(deviceName string, resourceName string) (int64, errors.EdgeX) {
+// ReadingCountByNodeNameAndResourceName returns the count of Readings associated with specified Resource and Node from the database
+func (c *Client) ReadingCountByNodeNameAndResourceName(nodeName string, resourceName string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(ReadingsCollectionDeviceNameResourceName, deviceName, resourceName))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(ReadingsCollectionNodeNameResourceName, nodeName, resourceName))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -645,12 +645,12 @@ func (c *Client) ReadingCountByDeviceNameAndResourceName(deviceName string, reso
 	return count, nil
 }
 
-// ReadingCountByDeviceNameAndResourceNameAndTimeRange returns the count of Readings associated with specified Resource and Device from the database within specified time range
-func (c *Client) ReadingCountByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, start int64, end int64) (int64, errors.EdgeX) {
+// ReadingCountByNodeNameAndResourceNameAndTimeRange returns the count of Readings associated with specified Resource and Node from the database within specified time range
+func (c *Client) ReadingCountByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, start int64, end int64) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberCountByScoreRange(conn, CreateKey(ReadingsCollectionDeviceNameResourceName, deviceName, resourceName), start, end)
+	count, edgeXerr := getMemberCountByScoreRange(conn, CreateKey(ReadingsCollectionNodeNameResourceName, nodeName, resourceName), start, end)
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -658,16 +658,16 @@ func (c *Client) ReadingCountByDeviceNameAndResourceNameAndTimeRange(deviceName 
 	return count, nil
 }
 
-// ReadingCountByDeviceNameAndResourceNamesAndTimeRange returns the count of readings by origin within the time range
-// associated with the specified device and resourceName slice from db
-func (c *Client) ReadingCountByDeviceNameAndResourceNamesAndTimeRange(deviceName string, resourceNames []string, start int64, end int64) (int64, errors.EdgeX) {
+// ReadingCountByNodeNameAndResourceNamesAndTimeRange returns the count of readings by origin within the time range
+// associated with the specified node and resourceName slice from db
+func (c *Client) ReadingCountByNodeNameAndResourceNamesAndTimeRange(nodeName string, resourceNames []string, start int64, end int64) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	readings, err := readingsByDeviceNameAndResourceNamesAndTimeRange(conn, deviceName, resourceNames, start, end, 0, -1)
+	readings, err := readingsByNodeNameAndResourceNamesAndTimeRange(conn, nodeName, resourceNames, start, end, 0, -1)
 	if err != nil {
 		return 0, errors.NewCommonEdgeX(errors.Kind(err),
-			fmt.Sprintf("fail to query readings by deviceName %s, resourceNames %v and time range %v ~ %v", deviceName, resourceNames, start, end), err)
+			fmt.Sprintf("fail to query readings by nodeName %s, resourceNames %v and time range %v ~ %v", nodeName, resourceNames, start, end), err)
 	}
 
 	return int64(len(readings)), nil
@@ -699,63 +699,63 @@ func (c *Client) ReadingsByResourceNameAndTimeRange(resourceName string, start i
 	return readings, nil
 }
 
-func (c *Client) ReadingsByDeviceNameAndResourceName(deviceName string, resourceName string, offset int, limit int) (readings []model.Reading, err errors.EdgeX) {
+func (c *Client) ReadingsByNodeNameAndResourceName(nodeName string, resourceName string, offset int, limit int) (readings []model.Reading, err errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	readings, err = readingsByDeviceNameAndResourceName(conn, deviceName, resourceName, offset, limit)
+	readings, err = readingsByNodeNameAndResourceName(conn, nodeName, resourceName, offset, limit)
 	if err != nil {
 		return readings, errors.NewCommonEdgeX(errors.Kind(err),
-			fmt.Sprintf("fail to query readings by deviceName %s and resourceName %s", deviceName, resourceName), err)
+			fmt.Sprintf("fail to query readings by nodeName %s and resourceName %s", nodeName, resourceName), err)
 	}
 
 	return readings, nil
 }
 
-func (c *Client) ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, start int64, end int64, offset int, limit int) (readings []model.Reading, err errors.EdgeX) {
+func (c *Client) ReadingsByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, start int64, end int64, offset int, limit int) (readings []model.Reading, err errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	readings, err = readingsByDeviceNameAndResourceNameAndTimeRange(conn, deviceName, resourceName, start, end, offset, limit)
+	readings, err = readingsByNodeNameAndResourceNameAndTimeRange(conn, nodeName, resourceName, start, end, offset, limit)
 	if err != nil {
 		return readings, errors.NewCommonEdgeX(errors.Kind(err),
-			fmt.Sprintf("fail to query readings by deviceName %s, resourceName %s and time range %v ~ %v", deviceName, resourceName, start, end), err)
+			fmt.Sprintf("fail to query readings by nodeName %s, resourceName %s and time range %v ~ %v", nodeName, resourceName, start, end), err)
 	}
 
 	return readings, nil
 }
 
-func (c *Client) ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceName string, resourceNames []string, start, end int64, offset, limit int) (readings []model.Reading, err errors.EdgeX) {
+func (c *Client) ReadingsByNodeNameAndResourceNamesAndTimeRange(nodeName string, resourceNames []string, start, end int64, offset, limit int) (readings []model.Reading, err errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	readings, err = readingsByDeviceNameAndResourceNamesAndTimeRange(conn, deviceName, resourceNames, start, end, offset, limit)
+	readings, err = readingsByNodeNameAndResourceNamesAndTimeRange(conn, nodeName, resourceNames, start, end, offset, limit)
 	if err != nil {
 		return readings, errors.NewCommonEdgeX(errors.Kind(err),
-			fmt.Sprintf("fail to query readings by deviceName %s, resourceNames %v and time range %v ~ %v", deviceName, resourceNames, start, end), err)
+			fmt.Sprintf("fail to query readings by nodeName %s, resourceNames %v and time range %v ~ %v", nodeName, resourceNames, start, end), err)
 	}
 
 	return readings, nil
 }
 
-func (c *Client) ReadingsByDeviceNameAndTimeRange(deviceName string, start int64, end int64, offset int, limit int) (readings []model.Reading, err errors.EdgeX) {
+func (c *Client) ReadingsByNodeNameAndTimeRange(nodeName string, start int64, end int64, offset int, limit int) (readings []model.Reading, err errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	readings, err = readingsByDeviceNameAndTimeRange(conn, deviceName, start, end, offset, limit)
+	readings, err = readingsByNodeNameAndTimeRange(conn, nodeName, start, end, offset, limit)
 	if err != nil {
 		return readings, errors.NewCommonEdgeX(errors.Kind(err),
-			fmt.Sprintf("fail to query readings by deviceName %s, and time range %v ~ %v", deviceName, start, end), err)
+			fmt.Sprintf("fail to query readings by nodeName %s, and time range %v ~ %v", nodeName, start, end), err)
 	}
 
 	return readings, nil
 }
 
-func (c *Client) ReadingCountByDeviceNameAndTimeRange(deviceName string, start int64, end int64) (int64, errors.EdgeX) {
+func (c *Client) ReadingCountByNodeNameAndTimeRange(nodeName string, start int64, end int64) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberCountByScoreRange(conn, CreateKey(ReadingsCollectionDeviceName, deviceName), start, end)
+	count, edgeXerr := getMemberCountByScoreRange(conn, CreateKey(ReadingsCollectionNodeName, nodeName), start, end)
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -863,12 +863,12 @@ func (c *Client) UpdateProvisionWatcher(pw model.ProvisionWatcher) errors.EdgeX 
 	return updateProvisionWatcher(conn, pw)
 }
 
-// DeviceProfileCountByLabels returns the total count of Device Profiles with labels specified.  If no label is specified, the total count of all device profiles will be returned.
-func (c *Client) DeviceProfileCountByLabels(labels []string) (int64, errors.EdgeX) {
+// ProfileCountByLabels returns the total count of Node Profiles with labels specified.  If no label is specified, the total count of all node profiles will be returned.
+func (c *Client) ProfileCountByLabels(labels []string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberCountByLabels(conn, ZREVRANGE, DeviceProfileCollection, labels)
+	count, edgeXerr := getMemberCountByLabels(conn, ZREVRANGE, ProfileCollection, labels)
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -876,12 +876,12 @@ func (c *Client) DeviceProfileCountByLabels(labels []string) (int64, errors.Edge
 	return count, nil
 }
 
-// DeviceProfileCountByManufacturer returns the count of Device Profiles associated with specified manufacturer
-func (c *Client) DeviceProfileCountByManufacturer(manufacturer string) (int64, errors.EdgeX) {
+// ProfileCountByManufacturer returns the count of Node Profiles associated with specified manufacturer
+func (c *Client) ProfileCountByManufacturer(manufacturer string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(DeviceProfileCollectionManufacturer, manufacturer))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(ProfileCollectionManufacturer, manufacturer))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -889,12 +889,12 @@ func (c *Client) DeviceProfileCountByManufacturer(manufacturer string) (int64, e
 	return count, nil
 }
 
-// DeviceProfileCountByModel returns the count of Device Profiles associated with specified model
-func (c *Client) DeviceProfileCountByModel(model string) (int64, errors.EdgeX) {
+// ProfileCountByModel returns the count of Node Profiles associated with specified model
+func (c *Client) ProfileCountByModel(model string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(DeviceProfileCollectionModel, model))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(ProfileCollectionModel, model))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -902,12 +902,12 @@ func (c *Client) DeviceProfileCountByModel(model string) (int64, errors.EdgeX) {
 	return count, nil
 }
 
-// DeviceProfileCountByManufacturerAndModel returns the count of Device Profiles associated with specified manufacturer and model
-func (c *Client) DeviceProfileCountByManufacturerAndModel(manufacturer, model string) (int64, errors.EdgeX) {
+// ProfileCountByManufacturerAndModel returns the count of Node Profiles associated with specified manufacturer and model
+func (c *Client) ProfileCountByManufacturerAndModel(manufacturer, model string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	profiles, edgeXerr := deviceProfilesByManufacturerAndModel(conn, 0, -1, manufacturer, model)
+	profiles, edgeXerr := profilesByManufacturerAndModel(conn, 0, -1, manufacturer, model)
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -920,12 +920,12 @@ func (c *Client) InUseResourceCount() (int64, errors.EdgeX) {
 	return 0, nil
 }
 
-// DeviceServiceCountByLabels returns the total count of Device Services with labels specified.  If no label is specified, the total count of all device services will be returned.
-func (c *Client) DeviceServiceCountByLabels(labels []string) (int64, errors.EdgeX) {
+// NodeServiceCountByLabels returns the total count of Node Services with labels specified.  If no label is specified, the total count of all node services will be returned.
+func (c *Client) NodeServiceCountByLabels(labels []string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberCountByLabels(conn, ZREVRANGE, DeviceServiceCollection, labels)
+	count, edgeXerr := getMemberCountByLabels(conn, ZREVRANGE, NodeServiceCollection, labels)
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -933,12 +933,12 @@ func (c *Client) DeviceServiceCountByLabels(labels []string) (int64, errors.Edge
 	return count, nil
 }
 
-// DeviceCountByLabels returns the total count of Devices with labels specified.  If no label is specified, the total count of all devices will be returned.
-func (c *Client) DeviceCountByLabels(labels []string) (int64, errors.EdgeX) {
+// NodeCountByLabels returns the total count of Nodes with labels specified.  If no label is specified, the total count of all nodes will be returned.
+func (c *Client) NodeCountByLabels(labels []string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberCountByLabels(conn, ZREVRANGE, DeviceCollection, labels)
+	count, edgeXerr := getMemberCountByLabels(conn, ZREVRANGE, NodeCollection, labels)
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -946,12 +946,12 @@ func (c *Client) DeviceCountByLabels(labels []string) (int64, errors.EdgeX) {
 	return count, nil
 }
 
-// DeviceCountByProfileName returns the count of Devices associated with specified profile
-func (c *Client) DeviceCountByProfileName(profileName string) (int64, errors.EdgeX) {
+// NodeCountByProfileName returns the count of Nodes associated with specified profile
+func (c *Client) NodeCountByProfileName(profileName string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(DeviceCollectionProfileName, profileName))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(NodeCollectionProfileName, profileName))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}
@@ -959,12 +959,12 @@ func (c *Client) DeviceCountByProfileName(profileName string) (int64, errors.Edg
 	return count, nil
 }
 
-// DeviceCountByServiceName returns the count of Devices associated with specified service
-func (c *Client) DeviceCountByServiceName(serviceName string) (int64, errors.EdgeX) {
+// NodeCountByServiceName returns the count of Nodes associated with specified service
+func (c *Client) NodeCountByServiceName(serviceName string) (int64, errors.EdgeX) {
 	conn := c.Pool.Get()
 	defer closeRedisConnection(conn, c.loggingClient)
 
-	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(DeviceCollectionServiceName, serviceName))
+	count, edgeXerr := getMemberNumber(conn, ZCARD, CreateKey(NodeCollectionServiceName, serviceName))
 	if edgeXerr != nil {
 		return 0, errors.NewCommonEdgeXWrapper(edgeXerr)
 	}

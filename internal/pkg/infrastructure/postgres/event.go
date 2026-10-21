@@ -43,14 +43,14 @@ func (c *Client) AddEvent(e model.Event) (model.Event, errors.EdgeX) {
 		e.Id = uuid.NewString()
 	}
 
-	deviceInfoId, err := c.deviceInfoIdByEvent(e)
+	nodeInfoId, err := c.nodeInfoIdByEvent(e)
 	if err != nil {
 		return model.Event{}, errors.NewCommonEdgeXWrapper(err)
 	}
 
 	event := model.Event{
 		Id:          e.Id,
-		DeviceName:  e.DeviceName,
+		NodeName:    e.NodeName,
 		ProfileName: e.ProfileName,
 		SourceName:  e.SourceName,
 		Origin:      e.Origin,
@@ -61,9 +61,9 @@ func (c *Client) AddEvent(e model.Event) (model.Event, errors.EdgeX) {
 		// insert event in a transaction
 		_, pgxErr := tx.Exec(
 			ctx,
-			sqlInsert(eventTableName, idCol, deviceInfoIdFKCol, originCol),
+			sqlInsert(eventTableName, idCol, nodeInfoIdFKCol, originCol),
 			event.Id,
-			deviceInfoId,
+			nodeInfoId,
 			event.Origin,
 		)
 		if pgxErr != nil {
@@ -127,11 +127,11 @@ func (c *Client) EventTotalCount() (int64, errors.EdgeX) {
 	return getTotalRowsCount(context.Background(), c.ConnPool, sqlQueryCountEvent())
 }
 
-// EventCountByDeviceName returns the count of Event associated a specific Device from db
-func (c *Client) EventCountByDeviceName(deviceName string) (int64, errors.EdgeX) {
-	sqlStatement := sqlQueryCountEventByCol(deviceNameCol)
+// EventCountByNodeName returns the count of Event associated a specific Node from db
+func (c *Client) EventCountByNodeName(nodeName string) (int64, errors.EdgeX) {
+	sqlStatement := sqlQueryCountEventByCol(nodeNameCol)
 
-	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{deviceNameCol: deviceName})
+	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{nodeNameCol: nodeName})
 }
 
 // EventCountByTimeRange returns the count of Event by time range from db
@@ -139,22 +139,22 @@ func (c *Client) EventCountByTimeRange(start int64, end int64) (int64, errors.Ed
 	return getTotalRowsCount(context.Background(), c.ConnPool, sqlQueryCountEventByTimeRangeCol(originCol, nil), pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end})
 }
 
-// EventCountByDeviceNameAndSourceNameAndLimit returns the count of Event by deviceName, resourceName, and limit from db
+// EventCountByNodeNameAndSourceNameAndLimit returns the count of Event by nodeName, resourceName, and limit from db
 // this is used to check whether the event number is reach the event retention maxCap
-func (c *Client) EventCountByDeviceNameAndSourceNameAndLimit(deviceName, sourceName string, limit int) (int64, errors.EdgeX) {
-	sqlStatement := sqlCountEventByDeviceNameAndSourceNameAndLimit()
-	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{deviceNameCol: deviceName, sourceNameCol: sourceName, limitCondition: limit})
+func (c *Client) EventCountByNodeNameAndSourceNameAndLimit(nodeName, sourceName string, limit int) (int64, errors.EdgeX) {
+	sqlStatement := sqlCountEventByNodeNameAndSourceNameAndLimit()
+	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{nodeNameCol: nodeName, sourceNameCol: sourceName, limitCondition: limit})
 }
 
-// EventsByDeviceName query events by offset, limit and device name
-func (c *Client) EventsByDeviceName(offset int, limit int, name string) ([]model.Event, errors.EdgeX) {
+// EventsByNodeName query events by offset, limit and node name
+func (c *Client) EventsByNodeName(offset int, limit int, name string) ([]model.Event, errors.EdgeX) {
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
-	sqlStatement := sqlQueryAllEventAndDescWithCondsAndPage(originCol, deviceNameCol)
+	sqlStatement := sqlQueryAllEventAndDescWithCondsAndPage(originCol, nodeNameCol)
 
-	events, err := queryEvents(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{deviceNameCol: name, offsetCondition: offset, limitCondition: validLimit})
+	events, err := queryEvents(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{nodeNameCol: name, offsetCondition: offset, limitCondition: validLimit})
 	if err != nil {
-		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError, fmt.Sprintf("failed to query events by device '%s'", name), err)
+		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError, fmt.Sprintf("failed to query events by node '%s'", name), err)
 	}
 	return events, nil
 }
@@ -200,40 +200,40 @@ func (c *Client) DeleteEventById(id string) errors.EdgeX {
 	return nil
 }
 
-// DeleteEventsByDeviceName deletes specific device's events and corresponding readings
+// DeleteEventsByNodeName deletes specific node's events and corresponding readings
 // This function is implemented to starts up two goroutines to delete readings and events in the background to achieve better performance
-func (c *Client) DeleteEventsByDeviceName(deviceName string) errors.EdgeX {
-	// update deviceInfo as deletable, then event and reading will not return when the user query event or reading by the specific device
-	if err := c.updateDeviceInfosDeletableByDeviceName(deviceName); err != nil {
-		return errors.NewCommonEdgeX(errors.Kind(err), "delete events by deviceName", err)
+func (c *Client) DeleteEventsByNodeName(nodeName string) errors.EdgeX {
+	// update nodeInfo as deletable, then event and reading will not return when the user query event or reading by the specific node
+	if err := c.updateNodeInfosDeletableByNodeName(nodeName); err != nil {
+		return errors.NewCommonEdgeX(errors.Kind(err), "delete events by nodeName", err)
 	}
-	// delete events, readings, deviceInfos
-	if err := c.deleteEventsByConditions([]string{deviceNameCol}, pgx.NamedArgs{deviceNameCol: deviceName}); err != nil {
-		return errors.NewCommonEdgeX(errors.Kind(err), "delete events by deviceName", err)
+	// delete events, readings, nodeInfos
+	if err := c.deleteEventsByConditions([]string{nodeNameCol}, pgx.NamedArgs{nodeNameCol: nodeName}); err != nil {
+		return errors.NewCommonEdgeX(errors.Kind(err), "delete events by nodeName", err)
 	}
 	return nil
 }
 
-// DeleteEventsByDeviceNameAndSourceName deletes specific device's events and corresponding readings
-func (c *Client) DeleteEventsByDeviceNameAndSourceName(deviceName, sourceName string) errors.EdgeX {
-	return c.deleteEventsByConditions([]string{deviceNameCol, sourceNameCol}, pgx.NamedArgs{deviceNameCol: deviceName, sourceNameCol: sourceName})
+// DeleteEventsByNodeNameAndSourceName deletes specific node's events and corresponding readings
+func (c *Client) DeleteEventsByNodeNameAndSourceName(nodeName, sourceName string) errors.EdgeX {
+	return c.deleteEventsByConditions([]string{nodeNameCol, sourceNameCol}, pgx.NamedArgs{nodeNameCol: nodeName, sourceNameCol: sourceName})
 }
 
-// deleteEventsByConditions deletes specific device's events and corresponding readings
+// deleteEventsByConditions deletes specific node's events and corresponding readings
 func (c *Client) deleteEventsByConditions(cols []string, values pgx.NamedArgs) errors.EdgeX {
 	ctx := context.Background()
 
 	sqlStatement := sqlDeleteEventsByColumn(cols...)
 
 	go func() {
-		// deviceInfos are used to remove data by id and remove the id value from the cache after finishing the transaction
-		deviceInfos, err := c.deviceInfosByConds(cols, values)
+		// nodeInfos are used to remove data by id and remove the id value from the cache after finishing the transaction
+		nodeInfos, err := c.nodeInfosByConds(cols, values)
 		if err != nil {
 			return
 		}
 		// delete events and readings in a transaction
 		pgxErr := pgx.BeginFunc(ctx, c.ConnPool, func(tx pgx.Tx) error {
-			// select the event-ids of the specified device name from event table as the sub-query of deleting readings
+			// select the event-ids of the specified node name from event table as the sub-query of deleting readings
 			subSqlStatement := sqlQueryEventIdFieldsByCol(cols...)
 			if err = deleteReadingsBySubQuery(ctx, tx, subSqlStatement, values); err != nil {
 				if errors.Kind(err) == errors.KindEntityDoesNotExist {
@@ -254,8 +254,8 @@ func (c *Client) deleteEventsByConditions(cols []string, values pgx.NamedArgs) e
 				}
 			}
 
-			for _, deviceInfo := range deviceInfos {
-				err = deleteDeviceInfoById(ctx, tx, deviceInfo.Id)
+			for _, nodeInfo := range nodeInfos {
+				err = deleteNodeInfoById(ctx, tx, nodeInfo.Id)
 				if err != nil {
 					return errors.NewCommonEdgeXWrapper(err)
 				}
@@ -267,9 +267,9 @@ func (c *Client) deleteEventsByConditions(cols []string, values pgx.NamedArgs) e
 			return
 		}
 
-		deviceInfoCache := container.DeviceInfoCacheFrom(c.dic.Get)
-		for _, deviceInfo := range deviceInfos {
-			deviceInfoCache.Remove(deviceInfo)
+		nodeInfoCache := container.NodeInfoCacheFrom(c.dic.Get)
+		for _, nodeInfo := range nodeInfos {
+			nodeInfoCache.Remove(nodeInfo)
 		}
 	}()
 
@@ -282,10 +282,10 @@ func (c *Client) DeleteEventsByAge(age int64) errors.EdgeX {
 	return c.deleteEventsByAgeAndConditions(age, nil, nil)
 }
 
-// DeleteEventsByAgeAndDeviceNameAndSourceName deletes events and their corresponding readings that are older than age
+// DeleteEventsByAgeAndNodeNameAndSourceName deletes events and their corresponding readings that are older than age
 // This function is implemented to starts up two goroutines to delete readings and events in the background to achieve better performance
-func (c *Client) DeleteEventsByAgeAndDeviceNameAndSourceName(age int64, deviceName, sourceName string) errors.EdgeX {
-	return c.deleteEventsByAgeAndConditions(age, []string{deviceNameCol, sourceNameCol}, pgx.NamedArgs{deviceNameCol: deviceName, sourceNameCol: sourceName})
+func (c *Client) DeleteEventsByAgeAndNodeNameAndSourceName(age int64, nodeName, sourceName string) errors.EdgeX {
+	return c.deleteEventsByAgeAndConditions(age, []string{nodeNameCol, sourceNameCol}, pgx.NamedArgs{nodeNameCol: nodeName, sourceNameCol: sourceName})
 }
 
 // deleteEventsByAgeAndConditions deletes events and their corresponding readings that are older than age
@@ -377,7 +377,7 @@ func deleteEvents(ctx context.Context, tx pgx.Tx, sqlStatement string, args pgx.
 	return nil
 }
 
-func (c *Client) LatestEventByDeviceNameAndSourceNameAndOffset(deviceName, sourceName string, offset int64) (model.Event, errors.EdgeX) {
+func (c *Client) LatestEventByNodeNameAndSourceNameAndOffset(nodeName, sourceName string, offset int64) (model.Event, errors.EdgeX) {
 	ctx := context.Background()
 
 	if err := validateDatabaseOffset(offset); err != nil {
@@ -386,8 +386,8 @@ func (c *Client) LatestEventByDeviceNameAndSourceNameAndOffset(deviceName, sourc
 
 	events, err := queryEvents(
 		ctx, c.ConnPool,
-		sqlQueryAllEventAndDescWithCondsAndPage(originCol, deviceNameCol, sourceNameCol),
-		pgx.NamedArgs{deviceNameCol: deviceName, sourceNameCol: sourceName, offsetCondition: offset, limitCondition: 1},
+		sqlQueryAllEventAndDescWithCondsAndPage(originCol, nodeNameCol, sourceNameCol),
+		pgx.NamedArgs{nodeNameCol: nodeName, sourceNameCol: sourceName, offsetCondition: offset, limitCondition: 1},
 	)
 	if err != nil {
 		return model.Event{}, errors.NewCommonEdgeX(errors.KindDatabaseError, "failed to query all events", err)
@@ -399,8 +399,8 @@ func (c *Client) LatestEventByDeviceNameAndSourceNameAndOffset(deviceName, sourc
 	return events[0], nil
 }
 
-// LatestEventByDeviceNameAndSourceNameAndAgeAndOffset query an event with specified conditions and age and offset
-func (c *Client) LatestEventByDeviceNameAndSourceNameAndAgeAndOffset(deviceName, sourceName string, age int64, offset int64) (model.Event, errors.EdgeX) {
+// LatestEventByNodeNameAndSourceNameAndAgeAndOffset query an event with specified conditions and age and offset
+func (c *Client) LatestEventByNodeNameAndSourceNameAndAgeAndOffset(nodeName, sourceName string, age int64, offset int64) (model.Event, errors.EdgeX) {
 	ctx := context.Background()
 
 	if err := validateDatabaseOffset(offset); err != nil {
@@ -409,12 +409,12 @@ func (c *Client) LatestEventByDeviceNameAndSourceNameAndAgeAndOffset(deviceName,
 
 	expireTimestamp := time.Now().UnixNano() - age
 
-	sqlStmt := sqlQueryAllEventAndDescWithCondsAndPagAndUpperLimitTime(originCol, originCol, deviceNameCol, sourceNameCol)
+	sqlStmt := sqlQueryAllEventAndDescWithCondsAndPagAndUpperLimitTime(originCol, originCol, nodeNameCol, sourceNameCol)
 	events, err := queryEvents(
 		ctx, c.ConnPool, sqlStmt,
 		pgx.NamedArgs{
 			endTimeCondition: expireTimestamp,
-			deviceNameCol:    deviceName, sourceNameCol: sourceName,
+			nodeNameCol:      nodeName, sourceNameCol: sourceName,
 			offsetCondition: offset, limitCondition: 1},
 	)
 	if err != nil {

@@ -24,17 +24,17 @@ func SubscribeSystemEvents(ctx context.Context, dic *di.Container) errors.EdgeX 
 	configuration := dataContainer.ConfigurationFrom(dic.Get)
 	messageBusInfo := dataContainer.ConfigurationFrom(dic.Get).MessageBus
 
-	// device deletion event edgex/system-events/core-metadata/device/delete/<device name>/<device profile name>
-	deviceDeletionSystemEventTopic := common.NewPathBuilder().EnableNameFieldEscape(configuration.Service.EnableNameFieldEscape).
+	// node deletion event edgex/system-events/core-metadata/node/delete/<node name>/<node profile name>
+	nodeDeletionSystemEventTopic := common.NewPathBuilder().EnableNameFieldEscape(configuration.Service.EnableNameFieldEscape).
 		SetPath(messageBusInfo.GetBaseTopicPrefix()).SetPath(common.SystemEventPublishTopic).SetPath(common.CoreMetaDataServiceKey).
-		SetPath(common.DeviceSystemEventType).SetPath("#").BuildPath()
-	lc.Infof("Subscribing to System Events on topic: %s", deviceDeletionSystemEventTopic)
+		SetPath(common.NodeSystemEventType).SetPath("#").BuildPath()
+	lc.Infof("Subscribing to System Events on topic: %s", nodeDeletionSystemEventTopic)
 
 	messages := make(chan types.MessageEnvelope, 1)
 	messageErrors := make(chan error, 1)
 	topics := []types.TopicChannel{
 		{
-			Topic:    deviceDeletionSystemEventTopic,
+			Topic:    nodeDeletionSystemEventTopic,
 			Messages: messages,
 		},
 	}
@@ -49,7 +49,7 @@ func SubscribeSystemEvents(ctx context.Context, dic *di.Container) errors.EdgeX 
 		for {
 			select {
 			case <-ctx.Done():
-				lc.Infof("Exiting waiting for MessageBus '%s' topic messages", deviceDeletionSystemEventTopic)
+				lc.Infof("Exiting waiting for MessageBus '%s' topic messages", nodeDeletionSystemEventTopic)
 				return
 			case err = <-messageErrors:
 				lc.Error(err.Error())
@@ -63,8 +63,8 @@ func SubscribeSystemEvents(ctx context.Context, dic *di.Container) errors.EdgeX 
 				}
 
 				switch systemEvent.Type {
-				case common.DeviceSystemEventType:
-					err = deviceSystemEventAction(systemEvent, dic)
+				case common.NodeSystemEventType:
+					err = nodeSystemEventAction(systemEvent, dic)
 					if err != nil {
 						lc.Error(err.Error(), common.CorrelationHeader, msgEnvelope.CorrelationID)
 					}
@@ -76,35 +76,35 @@ func SubscribeSystemEvents(ctx context.Context, dic *di.Container) errors.EdgeX 
 	return nil
 }
 
-func deviceSystemEventAction(systemEvent dtos.SystemEvent, dic *di.Container) error {
-	var device dtos.Device
-	err := systemEvent.DecodeDetails(&device)
+func nodeSystemEventAction(systemEvent dtos.SystemEvent, dic *di.Container) error {
+	var node dtos.Node
+	err := systemEvent.DecodeDetails(&node)
 	if err != nil {
 		return fmt.Errorf("failed to decode %s system event details: %s", systemEvent.Type, err.Error())
 	}
 
 	lc := bootstrapContainer.LoggingClientFrom(dic.Get)
-	deviceStore := dataContainer.DeviceStoreFrom(dic.Get)
+	nodeStore := dataContainer.NodeStoreFrom(dic.Get)
 	switch systemEvent.Action {
 	case common.SystemEventActionAdd:
-		deviceStore.Add(dtos.ToDeviceModel(device))
+		nodeStore.Add(dtos.ToNodeModel(node))
 
 	case common.SystemEventActionUpdate:
-		deviceStore.Remove(device.Name)
-		deviceStore.Add(dtos.ToDeviceModel(device))
+		nodeStore.Remove(node.Name)
+		nodeStore.Add(dtos.ToNodeModel(node))
 
 	case common.SystemEventActionDelete:
-		deviceStore.Remove(device.Name)
+		nodeStore.Remove(node.Name)
 
 		if !dataContainer.ConfigurationFrom(dic.Get).Writable.EventPurge {
 			return nil
 		}
-		lc.Debugf("Device '%s' is deleted, try to remove related events and readings.", device.Name)
-		err = application.CoreDataAppFrom(dic.Get).DeleteEventsByDeviceName(device.Name, dic)
+		lc.Debugf("Node '%s' is deleted, try to remove related events and readings.", node.Name)
+		err = application.CoreDataAppFrom(dic.Get).DeleteEventsByNodeName(node.Name, dic)
 		if err != nil {
 			return errors.NewCommonEdgeXWrapper(err)
 		}
-		lc.Debugf("Events and readings are removed for the Device '%s'.", device.Name)
+		lc.Debugf("Events and readings are removed for the Node '%s'.", node.Name)
 	}
 	return nil
 }

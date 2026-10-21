@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Edgex Foundry - Core Data API
-  description: This is the definition of the API for the Core Data service in the EdgeX Foundry IOT microservice platform. Core Data is responsible for storing event and reading data ingested from edge devices in the environment.
+  description: This is the definition of the API for the Core Data service in the EdgeX Foundry IOT microservice platform. Core Data is responsible for storing event and reading data ingested from edge nodes in the environment.
   version: 4.0.0
   
 servers:
@@ -25,16 +25,16 @@ components:
       type: object
       properties:
         origin:
-          description: "A Unix timestamp (nanoseconds) indicating when the reading was originated at the source device"
+          description: "A Unix timestamp (nanoseconds) indicating when the reading was originated at the source node"
           type: integer
-        deviceName:
-          description: "The name of the device from which the reading originated"
+        nodeName:
+          description: "The name of the node from which the reading originated"
           type: string
         resourceName:
-          description: "The device resource name for the reading"
+          description: "The node resource name for the reading"
           type: string
         profileName:
-          description: "The device profile name for the reading"
+          description: "The node profile name for the reading"
           type: string
         valueType:
           description: "Indicates the datatype of the value property"
@@ -150,17 +150,17 @@ components:
           description: "The unique identifier for the event"
           type: string
           format: uuid
-        deviceName:
-          description: "The name of the device from which the event originated"
+        nodeName:
+          description: "The name of the node from which the event originated"
           type: string
         profileName:
-          description: "The name of the device profile from which the event originated"
+          description: "The name of the node profile from which the event originated"
           type: string
         sourceName:
-          description: "SourceName indicates the name of the resource or device command in the device profile which describes the event to generate"
+          description: "SourceName indicates the name of the resource or node command in the node profile which describes the event to generate"
           type: string
         origin:
-          description: "A Unix timestamp (nanoseconds) indicating when the event was originated at the source device"
+          description: "A Unix timestamp (nanoseconds) indicating when the event was originated at the source node"
           type: integer
         readings:
           description: "One or more readings captured at the time of the event"
@@ -169,8 +169,8 @@ components:
             $ref: '#/components/schemas/Reading'
           example: [
             {
-                "deviceName": "Random-Boolean-Device",
-                "profileName": "Random-Boolean-Device",
+                "nodeName": "Random-Boolean-Node",
+                "profileName": "Random-Boolean-Node",
                 "resourceName": "Bool",
                 "origin": 1692721935934211905,
                 "valueType": "Bool",
@@ -196,7 +196,7 @@ components:
           }
       required:
         - id
-        - deviceName
+        - nodeName
         - profileName
         - sourceName
         - origin
@@ -413,7 +413,7 @@ components:
         event:
           apiVersion: "v3"
           id: "040bd523-ec33-440d-9d72-e5813a465f37"
-          deviceName: "device-001"
+          nodeName: "node-001"
           profileName: "profile-001"
           sourceName: "source-1"
           origin: 1602168089665565300
@@ -428,7 +428,7 @@ components:
               minute: 31.0
               second: 19.600799999980154
           readings:
-            - deviceName: "device-001"
+            - nodeName: "node-001"
               resourceName: "resource-001"
               profileName: "profile-001"
               modified: 1594975851631
@@ -436,7 +436,7 @@ components:
               valueType: "Float32"
               value: "39.5"
             - create: 1594876281221
-              deviceName: "device-001"
+              nodeName: "node-001"
               resourceName: "resource-001"
               profileName: "profile-001"
               origin: 1602168089665565300
@@ -450,7 +450,7 @@ components:
         events: 
           - apiVersion: "v3"
             id: "040bd523-ec33-440d-9d72-e5813a465f37"
-            deviceName: "device-001"
+            nodeName: "node-001"
             profileName: "profile-001"
             sourceName: "source-1"
             origin: 1602168089665565300
@@ -465,7 +465,7 @@ components:
                 minute: 31.0
                 second: 19.600799999980154
             readings:
-              - deviceName: "device-001"
+              - nodeName: "node-001"
                 resourceName: "resource-001"
                 profileName: "profile-001"
                 modified: 1594975851631
@@ -473,27 +473,27 @@ components:
                 valueType: "Float32"
                 value: "39.5"
               - create: 1594876281221
-                deviceName: "device-001"
+                nodeName: "node-001"
                 resourceName: "resource-001"
                 profileName: "profile-001"
                 origin: 1602168089665565300
                 valueType: "Int8"
                 value: "75"
           - apiVersion: "v3"
-            deviceName: "device-002"
+            nodeName: "node-002"
             profileName: "profile-002"
             sourceName: "source-2"
             id: "73fc4f9c-2d64-4920-addb-b1f33a8f8514"
             origin: 1602168089665565300
             readings:
-              - deviceName: "device-002"
+              - nodeName: "node-002"
                 resourceName: "resource-002"
                 profileName: "profile-002"
                 origin: 1602168089665565300
                 valueType: "Binary"
                 binaryValue: [12,34]
                 mediaType: "image"
-              - deviceName: "device-002"
+              - nodeName: "node-002"
                 resourceName: "resource-003"
                 profileName: "profile-002"
                 origin: 1602168089665565300
@@ -503,13 +503,13 @@ components:
                   Attr2: -45
                   Attr3: [ 255, 1, 0 ]
           - apiVersion: "v3"
-            deviceName: "device-002"
+            nodeName: "node-002"
             profileName: "profile-002"
             sourceName: "source-3"
             id: "d5471d59-2810-419a-8744-18eb8fa03465"
             origin: 1602168089665565300
             readings:
-              - deviceName: "device-002"
+              - nodeName: "node-002"
                 resourceName: "resource-002"
                 profileName: "profile-002"
                 origin: 1602168089665565300
@@ -521,34 +521,34 @@ components:
         statusCode: 200
         totalCount: 5
         readings:
-          - deviceName: "Random-Boolean-Device"
+          - nodeName: "Random-Boolean-Node"
             resourceName: "Bool"
-            profileName: "Random-Boolean-Device"
+            profileName: "Random-Boolean-Node"
             origin: 1602168089665565300
             valueType: "Bool"
             value: "false"
-          - deviceName: "Random-Integer-Device"
+          - nodeName: "Random-Integer-Node"
             resourceName: "Int8"
-            profileName: "Random-Integer-Device"
+            profileName: "Random-Integer-Node"
             origin: 1602168089665565300
             valueType: "Int8"
             value: "75" 
-          - deviceName: "Random-Binary-Device"
+          - nodeName: "Random-Binary-Node"
             resourceName: "resource-002"
-            profileName: "Random-Binary-Device"
+            profileName: "Random-Binary-Node"
             origin: 1602168089665565300
             valueType: "Binary"
             binaryValue: [12,34]
             mediaType: "image"
-          - deviceName: "Random-Float-Device"
+          - nodeName: "Random-Float-Node"
             resourceName: "Float32"
-            profileName: "Random-Float-Device"
+            profileName: "Random-Float-Node"
             origin: 1602168089665565300
             valueType: "Float32"
             value: "12.2"
-          - deviceName: "Random-UnsignedInteger-Device"
+          - nodeName: "Random-UnsignedInteger-Node"
             resourceName: "Uint8"
-            profileName: "Random-UnsignedInteger-Device"
+            profileName: "Random-UnsignedInteger-Node"
             origin: 1602168089665565300
             valueType: "Uint8"
             value: "77"
@@ -558,19 +558,19 @@ components:
         statusCode: 200
         aggregateFunc: SUM
         readings:
-          - deviceName: "Random-Integer-Device"
+          - nodeName: "Random-Integer-Node"
             resourceName: "Int8"
-            profileName: "Random-Integer-Device"
+            profileName: "Random-Integer-Node"
             valueType: "Int64"
             value: 75
-          - deviceName: "Random-Float-Device"
+          - nodeName: "Random-Float-Node"
             resourceName: "Float32"
-            profileName: "Random-Float-Device"
+            profileName: "Random-Float-Node"
             valueType: "Float64"
             value: 112.2
-          - deviceName: "Random-String-Device"
+          - nodeName: "Random-String-Node"
             resourceName: "String"
-            profileName: "Random-String-Device"
+            profileName: "Random-String-Node"
             valueType: "String"
             value: ""
     AggReadingsByResourceNameExample:
@@ -579,41 +579,41 @@ components:
         statusCode: 200
         aggregateFunc: AVG
         readings:
-          - deviceName: "Random-Integer-Device"
+          - nodeName: "Random-Integer-Node"
             resourceName: "Int8"
-            profileName: "Random-Integer-Device"
+            profileName: "Random-Integer-Node"
             valueType: "Float64"
             value: 75.24
-          - deviceName: "Random-Integer-Device-2"
+          - nodeName: "Random-Integer-Node-2"
             resourceName: "Int8"
-            profileName: "Random-Integer-Device-2"
+            profileName: "Random-Integer-Node-2"
             valueType: "Float64"
             value: 115.23
-    AggReadingsByDeviceNameExample:
+    AggReadingsByNodeNameExample:
       value:
         apiVersion: "v3"
         statusCode: 200
         aggregateFunc: SUM
         readings:
-          - deviceName: "Random-Integer-Device"
+          - nodeName: "Random-Integer-Node"
             resourceName: "Int8"
-            profileName: "Random-Integer-Device"
+            profileName: "Random-Integer-Node"
             valueType: "Int64"
             value: 75
-          - deviceName: "Random-Integer-Device"
+          - nodeName: "Random-Integer-Node"
             resourceName: "Int16"
-            profileName: "Random-Integer-Device"
+            profileName: "Random-Integer-Node"
             valueType: "Int64"
             value: 25375
-    AggReadingsByDeviceAndResourceExample:
+    AggReadingsByNodeAndResourceExample:
       value:
         apiVersion: "v3"
         statusCode: 200
         aggregateFunc: SUM
         readings:
-          - deviceName: "Random-Integer-Device"
+          - nodeName: "Random-Integer-Node"
             resourceName: "Int8"
-            profileName: "Random-Integer-Device"
+            profileName: "Random-Integer-Node"
             valueType: "Int64"
             value: 75
     ReadingsByResourceNameAndTimeRangeExample:
@@ -622,13 +622,13 @@ components:
         statusCode: 200
         totalCount: 6
         readings:
-          - deviceName: "device-001"
+          - nodeName: "node-001"
             resourceName: "resource-001"
             profileName: "profile-001"
             origin: 1602168089665565300
             valueType: "Float32"
             value: "39.5"
-          - deviceName: "device-001"
+          - nodeName: "node-001"
             resourceName: "resource-001"
             profileName: "profile-001"
             origin: 1602168089665565300
@@ -640,7 +640,7 @@ components:
         statusCode: 200
         count: 3
 paths:
-  /event/{serviceName}/{profileName}/{deviceName}/{sourceName}:
+  /event/{serviceName}/{profileName}/{nodeName}/{sourceName}:
     parameters:
     - $ref: '#/components/parameters/correlatedRequestHeader'
     - name: serviceName
@@ -648,19 +648,19 @@ paths:
       required: true
       schema:
         type: string
-      description: "Identifies the device service generating the new event"
+      description: "Identifies the node service generating the new event"
     - name: profileName
       in: path
       required: true
       schema:
         type: string
-      description: "Uniquely identifies a given device profile"
-    - name: deviceName
+      description: "Uniquely identifies a given node profile"
+    - name: nodeName
       in: path
       required: true
       schema:
         type: string
-      description: "Uniquely identifies a given device"
+      description: "Uniquely identifies a given node"
     - name: sourceName
       in: path
       required: true
@@ -668,7 +668,7 @@ paths:
         type: string
       description: "The sourceName is the name of the source that created the Event (ResourceName or CommandName)"
     post:
-      summary: "Allows for the ingestion of event/reading data, and the deviceName and profileName of Event must match to the given deviceName and profileName as specified in the path"
+      summary: "Allows for the ingestion of event/reading data, and the nodeName and profileName of Event must match to the given nodeName and profileName as specified in the path"
       requestBody:
         required: true
         content:
@@ -679,8 +679,8 @@ paths:
               apiVersion: v3
               event:
                 apiVersion: v3
-                deviceName: Random-Boolean-Device
-                profileName: Random-Boolean-Device
+                nodeName: Random-Boolean-Node
+                profileName: Random-Boolean-Node
                 sourceName: Bool
                 id: 563513b3-f020-46fa-ae44-0fdd1d129185
                 origin: 1692721935934211905
@@ -695,9 +695,9 @@ paths:
                     minute: 31.0
                     second: 19.600799999980154
                 readings:
-                  - deviceName: Random-Boolean-Device
+                  - nodeName: Random-Boolean-Node
                     resourceName: Bool
-                    profileName: Random-Boolean-Device
+                    profileName: Random-Boolean-Node
                     origin: 1692721935934211905
                     valueType: Bool
                     value: 'false'
@@ -926,7 +926,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /event/count/device/name/{name}:
+  /event/count/node/name/{name}:
     parameters:
     - $ref: '#/components/parameters/correlatedRequestHeader'
     - name: name
@@ -934,9 +934,9 @@ paths:
       required: true
       schema:
         type: string
-      description: "Uniquely identifies a given device"
+      description: "Uniquely identifies a given node"
     get:
-      summary: "Return a count of all of events currently stored in the database, sourced from the specified device."
+      summary: "Return a count of all of events currently stored in the database, sourced from the specified node."
       responses:
         '200':
           description: "OK"
@@ -974,9 +974,9 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /event/device/name/{name}:
+  /event/node/name/{name}:
     get:
-      summary: "Given the entire range of events sorted by origin descending, returns a portion of that range according to the device name, offset and limit parameters."
+      summary: "Given the entire range of events sorted by origin descending, returns a portion of that range according to the node name, offset and limit parameters."
       parameters:
         - $ref: '#/components/parameters/correlatedRequestHeader'
         - name: name
@@ -984,7 +984,7 @@ paths:
           required: true
           schema:
             type: string
-          description: "Uniquely identifies a given device"
+          description: "Uniquely identifies a given node"
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/limitParam'
         - $ref: '#/components/parameters/numericParam'
@@ -1042,7 +1042,7 @@ paths:
                 500Example:
                   $ref: '#/components/examples/500Example'
     delete:
-      summary: "Deletes all events for the specified device"
+      summary: "Deletes all events for the specified node"
       parameters:
         - $ref: '#/components/parameters/correlatedRequestHeader'
         - name: name
@@ -1050,7 +1050,7 @@ paths:
           required: true
           schema:
             type: string
-          description: "Uniquely identifies a given device"
+          description: "Uniquely identifies a given node"
       responses:
         '202':
           description: "Delete request accepted"
@@ -1291,7 +1291,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /reading/count/device/name/{name}:
+  /reading/count/node/name/{name}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -1299,9 +1299,9 @@ paths:
         required: true
         schema:
           type: string
-        description: "Uniquely identifies a given device"
+        description: "Uniquely identifies a given node"
     get:
-      summary: "Return a count of all of readings currently stored in the database, sourced from the specified device."
+      summary: "Return a count of all of readings currently stored in the database, sourced from the specified node."
       responses:
         '200':
           description: "OK"
@@ -1339,7 +1339,7 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /reading/device/name/{name}:
+  /reading/node/name/{name}:
     parameters:
     - $ref: '#/components/parameters/correlatedRequestHeader'
     - name: name
@@ -1347,13 +1347,13 @@ paths:
       required: true
       schema:
         type: string
-      description: "Uniquely identifies a given device"
+      description: "Uniquely identifies a given node"
     - $ref: '#/components/parameters/offsetParam'
     - $ref: '#/components/parameters/limitParam'
     - $ref: '#/components/parameters/numericParam'
     - $ref: '#/components/parameters/aggregateFuncParam'
     get:
-      summary: "Given a range of readings from the specified device sorted by origin descending, returns a portion of that range according to the device name, offset and limit parameters."
+      summary: "Given a range of readings from the specified node sorted by origin descending, returns a portion of that range according to the node name, offset and limit parameters."
       responses:
         '200':
           description: "OK"
@@ -1367,8 +1367,8 @@ paths:
               examples:
                 MultiReadingsExample:
                   $ref: '#/components/examples/AllReadingsExample'
-                MultiAggReadingsByDeviceExample:
-                  $ref: '#/components/examples/AggReadingsByDeviceNameExample'
+                MultiAggReadingsByNodeExample:
+                  $ref: '#/components/examples/AggReadingsByNodeNameExample'
         '400':
           description: "Request is in an invalid state"
           headers:
@@ -1415,7 +1415,7 @@ paths:
       required: true
       schema:
         type: string
-      description: The device resource name of readings.
+      description: The node resource name of readings.
     - $ref: '#/components/parameters/offsetParam'
     - $ref: '#/components/parameters/limitParam'
     - $ref: '#/components/parameters/numericParam'
@@ -1477,27 +1477,27 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /reading/device/name/{deviceName}/resourceName/{resourceName}:
+  /reading/node/name/{nodeName}/resourceName/{resourceName}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
-      - name: deviceName
+      - name: nodeName
         in: path
         required: true
         schema:
           type: string
-        description: "The device name name of readings"
+        description: "The node name name of readings"
       - name: resourceName
         in: path
         required: true
         schema:
           type: string
-        description: The device resource name of readings.
+        description: The node resource name of readings.
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
       - $ref: '#/components/parameters/numericParam'
       - $ref: '#/components/parameters/aggregateFuncParam'
     get:
-      summary: "Returns a paginated range of readings by deviceName and resourceName"
+      summary: "Returns a paginated range of readings by nodeName and resourceName"
       responses:
         '200':
           description: "OK"
@@ -1511,8 +1511,8 @@ paths:
               examples:
                 MultiReadingsExample:
                   $ref: '#/components/examples/AllReadingsExample'
-                MultiAggReadingsByDeviceAndResourceExample:
-                  $ref: '#/components/examples/AggReadingsByDeviceAndResourceExample'
+                MultiAggReadingsByNodeAndResourceExample:
+                  $ref: '#/components/examples/AggReadingsByNodeAndResourceExample'
         '400':
           description: "Request is in an invalid state."
           headers:
@@ -1637,7 +1637,7 @@ paths:
         required: true
         schema:
           type: string
-        description: "The device resource name of readings"
+        description: "The node resource name of readings"
       - name: start
         in: path
         required: true
@@ -1711,21 +1711,21 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /reading/device/name/{deviceName}/resourceName/{resourceName}/start/{start}/end/{end}:
+  /reading/node/name/{nodeName}/resourceName/{resourceName}/start/{start}/end/{end}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
-      - name: deviceName
+      - name: nodeName
         in: path
         required: true
         schema:
           type: string
-        description: "The device name name of readings"
+        description: "The node name name of readings"
       - name: resourceName
         in: path
         required: true
         schema:
           type: string
-        description: "The device resource name of readings"
+        description: "The node resource name of readings"
       - name: start
         in: path
         required: true
@@ -1743,7 +1743,7 @@ paths:
       - $ref: '#/components/parameters/numericParam'
       - $ref: '#/components/parameters/aggregateFuncParam'
     get:
-      summary: "Return a paginated range of readings by deviceName, resourceName and specified time range."
+      summary: "Return a paginated range of readings by nodeName, resourceName and specified time range."
       responses:
         '200':
           description: "OK"
@@ -1757,8 +1757,8 @@ paths:
               examples:
                 MultiReadingsExample:
                   $ref: '#/components/examples/ReadingsByResourceNameAndTimeRangeExample'
-                MultiAggReadingsByDeviceAndResourceExample:
-                  $ref: '#/components/examples/AggReadingsByDeviceAndResourceExample'
+                MultiAggReadingsByNodeAndResourceExample:
+                  $ref: '#/components/examples/AggReadingsByNodeAndResourceExample'
         '400':
           description: "Request is in an invalid state."
           headers:
@@ -1799,15 +1799,15 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'
-  /reading/device/name/{deviceName}/start/{start}/end/{end}:
+  /reading/node/name/{nodeName}/start/{start}/end/{end}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
-      - name: deviceName
+      - name: nodeName
         in: path
         required: true
         schema:
           type: string
-        description: "The device name name of readings"
+        description: "The node name name of readings"
       - name: start
         in: path
         required: true
@@ -1825,7 +1825,7 @@ paths:
       - $ref: '#/components/parameters/numericParam'
       - $ref: '#/components/parameters/aggregateFuncParam'
     get:
-      summary: "Return a paginated range of readings by deviceName and specified time range while also allowing multiple resource names specified in the request body as query criteria.  If resource names or request body is empty, return all the readings that meet deviceName and specified time range."
+      summary: "Return a paginated range of readings by nodeName and specified time range while also allowing multiple resource names specified in the request body as query criteria.  If resource names or request body is empty, return all the readings that meet nodeName and specified time range."
       responses:
         '200':
           description: "OK"
@@ -1839,8 +1839,8 @@ paths:
               examples:
                 MultiReadingsExample:
                   $ref: '#/components/examples/ReadingsByResourceNameAndTimeRangeExample'
-                MultiAggReadingsByDeviceExample:
-                  $ref: '#/components/examples/AggReadingsByDeviceNameExample'
+                MultiAggReadingsByNodeExample:
+                  $ref: '#/components/examples/AggReadingsByNodeNameExample'
         '400':
           description: "Request is in an invalid state."
           headers:
@@ -1908,7 +1908,7 @@ paths:
                     Type: "redis"
                     Topics:
                       PublishTopicPrefix: "edgex/events/core"
-                      SubscribeTopic: "edgex/events/device/#"
+                      SubscribeTopic: "edgex/events/node/#"
                     Optional:
                       AutoReconnect: "true"
                       ClientId: "core-data"

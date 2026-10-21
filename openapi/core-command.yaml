@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Edgex Foundry - Core Command API
-  description: This is the definition of the API for the Core Command service in the EdgeX Foundry IOT microservice platform. Core Command is responsible for storing command definitions and also for executing those commands as reads and writes against target devices.
+  description: This is the definition of the API for the Core Command service in the EdgeX Foundry IOT microservice platform. Core Command is responsible for storing command definitions and also for executing those commands as reads and writes against target nodes.
   version: 4.0.0
   
 servers:
@@ -36,10 +36,10 @@ components:
         totalCount:
           description: "The total count of all multi instances."
           type: integer
-    DeviceCoreCommand:
+    NodeCoreCommand:
       type: object
       properties:
-        deviceName:
+        nodeName:
           type: string
         profileName:
           type: string
@@ -99,24 +99,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CoreCommandParameter'
-    DeviceCoreCommandResponse:
+    NodeCoreCommandResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
-      description: "A response type for returning multiple DeviceCoreCommand to the caller."
+      description: "A response type for returning multiple NodeCoreCommand to the caller."
       type: object
       properties:
-        deviceCoreCommand:
-          $ref: '#/components/schemas/DeviceCoreCommand'
-    MultiDeviceCoreCommandsResponse:
+        nodeCoreCommand:
+          $ref: '#/components/schemas/NodeCoreCommand'
+    MultiNodeCoreCommandsResponse:
       allOf:
         - $ref: '#/components/schemas/BaseWithTotalCountResponse'
-      description: "A response type for returning multiple DeviceCoreCommand to the caller."
+      description: "A response type for returning multiple NodeCoreCommand to the caller."
       type: object
       properties:
-        deviceCoreCommands:
+        nodeCoreCommands:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceCoreCommand'
+            $ref: '#/components/schemas/NodeCoreCommand'
     ErrorResponse:
       allOf:
         - $ref: '#/components/schemas/BaseResponse'
@@ -127,7 +127,7 @@ components:
           description: "A field that can contain a free-form message, such as an error message."
           type: string            
     SettingRequest:
-      description: "Defines new values to be written to device resources, as part of an actuation (put) command to a device"
+      description: "Defines new values to be written to node resources, as part of an actuation (put) command to a node"
       additionalProperties:
         type: string
       title: Setting
@@ -153,16 +153,16 @@ components:
           description: "A Unix timestamp indicating when (if) the reading was initially persisted to a database."
           type: integer
         origin:
-          description: "A Unix timestamp indicating when the reading was originated at the source device (can support nanoseconds)"
+          description: "A Unix timestamp indicating when the reading was originated at the source node (can support nanoseconds)"
           type: integer
-        deviceName:
-          description: "The name of the device from which the reading originated"
+        nodeName:
+          description: "The name of the node from which the reading originated"
           type: string
         resourceName:
-          description: "The device resource name for the reading"
+          description: "The node resource name for the reading"
           type: string
         profileName:
-          description: "The device profile name for the reading"
+          description: "The node profile name for the reading"
           type: string
         valueType:
           description: "Indicates the datatype of the value property"
@@ -196,7 +196,7 @@ components:
             - Object
       required:
         - apiVersion
-        - deviceName
+        - nodeName
         - resourceName
         - profileName
         - origin
@@ -249,17 +249,17 @@ components:
           description: "The unique identifier for the event"
           type: string
           format: uuid
-        deviceName:
-          description: "The name of the device from which the event originated"
+        nodeName:
+          description: "The name of the node from which the event originated"
           type: string
         profileName:
-          description: "The name of the device profile from which the event originated"
+          description: "The name of the node profile from which the event originated"
           type: string
         created:
           description: "A Unix timestamp indicating when (if) the event was initially persisted to a database."
           type: integer
         origin:
-          description: "A Unix timestamp indicating when the event was originated at the source device (can support nanoseconds)"
+          description: "A Unix timestamp indicating when the event was originated at the source node (can support nanoseconds)"
           type: integer
         readings:
           description: "One or more readings captured at the time of the event"
@@ -281,7 +281,7 @@ components:
       required:
         - apiVersion
         - id
-        - deviceName
+        - nodeName
         - profileName
         - origin
         - readings
@@ -446,58 +446,58 @@ components:
         apiVersion: "v3"
         statusCode: 503
         message: "HTTP request timeout"
-    DeviceCoreCommandExample:
+    NodeCoreCommandExample:
       value:
         apiVersion: "v3"
         statusCode: 200
-        deviceCoreCommand:
-          deviceName: "testDevice"
+        nodeCoreCommand:
+          nodeName: "testNode"
           profileName: "testProfile"
           coreCommands:
             - name: "coolingpoint1"
               get: true
-              path: "/api/v3/device/name/testDevice/command/coolingpoint1"
+              path: "/api/v3/node/name/testNode/command/coolingpoint1"
               url: "http://localhost:59882"
               parameters: [ {"resourceName":"resource1","valueType":"Int32"} ]
             - name: "coolingpoint2"
               set: true
-              path: "/api/v3/device/name/testDevice/command/coolingpoint2"
+              path: "/api/v3/node/name/testNode/command/coolingpoint2"
               url: "http://localhost:59882"
               parameters: [ {"resourceName":"resource5","valueType":"String"},{"resourceName":"resource6","valueType":"Bool"}  ]
-    MultiDeviceCoreCommandsExample:
+    MultiNodeCoreCommandsExample:
       value:
         apiVersion: "v3"
         statusCode: 200
         totalCount: 3
-        deviceCoreCommands:
-          - deviceName: "testDevice1"
+        nodeCoreCommands:
+          - nodeName: "testNode1"
             profileName: "testProfile"
             coreCommands:
             - name: "coolingpoint1"
               get: true
-              path: "/api/v3/device/name/testDevice1/command/coolingpoint1"
+              path: "/api/v3/node/name/testNode1/command/coolingpoint1"
               url: "http://localhost:59882"
               parameters: [ {"resourceName":"resource1","valueType":"Int32"} ]
             - name: "coolingpoint2"
               set: true
-              path: "/api/v3/device/name/testDevice1/command/coolingpoint2"
+              path: "/api/v3/node/name/testNode1/command/coolingpoint2"
               url: "http://localhost:59882"
               parameters: [ {"resourceName":"resource2","valueType":"Int16"},{"resourceName":"resource3","valueType":"Int32"}  ]
-          - deviceName: "testDevice2"
+          - nodeName: "testNode2"
             profileName: "testProfile"
             coreCommands:
             - name: "coolingpoint1"
               get: true
-              path: "/api/v3/device/name/testDevice2/command/coolingpoint1"
+              path: "/api/v3/node/name/testNode2/command/coolingpoint1"
               url: "http://localhost:59882"
               parameters: [ {"resourceName":"resource4","valueType":"Int32"} ]
             - name: "coolingpoint2"
               set: true
-              path: "/api/v3/device/name/testDevice2/command/coolingpoint2"
+              path: "/api/v3/node/name/testNode2/command/coolingpoint2"
               url: "http://localhost:59882"
               parameters: [ {"resourceName":"resource5","valueType":"String"},{"resourceName":"resource6","valueType":"Bool"}  ]
 paths:
-  /device/name/{name}/{command}:
+  /node/name/{name}/{command}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -505,7 +505,7 @@ paths:
         required: true
         schema:
           type: string
-        description: "A name uniquely identifying a device."
+        description: "A name uniquely identifying a node."
       - name: command
         in: path
         required: true
@@ -513,7 +513,7 @@ paths:
           type: string
         description: "A name uniquely identifying a command."
     get:
-      summary: "Issue the specified read command referenced by the command name to the device/sensor that is also referenced by name."
+      summary: "Issue the specified read command referenced by the command name to the node/sensor that is also referenced by name."
       parameters:
         - $ref: '#/components/parameters/correlatedRequestHeader'
         - in: path
@@ -521,8 +521,8 @@ paths:
           required: true
           schema:
             type: string
-          example: Random-Boolean-Device
-          description: "A name uniquely identifying a device."
+          example: Random-Boolean-Node
+          description: "A name uniquely identifying a node."
         - in: path
           name: command
           required: true
@@ -590,7 +590,7 @@ paths:
                 404Example:
                   $ref: '#/components/examples/404Example'
         '423':
-          description: "The device is locked (AdminState) or down (OperatingState)"
+          description: "The node is locked (AdminState) or down (OperatingState)"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -626,7 +626,7 @@ paths:
                 503Example:
                   $ref: '#/components/examples/503Example'
     put:
-      summary: "Issue the specified write command referenced by the command name to the device/sensor that is also referenced by name."
+      summary: "Issue the specified write command referenced by the command name to the node/sensor that is also referenced by name."
       parameters:
         - $ref: '#/components/parameters/correlatedRequestHeader'
         - in: path
@@ -634,8 +634,8 @@ paths:
           required: true
           schema:
             type: string
-          example: Random-Boolean-Device
-          description: "A name uniquely identifying a device."
+          example: Random-Boolean-Node
+          description: "A name uniquely identifying a node."
         - in: path
           name: command
           required: true
@@ -685,7 +685,7 @@ paths:
                 404Example:
                   $ref: '#/components/examples/404Example'                
         '423':
-          description: "The device is locked (AdminState)"
+          description: "The node is locked (AdminState)"
           headers:
             X-Correlation-ID:
               $ref: '#/components/headers/correlatedResponseHeader'
@@ -720,7 +720,7 @@ paths:
               examples:
                 503Example:
                   $ref: '#/components/examples/503Example'
-  /device/name/{name}:
+  /node/name/{name}:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - name: name
@@ -728,10 +728,10 @@ paths:
         required: true
         schema:
           type: string
-        example: Random-Boolean-Device
-        description: "A name uniquely identifying a device."
+        example: Random-Boolean-Node
+        description: "A name uniquely identifying a node."
     get:
-      summary: "Returns all commands associated with the specified device."
+      summary: "Returns all commands associated with the specified node."
       responses:
         '200':
           description: "OK"
@@ -741,10 +741,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceCoreCommandResponse'
+                $ref: '#/components/schemas/NodeCoreCommandResponse'
               examples:
-                DeviceCoreCommandExample:
-                  $ref: '#/components/examples/DeviceCoreCommandExample'
+                NodeCoreCommandExample:
+                  $ref: '#/components/examples/NodeCoreCommandExample'
         '404':
           description: "The requested resource does not exist"
           headers:
@@ -769,13 +769,13 @@ paths:
               examples:
                 500Example:
                   $ref: '#/components/examples/500Example'                  
-  /device/all:
+  /node/all:
     parameters:
       - $ref: '#/components/parameters/correlatedRequestHeader'
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
     get:
-      summary: "Returns a paginated list of MultiDeviceCoreCommandsResponse. The list contains all of the commands in the system associated with their respective device."
+      summary: "Returns a paginated list of MultiNodeCoreCommandsResponse. The list contains all of the commands in the system associated with their respective node."
       responses:
         '200':
           description: "OK"
@@ -785,10 +785,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MultiDeviceCoreCommandsResponse'
+                $ref: '#/components/schemas/MultiNodeCoreCommandsResponse'
               examples:
                 MultiCoreCommandsExample:
-                  $ref: '#/components/examples/MultiDeviceCoreCommandsExample'
+                  $ref: '#/components/examples/MultiNodeCoreCommandsExample'
         '400':
           description: "Request is in an invalid state"
           headers:

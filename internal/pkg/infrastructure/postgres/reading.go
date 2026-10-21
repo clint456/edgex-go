@@ -25,7 +25,7 @@ import (
 
 var (
 	// insertReadingCols defines the reading table columns in slice used in inserting readings
-	insertReadingCols = []string{eventIdFKCol, deviceInfoIdFKCol, originCol, valueCol, numericValueCol, binaryValueCol, objectValueCol}
+	insertReadingCols = []string{eventIdFKCol, nodeInfoIdFKCol, originCol, valueCol, numericValueCol, binaryValueCol, objectValueCol}
 )
 
 func (c *Client) ReadingTotalCount() (int64, errors.EdgeX) {
@@ -60,33 +60,33 @@ func (c *Client) ReadingsByResourceName(offset int, limit int, resourceName stri
 	return readings, nil
 }
 
-// ReadingsByDeviceName query readings by offset, limit and device name
-func (c *Client) ReadingsByDeviceName(offset int, limit int, name string) ([]model.Reading, errors.EdgeX) {
+// ReadingsByNodeName query readings by offset, limit and node name
+func (c *Client) ReadingsByNodeName(offset int, limit int, name string) ([]model.Reading, errors.EdgeX) {
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
-	// query reading by the deviceName and origin descending
-	sqlStatement := sqlQueryAllReadingAndDescWithCondsAndPag(originCol, deviceNameCol)
+	// query reading by the nodeName and origin descending
+	sqlStatement := sqlQueryAllReadingAndDescWithCondsAndPag(originCol, nodeNameCol)
 
 	readings, err := queryReadings(context.Background(), c.ConnPool, sqlStatement,
-		pgx.NamedArgs{deviceNameCol: name, offsetCondition: offset, limitCondition: validLimit})
+		pgx.NamedArgs{nodeNameCol: name, offsetCondition: offset, limitCondition: validLimit})
 	if err != nil {
-		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError, fmt.Sprintf("failed to query readings by device '%s'", name), err)
+		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError, fmt.Sprintf("failed to query readings by node '%s'", name), err)
 	}
 	return readings, nil
 }
 
-// ReadingsByDeviceNameAndResourceName query readings by offset, limit, device name and resource name
-func (c *Client) ReadingsByDeviceNameAndResourceName(deviceName string, resourceName string, offset int, limit int) ([]model.Reading, errors.EdgeX) {
+// ReadingsByNodeNameAndResourceName query readings by offset, limit, node name and resource name
+func (c *Client) ReadingsByNodeNameAndResourceName(nodeName string, resourceName string, offset int, limit int) ([]model.Reading, errors.EdgeX) {
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
-	// query reading by the deviceName/resourceName and origin descending
-	sqlStatement := sqlQueryAllReadingAndDescWithCondsAndPag(originCol, deviceNameCol, resourceNameCol)
+	// query reading by the nodeName/resourceName and origin descending
+	sqlStatement := sqlQueryAllReadingAndDescWithCondsAndPag(originCol, nodeNameCol, resourceNameCol)
 
 	readings, err := queryReadings(context.Background(), c.ConnPool, sqlStatement,
-		pgx.NamedArgs{deviceNameCol: deviceName, resourceNameCol: resourceName, offsetCondition: offset, limitCondition: validLimit})
+		pgx.NamedArgs{nodeNameCol: nodeName, resourceNameCol: resourceName, offsetCondition: offset, limitCondition: validLimit})
 	if err != nil {
 		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError,
-			fmt.Sprintf("failed to query readings by device '%s' and resource '%s'", deviceName, resourceName), err)
+			fmt.Sprintf("failed to query readings by node '%s' and resource '%s'", nodeName, resourceName), err)
 	}
 	return readings, nil
 }
@@ -106,15 +106,15 @@ func (c *Client) ReadingsByTimeRange(start int64, end int64, offset int, limit i
 	return readings, nil
 }
 
-// ReadingsByDeviceNameAndTimeRange query readings by the specified device, origin within the time range, offset, and limit
-func (c *Client) ReadingsByDeviceNameAndTimeRange(deviceName string, start int64, end int64, offset int, limit int) ([]model.Reading, errors.EdgeX) {
+// ReadingsByNodeNameAndTimeRange query readings by the specified node, origin within the time range, offset, and limit
+func (c *Client) ReadingsByNodeNameAndTimeRange(nodeName string, start int64, end int64, offset int, limit int) ([]model.Reading, errors.EdgeX) {
 	ctx := context.Background()
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
-	sqlStatement := sqlQueryAllReadingWithPaginationAndTimeRangeDescByCol(originCol, originCol, nil, deviceNameCol)
+	sqlStatement := sqlQueryAllReadingWithPaginationAndTimeRangeDescByCol(originCol, originCol, nil, nodeNameCol)
 
 	readings, err := queryReadings(ctx, c.ConnPool, sqlStatement,
 		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end,
-			deviceNameCol: deviceName, offsetCondition: offset, limitCondition: validLimit})
+			nodeNameCol: nodeName, offsetCondition: offset, limitCondition: validLimit})
 	if err != nil {
 		return nil, errors.NewCommonEdgeXWrapper(err)
 	}
@@ -136,32 +136,32 @@ func (c *Client) ReadingsByResourceNameAndTimeRange(resourceName string, start i
 	return readings, nil
 }
 
-// ReadingsByDeviceNameAndResourceNameAndTimeRange query readings by the specified device and resource, origin within the time range, offset, and limit
-func (c *Client) ReadingsByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, start int64, end int64, offset int, limit int) ([]model.Reading, errors.EdgeX) {
+// ReadingsByNodeNameAndResourceNameAndTimeRange query readings by the specified node and resource, origin within the time range, offset, and limit
+func (c *Client) ReadingsByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, start int64, end int64, offset int, limit int) ([]model.Reading, errors.EdgeX) {
 	ctx := context.Background()
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
-	sqlStatement := sqlQueryAllReadingWithPaginationAndTimeRangeDescByCol(originCol, originCol, nil, deviceNameCol, resourceNameCol)
+	sqlStatement := sqlQueryAllReadingWithPaginationAndTimeRangeDescByCol(originCol, originCol, nil, nodeNameCol, resourceNameCol)
 
 	readings, err := queryReadings(ctx, c.ConnPool, sqlStatement,
 		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end,
-			deviceNameCol: deviceName, resourceNameCol: resourceName, offsetCondition: offset, limitCondition: validLimit})
+			nodeNameCol: nodeName, resourceNameCol: resourceName, offsetCondition: offset, limitCondition: validLimit})
 	if err != nil {
 		return nil, errors.NewCommonEdgeXWrapper(err)
 	}
 	return readings, nil
 }
 
-// ReadingsByDeviceNameAndResourceNamesAndTimeRange query readings by the specified device and resourceName slice, origin within the time range, offset and limit
-func (c *Client) ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceName string, resourceNames []string, start int64, end int64, offset, limit int) ([]model.Reading, errors.EdgeX) {
+// ReadingsByNodeNameAndResourceNamesAndTimeRange query readings by the specified node and resourceName slice, origin within the time range, offset and limit
+func (c *Client) ReadingsByNodeNameAndResourceNamesAndTimeRange(nodeName string, resourceNames []string, start int64, end int64, offset, limit int) ([]model.Reading, errors.EdgeX) {
 	ctx := context.Background()
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
 	sqlStatement := sqlQueryAllReadingWithPaginationAndTimeRangeDescByCol(originCol, originCol,
-		[]string{resourceNameCol}, deviceNameCol, resourceNameCol)
+		[]string{resourceNameCol}, nodeNameCol, resourceNameCol)
 
 	// build the query args for the where condition using in querying readings
 	queryArgs := pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end,
-		deviceNameCol: deviceName, resourceNameCol: resourceNames, offsetCondition: offset, limitCondition: validLimit}
+		nodeNameCol: nodeName, resourceNameCol: resourceNames, offsetCondition: offset, limitCondition: validLimit}
 	// query readings
 	readings, err := queryReadings(ctx, c.ConnPool, sqlStatement, queryArgs)
 	if err != nil {
@@ -171,11 +171,11 @@ func (c *Client) ReadingsByDeviceNameAndResourceNamesAndTimeRange(deviceName str
 	return readings, nil
 }
 
-// ReadingCountByDeviceName returns the count of Readings associated a specific Device from db
-func (c *Client) ReadingCountByDeviceName(deviceName string) (int64, errors.EdgeX) {
-	sqlStatement := sqlQueryCountReadingByCol(deviceNameCol)
+// ReadingCountByNodeName returns the count of Readings associated a specific Node from db
+func (c *Client) ReadingCountByNodeName(nodeName string) (int64, errors.EdgeX) {
+	sqlStatement := sqlQueryCountReadingByCol(nodeNameCol)
 
-	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{deviceNameCol: deviceName})
+	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{nodeNameCol: nodeName})
 }
 
 // ReadingCountByResourceName returns the count of Readings associated a specific resource from db
@@ -185,11 +185,11 @@ func (c *Client) ReadingCountByResourceName(resourceName string) (int64, errors.
 	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{resourceNameCol: resourceName})
 }
 
-// ReadingCountByDeviceNameAndResourceName returns the count of readings associated a specific device and resource values from db
-func (c *Client) ReadingCountByDeviceNameAndResourceName(deviceName string, resourceName string) (int64, errors.EdgeX) {
-	sqlStatement := sqlQueryCountReadingByCol(deviceNameCol, resourceNameCol)
+// ReadingCountByNodeNameAndResourceName returns the count of readings associated a specific node and resource values from db
+func (c *Client) ReadingCountByNodeNameAndResourceName(nodeName string, resourceName string) (int64, errors.EdgeX) {
+	sqlStatement := sqlQueryCountReadingByCol(nodeNameCol, resourceNameCol)
 
-	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{deviceNameCol: deviceName, resourceNameCol: resourceName})
+	return getTotalRowsCount(context.Background(), c.ConnPool, sqlStatement, pgx.NamedArgs{nodeNameCol: nodeName, resourceNameCol: resourceName})
 }
 
 // ReadingCountByTimeRange returns the count of reading by origin within the time range from db
@@ -197,10 +197,10 @@ func (c *Client) ReadingCountByTimeRange(start int64, end int64) (int64, errors.
 	return getTotalRowsCount(context.Background(), c.ConnPool, sqlQueryCountReadingByTimeRangeCol(originCol, nil), pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end})
 }
 
-// ReadingCountByDeviceNameAndTimeRange returns the count of readings by origin within the time range and the specified device from db
-func (c *Client) ReadingCountByDeviceNameAndTimeRange(deviceName string, start int64, end int64) (int64, errors.EdgeX) {
-	return getTotalRowsCount(context.Background(), c.ConnPool, sqlQueryCountReadingByTimeRangeCol(originCol, nil, deviceNameCol),
-		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, deviceNameCol: deviceName})
+// ReadingCountByNodeNameAndTimeRange returns the count of readings by origin within the time range and the specified node from db
+func (c *Client) ReadingCountByNodeNameAndTimeRange(nodeName string, start int64, end int64) (int64, errors.EdgeX) {
+	return getTotalRowsCount(context.Background(), c.ConnPool, sqlQueryCountReadingByTimeRangeCol(originCol, nil, nodeNameCol),
+		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, nodeNameCol: nodeName})
 }
 
 // ReadingCountByResourceNameAndTimeRange returns the count of readings by origin within the time range and the specified resource from db
@@ -209,22 +209,22 @@ func (c *Client) ReadingCountByResourceNameAndTimeRange(resourceName string, sta
 		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, resourceNameCol: resourceName})
 }
 
-// ReadingCountByDeviceNameAndResourceNameAndTimeRange returns the count of readings by origin within the time range
-// associated with the specified device and resource from db
-func (c *Client) ReadingCountByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, start int64, end int64) (int64, errors.EdgeX) {
+// ReadingCountByNodeNameAndResourceNameAndTimeRange returns the count of readings by origin within the time range
+// associated with the specified node and resource from db
+func (c *Client) ReadingCountByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, start int64, end int64) (int64, errors.EdgeX) {
 	return getTotalRowsCount(context.Background(),
 		c.ConnPool,
-		sqlQueryCountReadingByTimeRangeCol(originCol, nil, deviceNameCol, resourceNameCol),
-		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, deviceNameCol: deviceName, resourceNameCol: resourceName})
+		sqlQueryCountReadingByTimeRangeCol(originCol, nil, nodeNameCol, resourceNameCol),
+		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, nodeNameCol: nodeName, resourceNameCol: resourceName})
 }
 
-// ReadingCountByDeviceNameAndResourceNamesAndTimeRange returns the count of readings by origin within the time range
-// associated with the specified device and resourceName slice from db
-func (c *Client) ReadingCountByDeviceNameAndResourceNamesAndTimeRange(deviceName string, resourceNames []string, start int64, end int64) (int64, errors.EdgeX) {
+// ReadingCountByNodeNameAndResourceNamesAndTimeRange returns the count of readings by origin within the time range
+// associated with the specified node and resourceName slice from db
+func (c *Client) ReadingCountByNodeNameAndResourceNamesAndTimeRange(nodeName string, resourceNames []string, start int64, end int64) (int64, errors.EdgeX) {
 	return getTotalRowsCount(context.Background(),
 		c.ConnPool,
-		sqlQueryCountReadingByTimeRangeCol(originCol, []string{resourceNameCol}, deviceNameCol, resourceNameCol),
-		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, deviceNameCol: deviceName, resourceNameCol: resourceNames})
+		sqlQueryCountReadingByTimeRangeCol(originCol, []string{resourceNameCol}, nodeNameCol, resourceNameCol),
+		pgx.NamedArgs{startTimeCondition: start, endTimeCondition: end, nodeNameCol: nodeName, resourceNameCol: resourceNames})
 }
 
 func (c *Client) LatestReadingByOffset(offset uint32) (model.Reading, errors.EdgeX) {
@@ -462,14 +462,14 @@ func (c *Client) addReadingsInTx(tx pgx.Tx, readings []model.Reading, eventId st
 				}
 			}
 
-			deviceInfoId, err := c.deviceInfoIdByReading(r)
+			nodeInfoId, err := c.nodeInfoIdByReading(r)
 			if err != nil {
-				return nil, errors.NewCommonEdgeX(errors.KindServerError, "unable to retrieve deviceInfo", err)
+				return nil, errors.NewCommonEdgeX(errors.KindServerError, "unable to retrieve nodeInfo", err)
 			}
 
 			return []any{
 				eventId,
-				deviceInfoId,
+				nodeInfoId,
 				r.Origin,
 				r.Value,
 				r.NumericValue,

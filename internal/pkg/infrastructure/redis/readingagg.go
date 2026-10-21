@@ -30,22 +30,22 @@ func (c *Client) ReadingsAggregationByResourceNameAndTimeRange(resourceName stri
 	return nil, nil
 }
 
-func (c *Client) ReadingsAggregationByDeviceName(deviceName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	c.loggingClient.Warn("ReadingsAggregationByDeviceName function didn't implement")
+func (c *Client) ReadingsAggregationByNodeName(nodeName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	c.loggingClient.Warn("ReadingsAggregationByNodeName function didn't implement")
 	return nil, nil
 }
 
-func (c *Client) ReadingsAggregationByDeviceNameAndTimeRange(deviceName string, aggregateFun string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	c.loggingClient.Warn("ReadingsAggregationByDeviceNameAndTimeRange function didn't implement")
+func (c *Client) ReadingsAggregationByNodeNameAndTimeRange(nodeName string, aggregateFun string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	c.loggingClient.Warn("ReadingsAggregationByNodeNameAndTimeRange function didn't implement")
 	return nil, nil
 }
 
-func (c *Client) ReadingsAggregationByDeviceNameAndResourceName(deviceName string, resourceName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+func (c *Client) ReadingsAggregationByNodeNameAndResourceName(nodeName string, resourceName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
 	c.loggingClient.Warn("AllReadingsAggregation function didn't implement")
 	return nil, nil
 }
 
-func (c *Client) ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, aggregateFunc string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	c.loggingClient.Warn("ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange function didn't implement")
+func (c *Client) ReadingsAggregationByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, aggregateFunc string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	c.loggingClient.Warn("ReadingsAggregationByNodeNameAndResourceNameAndTimeRange function didn't implement")
 	return nil, nil
 }

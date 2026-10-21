@@ -26,20 +26,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type DeviceServiceController struct {
+type NodeServiceController struct {
 	reader io.DtoReader
 	dic    *di.Container
 }
 
-// NewDeviceServiceController creates and initializes an DeviceServiceController
-func NewDeviceServiceController(dic *di.Container) *DeviceServiceController {
-	return &DeviceServiceController{
+// NewNodeServiceController creates and initializes an NodeServiceController
+func NewNodeServiceController(dic *di.Container) *NodeServiceController {
+	return &NodeServiceController{
 		reader: io.NewJsonDtoReader(),
 		dic:    dic,
 	}
 }
 
-func (dc *DeviceServiceController) AddDeviceService(c echo.Context) error {
+func (dc *NodeServiceController) AddNodeService(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -51,20 +51,20 @@ func (dc *DeviceServiceController) AddDeviceService(c echo.Context) error {
 	ctx := r.Context()
 	correlationId := correlation.FromContext(ctx)
 
-	var reqDTOs []requestDTO.AddDeviceServiceRequest
+	var reqDTOs []requestDTO.AddNodeServiceRequest
 	err := dc.reader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceServices := requestDTO.AddDeviceServiceReqToDeviceServiceModels(reqDTOs)
+	nodeServices := requestDTO.AddNodeServiceReqToNodeServiceModels(reqDTOs)
 
 	var addResponses []interface{}
-	for i, d := range deviceServices {
-		var addDeviceServiceResponse interface{}
+	for i, d := range nodeServices {
+		var addNodeServiceResponse interface{}
 		reqId := reqDTOs[i].RequestId
-		newId, err := application.AddDeviceService(d, ctx, dc.dic)
+		newId, err := application.AddNodeService(d, ctx, dc.dic)
 		if err == nil {
-			addDeviceServiceResponse = commonDTO.NewBaseWithIdResponse(
+			addNodeServiceResponse = commonDTO.NewBaseWithIdResponse(
 				reqId,
 				"",
 				http.StatusCreated,
@@ -72,12 +72,12 @@ func (dc *DeviceServiceController) AddDeviceService(c echo.Context) error {
 		} else {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
-			addDeviceServiceResponse = commonDTO.NewBaseResponse(
+			addNodeServiceResponse = commonDTO.NewBaseResponse(
 				reqId,
 				err.Error(),
 				err.Code())
 		}
-		addResponses = append(addResponses, addDeviceServiceResponse)
+		addResponses = append(addResponses, addNodeServiceResponse)
 	}
 
 	utils.WriteHttpHeader(w, ctx, http.StatusMultiStatus)
@@ -85,7 +85,7 @@ func (dc *DeviceServiceController) AddDeviceService(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(addResponses, w, lc)
 }
 
-func (dc *DeviceServiceController) DeviceServiceByName(c echo.Context) error {
+func (dc *NodeServiceController) NodeServiceByName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -94,17 +94,17 @@ func (dc *DeviceServiceController) DeviceServiceByName(c echo.Context) error {
 	// URL parameters
 	name := c.Param(common.Name)
 
-	deviceService, err := application.DeviceServiceByName(name, ctx, dc.dic)
+	nodeService, err := application.NodeServiceByName(name, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewDeviceServiceResponse("", "", http.StatusOK, deviceService)
+	response := responseDTO.NewNodeServiceResponse("", "", http.StatusOK, nodeService)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceServiceController) PatchDeviceService(c echo.Context) error {
+func (dc *NodeServiceController) PatchNodeService(c echo.Context) error {
 	r := c.Request()
 	w := c.Response()
 	if r.Body != nil {
@@ -116,7 +116,7 @@ func (dc *DeviceServiceController) PatchDeviceService(c echo.Context) error {
 	ctx := r.Context()
 	correlationId := correlation.FromContext(ctx)
 
-	var reqDTOs []requestDTO.UpdateDeviceServiceRequest
+	var reqDTOs []requestDTO.UpdateNodeServiceRequest
 	err := dc.reader.Read(r.Body, &reqDTOs)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
@@ -126,7 +126,7 @@ func (dc *DeviceServiceController) PatchDeviceService(c echo.Context) error {
 	for _, dto := range reqDTOs {
 		var response interface{}
 		reqId := dto.RequestId
-		err := application.PatchDeviceService(dto.Service, ctx, dc.dic)
+		err := application.PatchNodeService(dto.Service, ctx, dc.dic)
 		if err != nil {
 			lc.Error(err.Error(), common.CorrelationHeader, correlationId)
 			lc.Debug(err.DebugMessages(), common.CorrelationHeader, correlationId)
@@ -147,7 +147,7 @@ func (dc *DeviceServiceController) PatchDeviceService(c echo.Context) error {
 	return pkg.EncodeAndWriteResponse(updateResponses, w, lc)
 }
 
-func (dc *DeviceServiceController) DeleteDeviceServiceByName(c echo.Context) error {
+func (dc *NodeServiceController) DeleteNodeServiceByName(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -156,7 +156,7 @@ func (dc *DeviceServiceController) DeleteDeviceServiceByName(c echo.Context) err
 	// URL parameters
 	name := c.Param(common.Name)
 
-	err := application.DeleteDeviceServiceByName(name, ctx, dc.dic)
+	err := application.DeleteNodeServiceByName(name, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
@@ -166,7 +166,7 @@ func (dc *DeviceServiceController) DeleteDeviceServiceByName(c echo.Context) err
 	return pkg.EncodeAndWriteResponse(response, w, lc)
 }
 
-func (dc *DeviceServiceController) AllDeviceServices(c echo.Context) error {
+func (dc *NodeServiceController) AllNodeServices(c echo.Context) error {
 	lc := container.LoggingClientFrom(dc.dic.Get)
 	r := c.Request()
 	w := c.Response()
@@ -178,12 +178,12 @@ func (dc *DeviceServiceController) AllDeviceServices(c echo.Context) error {
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
-	deviceServices, totalCount, err := application.AllDeviceServices(offset, limit, labels, ctx, dc.dic)
+	nodeServices, totalCount, err := application.AllNodeServices(offset, limit, labels, ctx, dc.dic)
 	if err != nil {
 		return utils.WriteErrorResponse(w, ctx, lc, err, "")
 	}
 
-	response := responseDTO.NewMultiDeviceServicesResponse("", "", http.StatusOK, totalCount, deviceServices)
+	response := responseDTO.NewMultiNodeServicesResponse("", "", http.StatusOK, totalCount, nodeServices)
 	utils.WriteHttpHeader(w, ctx, http.StatusOK)
 	// encode and send out the response
 	return pkg.EncodeAndWriteResponse(response, w, lc)

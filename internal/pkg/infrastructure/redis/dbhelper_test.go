@@ -12,7 +12,7 @@ import (
 )
 
 func TestCreateKey(t *testing.T) {
-	result := CreateKey(EventsCollectionDeviceName, "TestDeviceName")
-	expected := EventsCollectionDeviceName + DBKeySeparator + "TestDeviceName"
+	result := CreateKey(EventsCollectionNodeName, "TestNodeName")
+	expected := EventsCollectionNodeName + DBKeySeparator + "TestNodeName"
 	assert.Equal(t, expected, result)
 }

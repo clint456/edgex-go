@@ -6,14 +6,14 @@
 package http
 
 const (
-	ExampleUUID            = "82eb2e26-0f24-48aa-ae4c-de9dac3fb9bc"
-	TestDeviceProfileName  = "TestDeviceProfileName"
-	TestManufacturer       = "TestManufacturer"
-	TestDescription        = "TestDescription"
-	TestModel              = "TestModel"
-	TestDeviceResourceName = "TestDeviceResourceName"
-	TestUnits              = "TestUnits"
-	TestDeviceCommandName  = "TestDeviceCommand"
-	TestDeviceName         = "TestDevice"
-	TestDeviceServiceName  = "TestDeviceServiceName"
+	ExampleUUID         = "82eb2e26-0f24-48aa-ae4c-de9dac3fb9bc"
+	TestProfileName     = "TestProfileName"
+	TestManufacturer    = "TestManufacturer"
+	TestDescription     = "TestDescription"
+	TestModel           = "TestModel"
+	TestResourceName    = "TestResourceName"
+	TestUnits           = "TestUnits"
+	TestCommandName     = "TestCommand"
+	TestNodeName        = "TestNode"
+	TestNodeServiceName = "TestNodeServiceName"
 )

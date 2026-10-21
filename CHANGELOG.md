@@ -18,9 +18,9 @@
 - Allow event reading query to return numeric value ([#5234](https://github.com/clint456/edgex-go/issues/5234)) ([#4476c2f8](https://github.com/clint456/edgex-go/commits/4476c2f8))
 - Allow Support Scheduler to send MQTT messages using raw payload ([#d7d4ce48](https://github.com/clint456/edgex-go/commits/d7d4ce48))
 - Store numeric value in numeric type ([#5232](https://github.com/clint456/edgex-go/issues/5232)) ([#c5c61481](https://github.com/clint456/edgex-go/commits/c5c61481))
-- Support `linkedDeviceCount` to device profile list APIs ([#5376](https://github.com/clint456/edgex-go/issues/5376)) ([#31488391](https://github.com/clint456/edgex-go/commits/31488391))
+- Support `linkedNodeCount` to node profile list APIs ([#5376](https://github.com/clint456/edgex-go/issues/5376)) ([#31488391](https://github.com/clint456/edgex-go/commits/31488391))
 - Enhance reading query performance ([#c64bbd42](https://github.com/clint456/edgex-go/commits/c64bbd42))
-- Add indexes on `reading.device_info_id` and `event.device_info_id` ([#d87a39f4](https://github.com/clint456/edgex-go/commits/d87a39f4))
+- Add indexes on `reading.node_info_id` and `event.node_info_id` ([#d87a39f4](https://github.com/clint456/edgex-go/commits/d87a39f4))
 - Add PATCH tags API to Core Metadata ([#91370b8a](https://github.com/clint456/edgex-go/commits/91370b8a))
 - Improve insecure encryption key handling ([#5290](https://github.com/clint456/edgex-go/issues/5290)) ([#7edac800](https://github.com/clint456/edgex-go/commits/7edac800))
 - Support secure AES key generation and AES-GCM with CBC fallback ([#5241](https://github.com/clint456/edgex-go/issues/5241)) ([#20a28d32](https://github.com/clint456/edgex-go/commits/20a28d32))
@@ -34,8 +34,8 @@
 - Improve SQL query performance in  Support Services ([#5198](https://github.com/clint456/edgex-go/issues/5198)) ([#558ac52a](https://github.com/clint456/edgex-go/commits/558ac52a))
 - Improve SQL query performance in Core Metadata ([#5196](https://github.com/clint456/edgex-go/issues/5196)) ([#965d7912](https://github.com/clint456/edgex-go/commits/965d7912))
 - Improve SQL query performance in Core Data ([#5195](https://github.com/clint456/edgex-go/issues/5195)) ([#f033e20b](https://github.com/clint456/edgex-go/commits/f033e20b))
-- Filter out invalid auto events for `PatchDevice` in Core Metadata([#32c02cdd](https://github.com/clint456/edgex-go/commits/32c02cdd))
-- Retrieve device json using its UUID in Core Metadata([#72cf5f42](https://github.com/clint456/edgex-go/commits/72cf5f42))
+- Filter out invalid auto events for `PatchNode` in Core Metadata([#32c02cdd](https://github.com/clint456/edgex-go/commits/32c02cdd))
+- Retrieve node json using its UUID in Core Metadata([#72cf5f42](https://github.com/clint456/edgex-go/commits/72cf5f42))
 - Allow multiple tags to be selected during a docker build ([#5179](https://github.com/clint456/edgex-go/issues/5179)) ([#78a2866f](https://github.com/clint456/edgex-go/commits/78a2866f))
 
 ### 🐛 Bug Fixes
@@ -57,11 +57,11 @@
 - Apply default retention policies to non-autoEvents in Core Data ([#5189](https://github.com/clint456/edgex-go/issues/5189)) ([#9304f160](https://github.com/clint456/edgex-go/commits/9304f160))
 - Run Message Bus command request processing in goroutines ([#5186](https://github.com/clint456/edgex-go/issues/5186)) ([#82c539f3](https://github.com/clint456/edgex-go/commits/82c539f3))
 - Fix incorrect event query results when EventPurge is enabled ([#5177](https://github.com/clint456/edgex-go/issues/5177)) ([#6e66f30d](https://github.com/clint456/edgex-go/commits/6e66f30d))
-- Fix incorrect totalCount returned by the Core Command device query API ([#5174](https://github.com/clint456/edgex-go/issues/5174)) ([#7a10d068](https://github.com/clint456/edgex-go/commits/7a10d068))
+- Fix incorrect totalCount returned by the Core Command node query API ([#5174](https://github.com/clint456/edgex-go/issues/5174)) ([#7a10d068](https://github.com/clint456/edgex-go/commits/7a10d068))
 - Fix common configuration bootstrap startup failures in non-security mode ([#5237](https://github.com/clint456/edgex-go/issues/5237)) ([#f4c84d42](https://github.com/clint456/edgex-go/commits/f4c84d42))
-- Fix Core Command device query API handling when profiles are empty ([#5164](https://github.com/clint456/edgex-go/issues/5164)) ([#de361d4a](https://github.com/clint456/edgex-go/commits/de361d4a))
-- Add missing properties in `UpdateDeviceService` schema ([#a5d34896](https://github.com/clint456/edgex-go/commits/a5d34896))
-- Avoid panic in Core Metadata when patching a device with a nil `profileName` ([#4a29ef11](https://github.com/clint456/edgex-go/commits/4a29ef11))
+- Fix Core Command node query API handling when profiles are empty ([#5164](https://github.com/clint456/edgex-go/issues/5164)) ([#de361d4a](https://github.com/clint456/edgex-go/commits/de361d4a))
+- Add missing properties in `UpdateNodeService` schema ([#a5d34896](https://github.com/clint456/edgex-go/commits/a5d34896))
+- Avoid panic in Core Metadata when patching a node with a nil `profileName` ([#4a29ef11](https://github.com/clint456/edgex-go/commits/4a29ef11))
 - Make OpenBao log level configurable for security services ([#a578dab8](https://github.com/clint456/edgex-go/commits/a578dab8))
 - Ensure new common configurations from the file are applied ([#5230](https://github.com/clint456/edgex-go/issues/5230)) ([#b3d597d8](https://github.com/clint456/edgex-go/commits/b3d597d8))
 - Handle missing entities gracefully during event cleanup ([#795e09bc](https://github.com/clint456/edgex-go/commits/795e09bc))
@@ -78,11 +78,11 @@
 
 ### 📖 Documentation 
 - Correct Readings API schema in documentation ([#7e950c51](https://github.com/clint456/edgex-go/commits/7e950c51))
-- Add missing `jsonObject` parameter in `GET /device/name/{name}/{command}` ([#e3378250](https://github.com/clint456/edgex-go/commits/e3378250))
+- Add missing `jsonObject` parameter in `GET /node/name/{name}/{command}` ([#e3378250](https://github.com/clint456/edgex-go/commits/e3378250))
 - Add missing `ObjectReading` in Event Readings schema ([#f57081b8](https://github.com/clint456/edgex-go/commits/f57081b8))
 - Correct Core Keeper API documentation ([#fd4644a0](https://github.com/clint456/edgex-go/commits/fd4644a0))
-- Correct typo from allof to allOf in `discoveredDevice` schema ([#b5b66df4](https://github.com/clint456/edgex-go/commits/b5b66df4))
-- Correct schema definition for `discoveredDevice` ([#9ed2b589](https://github.com/clint456/edgex-go/commits/9ed2b589))
+- Correct typo from allof to allOf in `discoveredNode` schema ([#b5b66df4](https://github.com/clint456/edgex-go/commits/b5b66df4))
+- Correct schema definition for `discoveredNode` ([#9ed2b589](https://github.com/clint456/edgex-go/commits/9ed2b589))
 - Update Core Metadata API documentation with correct sample ([#794c76fd](https://github.com/clint456/edgex-go/commits/794c76fd))
 - Update Core Data API documentation ([#5127](https://github.com/clint456/edgex-go/issues/5127)) ([#285c4605](https://github.com/clint456/edgex-go/commits/285c4605))
 - Modify `aggregateFunc` query parameter in Core Data API documentation ([#4acbbee9](https://github.com/clint456/edgex-go/commits/4acbbee9))
@@ -100,10 +100,10 @@
 ### Features✨  
 
 - Add message bus subscription log in core-data ([a6f6ea5…](https://github.com/clint456/edgex-go/commit/a6f6ea5060545076c40d55fda1b913bd4da7e70a))
-- Add query parameters for device parents/children([#5053](https://github.com/clint456/edgex-go/issues/5053)) ([a1c5a89…](https://github.com/clint456/edgex-go/commit/a1c5a899654eae7656c51fcf435c291ced400fbb))
-- Allow empty profileName in Device ([702ba25…](https://github.com/clint456/edgex-go/commit/702ba25b8e74ae87972de5b867e4c6885ac51f68))
+- Add query parameters for node parents/children([#5053](https://github.com/clint456/edgex-go/issues/5053)) ([a1c5a89…](https://github.com/clint456/edgex-go/commit/a1c5a899654eae7656c51fcf435c291ced400fbb))
+- Allow empty profileName in Node ([702ba25…](https://github.com/clint456/edgex-go/commit/702ba25b8e74ae87972de5b867e4c6885ac51f68))
 - Add regen token API in secretstore-setup ([#5079](https://github.com/clint456/edgex-go/issues/5079)) ([9ebed02…](https://github.com/clint456/edgex-go/commit/9ebed02dde4a816a76396a8e6ec635dd7fd91285))
-- Add Configurable Limits for Device and Resource Capacities ([#5077](https://github.com/clint456/edgex-go/issues/5077)) ([4896b45…](https://github.com/clint456/edgex-go/commit/4896b4575f29b11e72f5a58f0619c899671835f4))
+- Add Configurable Limits for Node and Resource Capacities ([#5077](https://github.com/clint456/edgex-go/issues/5077)) ([4896b45…](https://github.com/clint456/edgex-go/commit/4896b4575f29b11e72f5a58f0619c899671835f4))
 - Event retention enhancement ([c067ea6…](https://github.com/clint456/edgex-go/commit/c067ea6d19c3779c8d0085825964471478d87c5c))
 ```text
 
@@ -116,7 +116,7 @@ BREAKING CHANGE: Add a retention policy for auto events, enhancing time-based an
 BREAKING CHANGE: Remove event size check from the message reciver, because we always check the event in the message publisher
 
 ```
-- Purge events on device deletion event ([464389f…](https://github.com/clint456/edgex-go/commit/464389f2b4c69318f66adc0d56ad4bda5a15fa05))
+- Purge events on node deletion event ([464389f…](https://github.com/clint456/edgex-go/commit/464389f2b4c69318f66adc0d56ad4bda5a15fa05))
 - Query readings without pagination offset ([ccee771…](https://github.com/clint456/edgex-go/commit/ccee771edf5ea3cf821193a796fbd9303c0d3f83))
 - Add key-related APIs in security-proxy-auth ([c38af36…](https://github.com/clint456/edgex-go/commit/c38af36419feae83a0e8abbe505ba551fb0c9bf6))
 - Add MQTT and ZeroMQ channels support to support-notification ([e824200…](https://github.com/clint456/edgex-go/commit/e8242006a0ff142114b7692597459189c0b5e284))
@@ -129,7 +129,7 @@ BREAKING CHANGE: Remove consul dependency
 ```
 - Support null value in reading instead of nil reading value ([#4974](https://github.com/clint456/edgex-go/issues/4974)) ([82350b2…](https://github.com/clint456/edgex-go/commit/82350b2dc17c64c6dcaf341c305da1b72442d937))
 - Allow store reading as null value ([faff7e1…](https://github.com/clint456/edgex-go/commit/faff7e15d0d593107ea324478509bb94221df236))
-- Add the force query param to add device metadata API ([#4929](https://github.com/clint456/edgex-go/issues/4929)) ([1033d52…](https://github.com/clint456/edgex-go/commit/1033d5290f4fd751026052b6c6be6da923b73d23))
+- Add the force query param to add node metadata API ([#4929](https://github.com/clint456/edgex-go/issues/4929)) ([1033d52…](https://github.com/clint456/edgex-go/commit/1033d5290f4fd751026052b6c6be6da923b73d23))
 - Allow rules-engine service to read its token ([#4823](https://github.com/clint456/edgex-go/issues/4823)) ([5162257…](https://github.com/clint456/edgex-go/commit/5162257f8dee1b2a6e96c0426af9cd51831dbfdc))
 - Core Keeper implementation ([e8726e3…](https://github.com/clint456/edgex-go/commit/e8726e3ae68f2a04ddd2be347a70a833a7d3d060))
 ```text
@@ -137,8 +137,8 @@ BREAKING CHANGE: Remove consul dependency
 BREAKING CHANGE: Introduced Core Keeper as a new service for configuration and registry management
 
 ```
-- Implement Get All DeviceProfile BasicInfo API ([9494c74…](https://github.com/clint456/edgex-go/commit/9494c7497b3c6dc9521145e4123e3d35bbdb8d94))
-- Add new bypassValidation query param to Add/Patch Device API ([#4797](https://github.com/clint456/edgex-go/issues/4797)) ([17930b1…](https://github.com/clint456/edgex-go/commit/17930b14352cbfb7930b1ac1271c629a4bf190e4))
+- Implement Get All Profile BasicInfo API ([9494c74…](https://github.com/clint456/edgex-go/commit/9494c7497b3c6dc9521145e4123e3d35bbdb8d94))
+- Add new bypassValidation query param to Add/Patch Node API ([#4797](https://github.com/clint456/edgex-go/issues/4797)) ([17930b1…](https://github.com/clint456/edgex-go/commit/17930b14352cbfb7930b1ac1271c629a4bf190e4))
 - Add OpenZiti to edgex-go ([#4777](https://github.com/clint456/edgex-go/issues/4777)) ([d2d9888…](https://github.com/clint456/edgex-go/commit/d2d98883e5139249b4399f4dc0dd90a078163ffc))
 - Allow sending notifications to authenticated EdgeX endpoints ([#4763](https://github.com/clint456/edgex-go/issues/4763)) ([a48d639…](https://github.com/clint456/edgex-go/commit/a48d6392372de4eada0148d46cda0c5092cdf95e))
 - Add new StoreForwardQueueSize metric to common App services config ([#4751](https://github.com/clint456/edgex-go/issues/4751)) ([3a892ac…](https://github.com/clint456/edgex-go/commit/3a892ac0b38b8d685f9d63feb7dde70ee06d273b))
@@ -170,9 +170,9 @@ BREAKING CHANGE: update go module to v4
 ### Bug Fixes 🐛
 
 - Check offset, limit, totalCount before querying transmissions ([82df6aa…](https://github.com/clint456/edgex-go/commit/82df6aa76d7e5e8e8165c23ce0e8560af0818afb))
-- Check profile existence before adding device/provision watcher ([a09553d…](https://github.com/clint456/edgex-go/commit/a09553d9be624636f508e9dfb2ede440f6f57f87))
+- Check profile existence before adding node/provision watcher ([a09553d…](https://github.com/clint456/edgex-go/commit/a09553d9be624636f508e9dfb2ede440f6f57f87))
 - Check if event id exists before deleting it ([d5aa4e6…](https://github.com/clint456/edgex-go/commit/d5aa4e6cef3f5f939ed966b041f29eb420561edd))
-- Delete device profile in use should return 409 ([d76678a…](https://github.com/clint456/edgex-go/commit/d76678a55032731670294a652d9f06f9bdaaacb1))
+- Delete node profile in use should return 409 ([d76678a…](https://github.com/clint456/edgex-go/commit/d76678a55032731670294a652d9f06f9bdaaacb1))
 - Use int64 instead of int for all the timestamp ([4ddefa4…](https://github.com/clint456/edgex-go/commit/4ddefa4886004faa11111ff6055cc25bdb398a5d))
 - Generate suitable HTTP status code ([21c2095…](https://github.com/clint456/edgex-go/commit/21c2095bacfc2d1f692f1cd1392bc4d39528b6f3))
 - Allow source name in regexp ([6211aaf…](https://github.com/clint456/edgex-go/commit/6211aafc10b1e2f5b342071239385128acb78ae1))
@@ -180,7 +180,7 @@ BREAKING CHANGE: update go module to v4
 
 ### Documentation 📖
 
-- Add onChangeThreshold in Device AutoEvent ([941e1e5…](https://github.com/clint456/edgex-go/commit/941e1e5ece8eb6540d9aaaa9956a0c886ebb71db))
+- Add onChangeThreshold in Node AutoEvent ([941e1e5…](https://github.com/clint456/edgex-go/commit/941e1e5ece8eb6540d9aaaa9956a0c886ebb71db))
 - Set service version to 4.0.0 and remove the version folder in API documents ([c7c3680…](https://github.com/clint456/edgex-go/commit/c7c3680392ce68a6fcb1eaf602bff8de280a2107))
 
 
@@ -203,7 +203,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - Implement notification retention feature ([b213c8a…](https://github.com/clint456/edgex-go/commit/b213c8a899e6a1be3cbac435de5f3915e08c44c8))
 - Implement data retention feature ([2b2ffc9…](https://github.com/clint456/edgex-go/commit/2b2ffc9d75241a155e93b73190587ea366d21290))
   Add new export error metrics to App Service common config ([#4696](https://github.com/clint456/edgex-go/issues/4696)) ([a045e8e…](https://github.com/clint456/edgex-go/commit/a045e8e81b8ab7e100c731525ac4bd730155663f))
-- Add LastConnected metric to device service common config ([596b81e…](https://github.com/clint456/edgex-go/commit/596b81eab604239cccafdf60ec211c08c9f71ea6))
+- Add LastConnected metric to node service common config ([596b81e…](https://github.com/clint456/edgex-go/commit/596b81eab604239cccafdf60ec211c08c9f71ea6))
 - Allow name field escape configurable ([#4674](https://github.com/clint456/edgex-go/issues/4674)) ([8690ef6…](https://github.com/clint456/edgex-go/commit/8690ef6f077aa4f09e1c290a800e35321f54b9f1))
 - Accept Url escape in API path ([67d489b…](https://github.com/clint456/edgex-go/commit/67d489b15bf9cd9644306348d95781582a0f079e))
 - Use a better error handling logic and messages when run in hybrid mode with no common config ([#4617](https://github.com/clint456/edgex-go/issues/4617)) ([e9743d5…](https://github.com/clint456/edgex-go/commit/e9743d574695eaaacfb4360752d68f7ca76ed8b2))
@@ -263,7 +263,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
     ```text
     BREAKING CHANGE: Configuration files are now in YAML format, Default file name is now configuration.yaml.
     ```
-- Accept URL escape for device command name and resource name ([#4376](https://github.com/clint456/edgex-go/issues/4376)) ([#1bf67f4f](https://github.com/clint456/edgex-go/commits/1bf67f4f))
+- Accept URL escape for node command name and resource name ([#4376](https://github.com/clint456/edgex-go/issues/4376)) ([#1bf67f4f](https://github.com/clint456/edgex-go/commits/1bf67f4f))
 - Common config bootstrapper and config implementation ([#4292](https://github.com/clint456/edgex-go/issues/4292)) ([#9f6c2d12](https://github.com/clint456/edgex-go/commits/9f6c2d12))
 - Add ability to customize spiffe services ([#4533](https://github.com/clint456/edgex-go/issues/4533)) ([#824c097d](https://github.com/clint456/edgex-go/commits/824c097d))
 - Implement common config flag for security ([#4464](https://github.com/clint456/edgex-go/issues/4464)) ([#0e3a5bd4](https://github.com/clint456/edgex-go/commits/0e3a5bd4))
@@ -291,46 +291,46 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **command:** Enable regex for Commands via Messaging ([#f55e44b8](https://github.com/clint456/edgex-go/commits/f55e44b8))
 - **data** Update Add Event REST endpoint to include service name ([#4368](https://github.com/clint456/edgex-go/pull/4368))
     ```text
-    BREAKING CHANGE: Event RSET endpoint will become `/event/{serviceName}/{profileName}/{deviceName}/{sourceName}`.
+    BREAKING CHANGE: Event RSET endpoint will become `/event/{serviceName}/{profileName}/{nodeName}/{sourceName}`.
     ```
-- **metadata** Remove device callback calls ([#36411bb3](https://github.com/clint456/edgex-go/commits/36411bb3))
+- **metadata** Remove node callback calls ([#36411bb3](https://github.com/clint456/edgex-go/commits/36411bb3))
     ```text
-    BREAKING CHANGE: Device callback calls are replaced by Device System Events
+    BREAKING CHANGE: Node callback calls are replaced by Node System Events
     ```
 - **metadata** Apply provision watcher model changes ([#4471](https://github.com/clint456/edgex-go/pull/4471))
     ```text
-    BREAKING CHANGE: Apply provision watcher model changes. Add 'discoveredDevice' field which includes profileName,adminState,autoEvents, and properties for discovered device.
+    BREAKING CHANGE: Apply provision watcher model changes. Add 'discoveredNode' field which includes profileName,adminState,autoEvents, and properties for discovered node.
     ```
 - **metadata** Switch UoM API to YAML format ([#4462](https://github.com/clint456/edgex-go/pull/4462))
     ```text
     BREAKING CHANGE: It was decided in Minnesota planning that all TOML files would be change to be YAML format, so switching YAML in UoM API.
     ```
-- **metadata** Remove Notify field out of Device dto and add Properties field into ProvisionWatcher DTO ([#4375](https://github.com/clint456/edgex-go/pull/4375))
+- **metadata** Remove Notify field out of Node dto and add Properties field into ProvisionWatcher DTO ([#4375](https://github.com/clint456/edgex-go/pull/4375))
     ```text
-    BREAKING CHANGE: Per edgexfoundry/go-mod-core-contracts#807, the boolean field notify of Device DTO is removed as device creation notification is handled by system event message now. Per edgexfoundry/go-mod-core-contracts#803, the ProvisionWatcher DTO is updated with a new Properties field.
+    BREAKING CHANGE: Per edgexfoundry/go-mod-core-contracts#807, the boolean field notify of Node DTO is removed as node creation notification is handled by system event message now. Per edgexfoundry/go-mod-core-contracts#803, the ProvisionWatcher DTO is updated with a new Properties field.
     ```
-- **metadata** Remove LastConnected, LastReported fields from Device and UpdateLastConnected configs ([#4369](https://github.com/clint456/edgex-go/pull/4369))
+- **metadata** Remove LastConnected, LastReported fields from Node and UpdateLastConnected configs ([#4369](https://github.com/clint456/edgex-go/pull/4369))
     ```text
-    BREAKING CHANGE: Remove LastConnected, LastReported fields from Device and UpdateLastConnected configs
+    BREAKING CHANGE: Remove LastConnected, LastReported fields from Node and UpdateLastConnected configs
     ```
-- **metadata** Replace REST device validation callback with MessageBus ([#4366](https://github.com/clint456/edgex-go/pull/4366))
+- **metadata** Replace REST node validation callback with MessageBus ([#4366](https://github.com/clint456/edgex-go/pull/4366))
     ```text
-    BREAKING CHANGE: Adding new Device requires Device Service running for validation.
+    BREAKING CHANGE: Adding new Node requires Node Service running for validation.
     ```
-- **metadata** Implement Device Service System Events ([#4351](https://github.com/clint456/edgex-go/pull/4351))
+- **metadata** Implement Node Service System Events ([#4351](https://github.com/clint456/edgex-go/pull/4351))
     ```text
-    BREAKING CHANGE: Publish System Events for Device Service add/update/delete, and remove the Device Service REST callback.
+    BREAKING CHANGE: Publish System Events for Node Service add/update/delete, and remove the Node Service REST callback.
     ```
-- **metadata** Allow Device Profile to be empty string in ProvisionWatcher ([#8898ba7a](https://github.com/clint456/edgex-go/commits/8898ba7a))
+- **metadata** Allow Node Profile to be empty string in ProvisionWatcher ([#8898ba7a](https://github.com/clint456/edgex-go/commits/8898ba7a))
 - **metadata** Implement Provision Watcher System Events ([#7d9adc03](https://github.com/clint456/edgex-go/commits/7d9adc03))
-- **metadata** Implement Device Profile System Events ([#4336](https://github.com/clint456/edgex-go/issues/4336)) ([#966ddbcd](https://github.com/clint456/edgex-go/commits/966ddbcd))
-- **metadata** Remove DeviceChanged Notifications mechanism ([#4320](https://github.com/clint456/edgex-go/pull/4320))
+- **metadata** Implement Node Profile System Events ([#4336](https://github.com/clint456/edgex-go/issues/4336)) ([#966ddbcd](https://github.com/clint456/edgex-go/commits/966ddbcd))
+- **metadata** Remove NodeChanged Notifications mechanism ([#4320](https://github.com/clint456/edgex-go/pull/4320))
     ```text
-    BREAKING CHANGE: Remove the 'Notifications' config and 'Clients.support-notifications' dependency. In EdgeX 3.0, metadata will leverage device system events to replace the original device change notifications
+    BREAKING CHANGE: Remove the 'Notifications' config and 'Clients.support-notifications' dependency. In EdgeX 3.0, metadata will leverage node system events to replace the original node change notifications
     ```
 - **scheduler** Add authentication to support-scheduler actions ([#4419](https://github.com/clint456/edgex-go/issues/4419)) ([#923421b8](https://github.com/clint456/edgex-go/commits/923421b8))
 - **security** Create security-proxy-auth microservice (for proxy swapout) ([#4387](https://github.com/clint456/edgex-go/issues/4387)) ([#68f229a3](https://github.com/clint456/edgex-go/commits/68f229a3))
-- **security** Support for sending outgoing JWTs from core services to device service REST APIs ([#4384](https://github.com/clint456/edgex-go/issues/4384)) ([#248dcbaf](https://github.com/clint456/edgex-go/commits/248dcbaf))
+- **security** Support for sending outgoing JWTs from core services to node service REST APIs ([#4384](https://github.com/clint456/edgex-go/issues/4384)) ([#248dcbaf](https://github.com/clint456/edgex-go/commits/248dcbaf))
 - **security** Vault tokens are now identity-based instead of anonymous ([#4327](https://github.com/clint456/edgex-go/issues/4327)) ([#fd143bca](https://github.com/clint456/edgex-go/commits/fd143bca))
 - **security** Implementation of JWT authentication ADR ([#4244](https://github.com/clint456/edgex-go/pull/4244))
     ```text
@@ -349,9 +349,9 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - Register healthcheck endpoint for security-proxy-auth ([#4426](https://github.com/clint456/edgex-go/issues/4426)) ([#ad6eec9b](https://github.com/clint456/edgex-go/commits/ad6eec9b))
 - Use Database Timeout setting defined in the configuration ([#ef48cf16](https://github.com/clint456/edgex-go/commits/ef48cf16))
 - Adjust redis maxclients to 1000 as default ([#87e0a753](https://github.com/clint456/edgex-go/commits/87e0a753))
-- Check the device service existence before calling the device validation ([#8058126d](https://github.com/clint456/edgex-go/commits/8058126d))
+- Check the node service existence before calling the node validation ([#8058126d](https://github.com/clint456/edgex-go/commits/8058126d))
 - Add retry when calling HasConfiguration to wait for Consul ([#4334](https://github.com/clint456/edgex-go/issues/4334)) ([#a5aecf7d](https://github.com/clint456/edgex-go/commits/a5aecf7d))
-- Remove Devices Service exists Check from Add/update Provision Watcher ([#1258cfbf](https://github.com/clint456/edgex-go/commits/1258cfbf))
+- Remove Nodes Service exists Check from Add/update Provision Watcher ([#1258cfbf](https://github.com/clint456/edgex-go/commits/1258cfbf))
 - **data:** Update validateEvent topic check ([#510db3ea](https://github.com/clint456/edgex-go/commits/510db3ea))
 - **security:** Prefix security related env vars with EDGEX_ ([#4514](https://github.com/clint456/edgex-go/pull/4514))
     ```text
@@ -461,7 +461,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - Enable common security secret service metrics ([#4184](https://github.com/clint456/edgex-go/issues/4184)) ([#8629e80a](https://github.com/clint456/edgex-go/commits/8629e80a))
 - Add go-winio to attribution (new SPIFFE dependency) ([#4029](https://github.com/clint456/edgex-go/issues/4029)) ([#ba7dda9b](https://github.com/clint456/edgex-go/commits/ba7dda9b))
 - use different consul service policy rule for service role ([#4104](https://github.com/clint456/edgex-go/issues/4104)) ([#85bfaaf4](https://github.com/clint456/edgex-go/commits/85bfaaf4))
-- Implement Device System Events ([#4101](https://github.com/clint456/edgex-go/issues/4101)) ([#643a1ec0](https://github.com/clint456/edgex-go/commits/643a1ec0))
+- Implement Node System Events ([#4101](https://github.com/clint456/edgex-go/issues/4101)) ([#643a1ec0](https://github.com/clint456/edgex-go/commits/643a1ec0))
 - Add management acl token and save token info to file ([#4126](https://github.com/clint456/edgex-go/issues/4126)) ([#96e03a37](https://github.com/clint456/edgex-go/commits/96e03a37))
 - Add option to build Core/Support services with NATS Capability ([#4137](https://github.com/clint456/edgex-go/issues/4137)) ([#604c3c95](https://github.com/clint456/edgex-go/commits/604c3c95))
 - Add NATS Subject for autoprovisioning streams ([#4165](https://github.com/clint456/edgex-go/issues/4165)) ([#cf21bfd5](https://github.com/clint456/edgex-go/commits/cf21bfd5))
@@ -469,14 +469,14 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **command:** 3rd party command query via messaging ([#4135](https://github.com/clint456/edgex-go/issues/4135)) ([#a0e04e55](https://github.com/clint456/edgex-go/commits/a0e04e55))
 - **command:** Command request from external MQTT to internal MessageBus ([#4153](https://github.com/clint456/edgex-go/issues/4153)) ([#1c2713d9](https://github.com/clint456/edgex-go/commits/1c2713d9))
 - **command:** Update core-command to support message bus access ([#4129](https://github.com/clint456/edgex-go/issues/4129)) ([#fd31c876](https://github.com/clint456/edgex-go/commits/fd31c876))
-- **command:** Publish device service response to external MQTT ([#4166](https://github.com/clint456/edgex-go/issues/4166)) ([#1845739d](https://github.com/clint456/edgex-go/commits/1845739d))
+- **command:** Publish node service response to external MQTT ([#4166](https://github.com/clint456/edgex-go/issues/4166)) ([#1845739d](https://github.com/clint456/edgex-go/commits/1845739d))
 - **command:** Subscribe command request via internal messaging ([#6f71b1dc](https://github.com/clint456/edgex-go/commits/6f71b1dc))
 - **command:** Command query via internal messaging ([#4182](https://github.com/clint456/edgex-go/issues/4182)) ([#07636ef9](https://github.com/clint456/edgex-go/commits/07636ef9))
-- **metadata:** Add UoM validation to POST deviceresource API ([#4140](https://github.com/clint456/edgex-go/issues/4140)) ([#f87a0e7a](https://github.com/clint456/edgex-go/commits/f87a0e7a))
+- **metadata:** Add UoM validation to POST resource API ([#4140](https://github.com/clint456/edgex-go/issues/4140)) ([#f87a0e7a](https://github.com/clint456/edgex-go/commits/f87a0e7a))
 - **metadata:** Implement GET Units of Measure API ([#4127](https://github.com/clint456/edgex-go/issues/4127)) ([#de42c75f](https://github.com/clint456/edgex-go/commits/de42c75f))
 - **metadata:** Implement Unit of Measure (UoM) ADR ([#4119](https://github.com/clint456/edgex-go/issues/4119)) ([#03487ec6](https://github.com/clint456/edgex-go/commits/03487ec6))
-- **snap:** Remove device-virtual ([#4041](https://github.com/clint456/edgex-go/issues/4041)) ([#fed831e0](https://github.com/clint456/edgex-go/commits/fed831e0))
-- **snap:** Add secretstore token for device camera services ([#4034](https://github.com/clint456/edgex-go/issues/4034)) ([#6f84e707](https://github.com/clint456/edgex-go/commits/6f84e707))
+- **snap:** Remove node-virtual ([#4041](https://github.com/clint456/edgex-go/issues/4041)) ([#fed831e0](https://github.com/clint456/edgex-go/commits/fed831e0))
+- **snap:** Add secretstore token for node camera services ([#4034](https://github.com/clint456/edgex-go/issues/4034)) ([#6f84e707](https://github.com/clint456/edgex-go/commits/6f84e707))
 
 ### Bug Fixes 🐛
 
@@ -542,14 +542,14 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **all:** Create Common DTOs with ServiceName ([#3870](https://github.com/clint456/edgex-go/issues/3870)) ([#d6b89ac6](https://github.com/clint456/edgex-go/commits/d6b89ac6))
 - **data:** Make MaxEventSize a service configuration setting ([#3891](https://github.com/clint456/edgex-go/issues/3891)) ([#de3e46c9](https://github.com/clint456/edgex-go/commits/de3e46c9))
 - **metadata:** Implement Writable.ProfileChange configurations ([#a20eafb3](https://github.com/clint456/edgex-go/commits/a20eafb3))
-- **metadata:** Implement PATCH deviceprofile/resource API ([#a40e21f6](https://github.com/clint456/edgex-go/commits/a40e21f6))
-- **metadata:** Implement DELETE device command API ([#ac0e4352](https://github.com/clint456/edgex-go/commits/ac0e4352))
-- **metadata:** Implement DELETE device resource API ([#691b12bf](https://github.com/clint456/edgex-go/commits/691b12bf))
-- **metadata:** Implement PATCH /deviceprofile/deviceCommand API ([#0fa976f9](https://github.com/clint456/edgex-go/commits/0fa976f9))
-- **metadata:** Invoke validation before adding/updating device ([#3900](https://github.com/clint456/edgex-go/issues/3900)) ([#b3afc0ae](https://github.com/clint456/edgex-go/commits/b3afc0ae))
-- **metadata:** Implement Post device command API ([#dcb0ece3](https://github.com/clint456/edgex-go/commits/dcb0ece3))
-- **metadata:** Implement PATCH device profile basic info API ([#243ad5ab](https://github.com/clint456/edgex-go/commits/243ad5ab))
-- **metadata:** Implement POST device resource ([#3930](https://github.com/clint456/edgex-go/issues/3930)) ([#7587fe9d](https://github.com/clint456/edgex-go/commits/7587fe9d))
+- **metadata:** Implement PATCH profile/resource API ([#a40e21f6](https://github.com/clint456/edgex-go/commits/a40e21f6))
+- **metadata:** Implement DELETE node command API ([#ac0e4352](https://github.com/clint456/edgex-go/commits/ac0e4352))
+- **metadata:** Implement DELETE node resource API ([#691b12bf](https://github.com/clint456/edgex-go/commits/691b12bf))
+- **metadata:** Implement PATCH /profile/command API ([#0fa976f9](https://github.com/clint456/edgex-go/commits/0fa976f9))
+- **metadata:** Invoke validation before adding/updating node ([#3900](https://github.com/clint456/edgex-go/issues/3900)) ([#b3afc0ae](https://github.com/clint456/edgex-go/commits/b3afc0ae))
+- **metadata:** Implement Post node command API ([#dcb0ece3](https://github.com/clint456/edgex-go/commits/dcb0ece3))
+- **metadata:** Implement PATCH node profile basic info API ([#243ad5ab](https://github.com/clint456/edgex-go/commits/243ad5ab))
+- **metadata:** Implement POST node resource ([#3930](https://github.com/clint456/edgex-go/issues/3930)) ([#7587fe9d](https://github.com/clint456/edgex-go/commits/7587fe9d))
 - **security:** Add secret store config for delayed start ([#3948](https://github.com/clint456/edgex-go/issues/3948)) ([#6b188fc4](https://github.com/clint456/edgex-go/commits/6b188fc4))
 - **security:** Enable security-hardened go binaries for cgo flags ([#3893](https://github.com/clint456/edgex-go/issues/3893)) ([#7a573170](https://github.com/clint456/edgex-go/commits/7a573170))
 - **security:** Implement spiffe token provider services ([#3897](https://github.com/clint456/edgex-go/issues/3897)) ([#81bad761](https://github.com/clint456/edgex-go/commits/81bad761))
@@ -562,11 +562,11 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 ### Bug Fixes 🐛
 - **all:** Correct jwt error when reading private key ([#3843](https://github.com/clint456/edgex-go/issues/3843)) ([#1876cd19](https://github.com/clint456/edgex-go/commits/1876cd19))
 - **all:** return 416 code when count is zero and offset > count ([#2c16b7b0](https://github.com/clint456/edgex-go/commits/2c16b7b0))
-- **core-command:** Restore creation of DeviceServiceCommandClient in handler ([#89cc48a7](https://github.com/clint456/edgex-go/commits/89cc48a7))
+- **core-command:** Restore creation of NodeServiceCommandClient in handler ([#89cc48a7](https://github.com/clint456/edgex-go/commits/89cc48a7))
 - **metadata:** Fix the typo of notification message ([#5146f317](https://github.com/clint456/edgex-go/commits/5146f317))
 - **metadata:** Not trigger DS callback if only lastConnected is updated ([#3976](https://github.com/clint456/edgex-go/issues/3976)) ([#7c172932](https://github.com/clint456/edgex-go/commits/7c172932))
-- **metadata:** Add 404 case for not-yet-upgraded device-service ([#79655804](https://github.com/clint456/edgex-go/commits/79655804))
-- **metadata:** Ignore validation result if device service unavailable ([#b9439831](https://github.com/clint456/edgex-go/commits/b9439831))
+- **metadata:** Add 404 case for not-yet-upgraded node-service ([#79655804](https://github.com/clint456/edgex-go/commits/79655804))
+- **metadata:** Ignore validation result if node service unavailable ([#b9439831](https://github.com/clint456/edgex-go/commits/b9439831))
 - **security:** Security-proxy-setup will not terminate on success ([#3917](https://github.com/clint456/edgex-go/issues/3917)) ([#d0a5aad2](https://github.com/clint456/edgex-go/commits/d0a5aad2))
 - **security:** Fix for spiffe-config crashloop ([#3947](https://github.com/clint456/edgex-go/issues/3947)) ([#1a2a9fb2](https://github.com/clint456/edgex-go/commits/1a2a9fb2))
 - **sma:** Update Docker base image in sys mgmt agent Dockerfile ([#3847](https://github.com/clint456/edgex-go/issues/3847)) ([#9e663fa0](https://github.com/clint456/edgex-go/commits/9e663fa0))
@@ -577,7 +577,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - Rename Encode func to better name ([#3822](https://github.com/clint456/edgex-go/issues/3822)) ([#b2bbeb2b](https://github.com/clint456/edgex-go/commits/b2bbeb2b))
 - **all:** Use formatted alternative log function instead of fmt.Sprintf ([#46183a66](https://github.com/clint456/edgex-go/commits/46183a66))
 - **data:** Move subscriber.go from application to controller ([#3903](https://github.com/clint456/edgex-go/issues/3903)) ([#55644671](https://github.com/clint456/edgex-go/commits/55644671))
-- **metadata:** Move DeleteDeviceResourceByName and DeleteDeviceCommandByName to correct files ([#80f156bd](https://github.com/clint456/edgex-go/commits/80f156bd))
+- **metadata:** Move DeleteResourceByName and DeleteCommandByName to correct files ([#80f156bd](https://github.com/clint456/edgex-go/commits/80f156bd))
 
 ### Documentation 📖
 - Add 503 response code to core-command API document ([#3839](https://github.com/clint456/edgex-go/issues/3839)) ([#f0bf1273](https://github.com/clint456/edgex-go/commits/f0bf1273))
@@ -586,8 +586,8 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - Update issue templates to indicate required sections ([#95e17dcf](https://github.com/clint456/edgex-go/commits/95e17dcf))
 - Add path field to support-scheduler intervalAction API example ([#8b40f194](https://github.com/clint456/edgex-go/commits/8b40f194))
 - **all:** Upgrade the API Docs version to 2.2.0 ([#3857](https://github.com/clint456/edgex-go/issues/3857)) ([#1e28c249](https://github.com/clint456/edgex-go/commits/1e28c249))
-- **metadata:** Update metadata swagger API docs for device profile changes ([#a6fe8a26](https://github.com/clint456/edgex-go/commits/a6fe8a26))
-- **metadata:** Fix Swagger metadata PATCH deviceprofile/resource response ([#a6024f17](https://github.com/clint456/edgex-go/commits/a6024f17))
+- **metadata:** Update metadata swagger API docs for node profile changes ([#a6fe8a26](https://github.com/clint456/edgex-go/commits/a6fe8a26))
+- **metadata:** Fix Swagger metadata PATCH profile/resource response ([#a6024f17](https://github.com/clint456/edgex-go/commits/a6024f17))
 - **metadata:** Update metadata Swagger PATCH API responses ([#380509e6](https://github.com/clint456/edgex-go/commits/380509e6))
 - **snap:** Move usage instructions to docs ([#4006](https://github.com/clint456/edgex-go/issues/4006)) ([#75ae4c63](https://github.com/clint456/edgex-go/commits/75ae4c63))
 - **snap:** Update env config overrides description ([#35f1a85d](https://github.com/clint456/edgex-go/commits/35f1a85d))
@@ -604,7 +604,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - Update to latest go-mod-messaging with ZMQ fix ([#3876](https://github.com/clint456/edgex-go/issues/3876)) ([#6e64952c](https://github.com/clint456/edgex-go/commits/6e64952c))
 - Updated formating from gofmt 1.17 ([#3861](https://github.com/clint456/edgex-go/issues/3861)) ([#76a2231e](https://github.com/clint456/edgex-go/commits/76a2231e))
 - **snap:** Upgrade kuiper to 1.4.2 ([#3867](https://github.com/clint456/edgex-go/issues/3867)) ([#85bf44e2](https://github.com/clint456/edgex-go/commits/85bf44e2))
-- **snap:** Upgrade to device-virtual v2.2.0-dev.7 and app-service-configurable latest/beta ([#3914](https://github.com/clint456/edgex-go/issues/3914)) ([#7794663b](https://github.com/clint456/edgex-go/commits/7794663b))
+- **snap:** Upgrade to node-virtual v2.2.0-dev.7 and app-service-configurable latest/beta ([#3914](https://github.com/clint456/edgex-go/issues/3914)) ([#7794663b](https://github.com/clint456/edgex-go/commits/7794663b))
 - **snap:** Source metadata from central repo ([#3959](https://github.com/clint456/edgex-go/issues/3959)) ([#ad3b9b7a](https://github.com/clint456/edgex-go/commits/ad3b9b7a))
 - **snap:** Update edgexfoundry snap base to core20 ([#3848](https://github.com/clint456/edgex-go/issues/3848)) ([#2940d6a5](https://github.com/clint456/edgex-go/commits/2940d6a5))
 
@@ -617,7 +617,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **all:** Enable CORS headers for all services ([#3758](https://github.com/clint456/edgex-go/issues/3758)) ([#4fce4fd2](https://github.com/clint456/edgex-go/commits/4fce4fd2))
 - **all:** Update multi instance response to have totalCount field ([#ea5a8f40](https://github.com/clint456/edgex-go/commits/ea5a8f40))
 - **command:** Support object value type in Set Command ([#eaa9784a](https://github.com/clint456/edgex-go/commits/eaa9784a))
-- **command:** Update Command V2 API to include totalCount field for MultiDeviceCoreCommandsResponse ([#4ad05991](https://github.com/clint456/edgex-go/commits/4ad05991))
+- **command:** Update Command V2 API to include totalCount field for MultiNodeCoreCommandsResponse ([#4ad05991](https://github.com/clint456/edgex-go/commits/4ad05991))
 - **data:** Implement V2 API to query readings by name and time range ([#3577](https://github.com/clint456/edgex-go/issues/3577)) ([#8a6c1010](https://github.com/clint456/edgex-go/commits/8a6c1010))
 - **data:** new API to search Readings by multiple resource names ([#3766](https://github.com/clint456/edgex-go/issues/3766)) ([#e2d5d6cc](https://github.com/clint456/edgex-go/commits/e2d5d6cc))
 - **data:** Enhance the performance of events deletion ([#3722](https://github.com/clint456/edgex-go/issues/3722)) ([#2de07aa5](https://github.com/clint456/edgex-go/commits/2de07aa5))
@@ -626,7 +626,7 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **data:** Update MultiReadingsResponse to have totalCount field ([#07c09b9a](https://github.com/clint456/edgex-go/commits/07c09b9a))
 - **data:** Update MultiEventsResponse to have totalCount field ([#d627eae0](https://github.com/clint456/edgex-go/commits/d627eae0))
 - **data:** implement new GET Readings API ([#1ef40f49](https://github.com/clint456/edgex-go/commits/1ef40f49))
-- **metadata:** Send notification after updating device entity ([#3623](https://github.com/clint456/edgex-go/issues/3623)) ([#166d7917](https://github.com/clint456/edgex-go/commits/166d7917))
+- **metadata:** Send notification after updating node entity ([#3623](https://github.com/clint456/edgex-go/issues/3623)) ([#166d7917](https://github.com/clint456/edgex-go/commits/166d7917))
 - **metadata:** Update Metadata V2 API to include totalCount field for multi-instance response ([#377c2adc](https://github.com/clint456/edgex-go/commits/377c2adc))
 - **notifications:** Update Notififcation V2 API to include totalCount field ([#b1707c08](https://github.com/clint456/edgex-go/commits/b1707c08))
 - **notifications:** add new API to Get Transmissions by Notification id ([#3759](https://github.com/clint456/edgex-go/issues/3759)) ([#4de7b29e](https://github.com/clint456/edgex-go/commits/4de7b29e))
@@ -637,20 +637,20 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **security:** Enable modern cipher suite / TLSv1.3 only ([#3704](https://github.com/clint456/edgex-go/issues/3704)) ([#7380b5be](https://github.com/clint456/edgex-go/commits/7380b5be))
 - **security:** Make Vault token TTL configurable ([#3675](https://github.com/clint456/edgex-go/issues/3675)) ([#19484f48](https://github.com/clint456/edgex-go/commits/19484f48))
 - **snap:** add vault ttl config support ([#ef3901f9](https://github.com/clint456/edgex-go/commits/ef3901f9))
-- **snap:** add additional devices to secret store lists in install hook ([#8ad81a0f](https://github.com/clint456/edgex-go/commits/8ad81a0f))
+- **snap:** add additional nodes to secret store lists in install hook ([#8ad81a0f](https://github.com/clint456/edgex-go/commits/8ad81a0f))
 
 ### Performance Improvements ⚡
 - Change MaxResultCount setting to 1024 ([#8524b20a](https://github.com/clint456/edgex-go/commits/8524b20a))
 
 ### Bug Fixes 🐛
 - **all:** http response cannot be completed ([#3662](https://github.com/clint456/edgex-go/issues/3662)) ([#0ba6ba5b](https://github.com/clint456/edgex-go/commits/0ba6ba5b))
-- **command:** Using the Device Service response code for Get Command ([#9f422825](https://github.com/clint456/edgex-go/commits/9f422825))
+- **command:** Using the Node Service response code for Get Command ([#9f422825](https://github.com/clint456/edgex-go/commits/9f422825))
 - **command:** clean out database section from core command ([#0fae9ab3](https://github.com/clint456/edgex-go/commits/0fae9ab3))
 - **command:** Fix core-command crashes error ([#86f6abfe](https://github.com/clint456/edgex-go/commits/86f6abfe))
-- **data:** add codes to remove db index of reading:deviceName:resourceName when deleting readings ([#173b0957](https://github.com/clint456/edgex-go/commits/173b0957))
-- **metadata:** Remove operating state from device service ([#dc27294b](https://github.com/clint456/edgex-go/commits/dc27294b))
-- **metadata:** Disable device notification by default ([#3789](https://github.com/clint456/edgex-go/issues/3789)) ([#c5f5ac19](https://github.com/clint456/edgex-go/commits/c5f5ac19))
-- **metadata:** device yaml marshal to Json  error ([#3683](https://github.com/clint456/edgex-go/issues/3683)) ([#e89d87e1](https://github.com/clint456/edgex-go/commits/e89d87e1))
+- **data:** add codes to remove db index of reading:nodeName:resourceName when deleting readings ([#173b0957](https://github.com/clint456/edgex-go/commits/173b0957))
+- **metadata:** Remove operating state from node service ([#dc27294b](https://github.com/clint456/edgex-go/commits/dc27294b))
+- **metadata:** Disable node notification by default ([#3789](https://github.com/clint456/edgex-go/issues/3789)) ([#c5f5ac19](https://github.com/clint456/edgex-go/commits/c5f5ac19))
+- **metadata:** node yaml marshal to Json  error ([#3683](https://github.com/clint456/edgex-go/issues/3683)) ([#e89d87e1](https://github.com/clint456/edgex-go/commits/e89d87e1))
 - **metadata:** add labels as part of query criteria when finding ([#3781](https://github.com/clint456/edgex-go/issues/3781)) ([#11dac8c4](https://github.com/clint456/edgex-go/commits/11dac8c4))
 - **security:** Move JWT auth method to individual routes ([#3657](https://github.com/clint456/edgex-go/issues/3657)) ([#d2a5f5fe](https://github.com/clint456/edgex-go/commits/d2a5f5fe))
 - **security:** Replace abandoned JWT package ([#3729](https://github.com/clint456/edgex-go/issues/3729)) ([#32c3a59f](https://github.com/clint456/edgex-go/commits/32c3a59f))
@@ -701,12 +701,12 @@ BREAKING CHANGE: Remove snap packaging ([#4706](https://github.com/clint456/edge
 - **v2:** Remove MetadataCheck mechanism when adding Event ([#3069](https://github.com/clint456/edgex-go/issues/3069)) ([#f7cba1f5](https://github.com/clint456/edgex-go/commits/f7cba1f5))
 - **v2:** Add secure MessageBus capability ([#3436](https://github.com/clint456/edgex-go/issues/3436)) ([#55d4d9f0](https://github.com/clint456/edgex-go/commits/55d4d9f0))
 commits/9055af8f))
-- **data:** Make Core Data publish events to <TopicPrefix>/<DeviceProfile>/<DeviceName> ([#3002](https://github.com/clint456/edgex-go/issues/3002)) ([#cd24e070](https://github.com/clint456/edgex-go/commits/cd24e070))
+- **data:** Make Core Data publish events to <TopicPrefix>/<Profile>/<NodeName> ([#3002](https://github.com/clint456/edgex-go/issues/3002)) ([#cd24e070](https://github.com/clint456/edgex-go/commits/cd24e070))
 e47b23dc))
 - **data:** Modify event validation error message ([#43e7fdfd](https://github.com/clint456/edgex-go/commits/43e7fdfd))
 - **data:** Remove pushed field completely from V2 Event related implementation ([#f3d77c85](https://github.com/clint456/edgex-go/commits/f3d77c85))
 - **data:** Add the missing event's sourceName at persistent layer ([#b7db4934](https://github.com/clint456/edgex-go/commits/b7db4934))
-- **data:** Message topic should contain the event's deviceName ([#16398693](https://github.com/clint456/edgex-go/commits/16398693))
+- **data:** Message topic should contain the event's nodeName ([#16398693](https://github.com/clint456/edgex-go/commits/16398693))
 - **data:** Implement get Binary Reading from database ([#3303](https://github.com/clint456/edgex-go/issues/3303)) ([#d1fc5940](https://github.com/clint456/edgex-go/commits/d1fc5940))
 - **data:** Remove created field from Event and Reading ([#3299](https://github.com/clint456/edgex-go/issues/3299)) ([#04121680](https://github.com/clint456/edgex-go/commits/04121680))
 - **data:** Core Data remove V2 Pushed and Scrub APIs ([#33b5724a](https://github.com/clint456/edgex-go/commits/33b5724a))
@@ -731,7 +731,7 @@ e47b23dc))
 - **all:** Invoke DS deletion Callback by name ([#b818cb7f](https://github.com/clint456/edgex-go/commits/b818cb7f))
 - **all:** Added Content-TYpe from REST header to Context ([#c433a97c](https://github.com/clint456/edgex-go/commits/c433a97c))
 - **metadata:** Check the provisionWatcher existence when delete DS ([#7014d8db](https://github.com/clint456/edgex-go/commits/7014d8db))
-- **metadata:** Delete DS API should check the associated Device existence ([#3054](https://github.com/clint456/edgex-go/issues/3054)) ([#b641f4fe](https://github.com/clint456/edgex-go/commits/b641f4fe))
+- **metadata:** Delete DS API should check the associated Node existence ([#3054](https://github.com/clint456/edgex-go/issues/3054)) ([#b641f4fe](https://github.com/clint456/edgex-go/commits/b641f4fe))
 - **metadata:** Fix DS callback function panic error ([#3523](https://github.com/clint456/edgex-go/issues/3523)) ([#e6c05256](https://github.com/clint456/edgex-go/commits/e6c05256))
 - **metadata:** Check the associated object existence when delete Profile ([#35d7beb0](https://github.com/clint456/edgex-go/commits/35d7beb0))
 - **notifications:** Query with invalid offset range should return 416 ([#73839868](https://github.com/clint456/edgex-go/commits/73839868))
@@ -739,7 +739,7 @@ e47b23dc))
 - **notifications:** Return 200 when successful to delete subscription ([#cd63672c](https://github.com/clint456/edgex-go/commits/cd63672c))
 - **scheduler:** PATCH API Check intervalName nil value ([#f5098ad0](https://github.com/clint456/edgex-go/commits/f5098ad0))
 - **snap:** Cleanup snap hooks ([#9c984eaf](https://github.com/clint456/edgex-go/commits/9c984eaf))
-- **snap:** Update device-virtual --confdir ([#ed9dddb0](https://github.com/clint456/edgex-go/commits/ed9dddb0))
+- **snap:** Update node-virtual --confdir ([#ed9dddb0](https://github.com/clint456/edgex-go/commits/ed9dddb0))
 - **snap:** Fix redis snapshots ([#187bb8da](https://github.com/clint456/edgex-go/commits/187bb8da))
 - **snap:** Update pipe optimization patch ([#ce6ab2ee](https://github.com/clint456/edgex-go/commits/ce6ab2ee))
 - **snap:** Update service command-line options ([#b880d5f7](https://github.com/clint456/edgex-go/commits/b880d5f7))
@@ -792,10 +792,10 @@ e47b23dc))
 - **security:** Update remaining SecretService references to be SecretStore ([#3189](https://github.com/clint456/edgex-go/issues/3189)) ([#afdb9f2a](https://github.com/clint456/edgex-go/commits/afdb9f2a))
 - **all:** Remove support-logging and LoggingInfo config ([#2919](https://github.com/clint456/edgex-go/issues/2919)) ([#0163c92e](https://github.com/clint456/edgex-go/commits/0163c92e))
 - **metadata:** Rename Put Command to Set Command ([#f6d4ba2d](https://github.com/clint456/edgex-go/commits/f6d4ba2d))
-- **metadata:** Refactor device service update operation to DBClient ([#6b9e3f1f](https://github.com/clint456/edgex-go/commits/6b9e3f1f))
+- **metadata:** Refactor node service update operation to DBClient ([#6b9e3f1f](https://github.com/clint456/edgex-go/commits/6b9e3f1f))
 - **metadata:** Refactor provision watcher update operation to DBClient ([#0a10fb90](https://github.com/clint456/edgex-go/commits/0a10fb90))
-- **metadata:** Refactor device profile update operation ([#f5f43703](https://github.com/clint456/edgex-go/commits/f5f43703))
-- **metadata:** Refactor device update operation to DBClient ([#3059](https://github.com/clint456/edgex-go/issues/3059)) ([#abd2591c](https://github.com/clint456/edgex-go/commits/abd2591c))
+- **metadata:** Refactor node profile update operation ([#f5f43703](https://github.com/clint456/edgex-go/commits/f5f43703))
+- **metadata:** Refactor node update operation to DBClient ([#3059](https://github.com/clint456/edgex-go/issues/3059)) ([#abd2591c](https://github.com/clint456/edgex-go/commits/abd2591c))
 - **metadata:** Rename PropertyValue's Type field to ValueType ([#7e47c43b](https://github.com/clint456/edgex-go/commits/7e47c43b))
 - **metadata:** Remove all the Batch, DeleteByID, GetById API ([#15391329](https://github.com/clint456/edgex-go/commits/15391329))
 - **metadata:** Move Transform func to go-mode-core-contract ([#e333ecd1](https://github.com/clint456/edgex-go/commits/e333ecd1))
@@ -809,7 +809,7 @@ e47b23dc))
 <a name="v1.3.1"></a>
 ## [v1.3.1] - 2021-02-08
 ### Features ✨
-- **metadata:** Add service callback for deviceService AdminState Update API ([#a9476202](https://github.com/clint456/edgex-go/commits/a9476202))
+- **metadata:** Add service callback for nodeService AdminState Update API ([#a9476202](https://github.com/clint456/edgex-go/commits/a9476202))
 ### Bug Fixes 🐛
 - Fix nil pointer error when update the unreachable DS adminState ([#c117ee17](https://github.com/clint456/edgex-go/commits/c117ee17))
 - Upgrade to go-mod-messaging with ZMQ fix for Hanoi ([#3084](https://github.com/clint456/edgex-go/issues/3084)) ([#9a6eedb9](https://github.com/clint456/edgex-go/commits/9a6eedb9))
@@ -842,12 +842,12 @@ e47b23dc))
 - Fix path dependency in tokenprovider_linux_test.go ([#2641](https://github.com/clint456/edgex-go/issues/2641)) ([#04784571](https://github.com/clint456/edgex-go/commits/04784571))
 - Allow startup duration/interval to be overridden via env vars ([#2649](https://github.com/clint456/edgex-go/issues/2649)) ([#b6e84d11](https://github.com/clint456/edgex-go/commits/b6e84d11))
 - Use Itoa() instead of string() for int conversion ([#2663](https://github.com/clint456/edgex-go/issues/2663)) ([#6df8530f](https://github.com/clint456/edgex-go/commits/6df8530f))
-- Get deviceProfile by ID when updating the valuedescriptor Should query device profile by name and id to prevent item not found error ([#234ed2e8](https://github.com/clint456/edgex-go/commits/234ed2e8))
+- Get profile by ID when updating the valuedescriptor Should query node profile by name and id to prevent item not found error ([#234ed2e8](https://github.com/clint456/edgex-go/commits/234ed2e8))
 - **data:** Modify the log level of event ([#2833](https://github.com/clint456/edgex-go/issues/2833)) ([#a54f4bf5](https://github.com/clint456/edgex-go/commits/a54f4bf5))
 commits/471572d2))
-- **metadata:** Refactor deviceProfile JSON and YAML POST API ([#2597](https://github.com/clint456/edgex-go/issues/2597)) ([#9098740b](https://github.com/clint456/edgex-go/commits/9098740b))
-- **metadata:** Notify both device services when a Device is moved from one to the other ([#2716](https://github.com/clint456/edgex-go/issues/2716)) ([#bea4f5e6](https://github.com/clint456/edgex-go/commits/bea4f5e6))
-- **metadata:** Device profile post returns 409 if id exists ([#172f3e63](https://github.com/clint456/edgex-go/commits/172f3e63))
+- **metadata:** Refactor profile JSON and YAML POST API ([#2597](https://github.com/clint456/edgex-go/issues/2597)) ([#9098740b](https://github.com/clint456/edgex-go/commits/9098740b))
+- **metadata:** Notify both node services when a Node is moved from one to the other ([#2716](https://github.com/clint456/edgex-go/issues/2716)) ([#bea4f5e6](https://github.com/clint456/edgex-go/commits/bea4f5e6))
+- **metadata:** Node profile post returns 409 if id exists ([#172f3e63](https://github.com/clint456/edgex-go/commits/172f3e63))
 - **notifications:** include From/To in SMTP header ([#2758](https://github.com/clint456/edgex-go/issues/2758)) ([#b3e2acdd](https://github.com/clint456/edgex-go/commits/b3e2acdd))
 - **snap:** Disable asc version check ([#92e33c6b](https://github.com/clint456/edgex-go/commits/92e33c6b))
 - **snap:** Update snap to use kong deb from bintray ([#335fa3dd](https://github.com/clint456/edgex-go/commits/335fa3dd))
@@ -889,13 +889,13 @@ commits/471572d2))
 - Allow SMA to be enabled/disabled ([#720bb04e](https://github.com/clint456/edgex-go/commits/720bb04e))
 - Add Kuiper support ([#e57d4e41](https://github.com/clint456/edgex-go/commits/e57d4e41))
 - Update db provider configure logic ([#bb82c305](https://github.com/clint456/edgex-go/commits/bb82c305))
-- Include device-virtual binary dev profile ([#44f8e65f](https://github.com/clint456/edgex-go/commits/44f8e65f))
+- Include node-virtual binary dev profile ([#44f8e65f](https://github.com/clint456/edgex-go/commits/44f8e65f))
 - Disable sys-mgmt-agent by default ([#d23fa061](https://github.com/clint456/edgex-go/commits/d23fa061))
 - Enable redis security ([#675fad69](https://github.com/clint456/edgex-go/commits/675fad69))
 - Enforce postgresql password auth ([#9bde2db7](https://github.com/clint456/edgex-go/commits/9bde2db7))
 - Use per-service env overrides ([#7f63a8d3](https://github.com/clint456/edgex-go/commits/7f63a8d3))
 - Update default db to be redis ([#e1cef487](https://github.com/clint456/edgex-go/commits/e1cef487))
-- Remove device-random ([#67bc4086](https://github.com/clint456/edgex-go/commits/67bc4086))
+- Remove node-random ([#67bc4086](https://github.com/clint456/edgex-go/commits/67bc4086))
 ### Notifications
 - Refactor to remove Configuration global variable ([#c021313d](https://github.com/clint456/edgex-go/commits/c021313d))
 - Refactor to remove dbClient global variable ([#5f01098a](https://github.com/clint456/edgex-go/commits/5f01098a))
@@ -913,7 +913,7 @@ commits/471572d2))
 ### Features ✨
 - **config-seed:** Change Config Seed rules engine properties so messages are received from App-Service-Configurable ([#dd6fb282](https://github.com/clint456/edgex-go/commits/dd6fb282))
 ### Feature
-- **query-params:** Pass QueryParams through EdgeX to Device Services ([#1571](https://github.com/clint456/edgex-go/issues/1571)) ([#4d7ed080](https://github.com/clint456/edgex-go/commits/4d7ed080))
+- **query-params:** Pass QueryParams through EdgeX to Node Services ([#1571](https://github.com/clint456/edgex-go/issues/1571)) ([#4d7ed080](https://github.com/clint456/edgex-go/commits/4d7ed080))
 ### Bug Fixes 🐛
 - [#2034](https://github.com/clint456/edgex-go/issues/2034) fixes bug around named return values ([#45cdcb29](https://github.com/clint456/edgex-go/commits/45cdcb29))
 - **config-seed:** Slice bound out of range on Windows ([#1606](https://github.com/clint456/edgex-go/issues/1606)) ([#7ee64677](https://github.com/clint456/edgex-go/commits/7ee64677))
@@ -955,7 +955,7 @@ commits/471572d2))
 - **config-seed:** Change Config Seed rules engine properties so messages are received from App-Service-Configurable ([#dd6fb282](https://github.com/clint456/edgex-go/commits/dd6fb282))
 - **core-data:** Event ID has to be pre-populated ([#2695](https://github.com/clint456/edgex-go/issues/2695)) ([#470d1768](https://github.com/clint456/edgex-go/commits/470d1768))
 - **metadata:** Optimize the error handling for deletion API ([#567a6ee1](https://github.com/clint456/edgex-go/commits/567a6ee1))
-- **metadata:** Add service callback for deviceService AdminState Update API ([#a9476202](https://github.com/clint456/edgex-go/commits/a9476202))
+- **metadata:** Add service callback for nodeService AdminState Update API ([#a9476202](https://github.com/clint456/edgex-go/commits/a9476202))
 - **sdk:** Adding vault configuration default env variable ([#2673](https://github.com/clint456/edgex-go/issues/2673)) ([#1421448a](https://github.com/clint456/edgex-go/commits/1421448a))
 - **security:** Implement encryption of vault master key ([#2574](https://github.com/clint456/edgex-go/issues/2574)) ([#09ff485f](https://github.com/clint456/edgex-go/commits/09ff485f))
 - **security:** Add security-redis-bootstrap service ([#1a6876e5](https://github.com/clint456/edgex-go/commits/1a6876e5))
@@ -973,7 +973,7 @@ commits/471572d2))
 - Allow SMA to be enabled/disabled ([#720bb04e](https://github.com/clint456/edgex-go/commits/720bb04e))
 - Add Kuiper support ([#e57d4e41](https://github.com/clint456/edgex-go/commits/e57d4e41))
 - Update db provider configure logic ([#bb82c305](https://github.com/clint456/edgex-go/commits/bb82c305))
-- Include device-virtual binary dev profile ([#44f8e65f](https://github.com/clint456/edgex-go/commits/44f8e65f))
+- Include node-virtual binary dev profile ([#44f8e65f](https://github.com/clint456/edgex-go/commits/44f8e65f))
 - Disable sys-mgmt-agent by default ([#d23fa061](https://github.com/clint456/edgex-go/commits/d23fa061))
 - Enable redis security ([#675fad69](https://github.com/clint456/edgex-go/commits/675fad69))
 - Enforce postgresql password auth ([#9bde2db7](https://github.com/clint456/edgex-go/commits/9bde2db7))
@@ -981,18 +981,18 @@ commits/471572d2))
 - Fix secretstore-setup's token-provider ([#a5387499](https://github.com/clint456/edgex-go/commits/a5387499))
 - Apply gosu fix from fuji ([#8ec53dd5](https://github.com/clint456/edgex-go/commits/8ec53dd5))
 - Fix config-seed startup ([#49731fc6](https://github.com/clint456/edgex-go/commits/49731fc6))
-- Fix device-random startup ([#f6c70a3a](https://github.com/clint456/edgex-go/commits/f6c70a3a))
+- Fix node-random startup ([#f6c70a3a](https://github.com/clint456/edgex-go/commits/f6c70a3a))
 - Fix sys-mgmt-agent executor ([#9c28a602](https://github.com/clint456/edgex-go/commits/9c28a602))
 - Update pre-refresh hook for geneva ([#9b43f8a1](https://github.com/clint456/edgex-go/commits/9b43f8a1))
 - Update epoch to 3 for geneva ([#353e084e](https://github.com/clint456/edgex-go/commits/353e084e))
-- Remove device-random ([#67bc4086](https://github.com/clint456/edgex-go/commits/67bc4086))
+- Remove node-random ([#67bc4086](https://github.com/clint456/edgex-go/commits/67bc4086))
 - Move bin and config dirs into snap/local/ ([#aada7c16](https://github.com/clint456/edgex-go/commits/aada7c16))
 ### FIX
 - Client monitor update in milliseconds, not seconds ([#cd852482](https://github.com/clint456/edgex-go/commits/cd852482))
 - Event ids blank when exported ([#f9b26649](https://github.com/clint456/edgex-go/commits/f9b26649))
 ### Feature
 - **environment:** Allow uppercase environment overrides ([#14cb1f3e](https://github.com/clint456/edgex-go/commits/14cb1f3e))
-- **query-params:** Pass QueryParams through EdgeX to Device Services ([#1571](https://github.com/clint456/edgex-go/issues/1571)) ([#4d7ed080](https://github.com/clint456/edgex-go/commits/4d7ed080))
+- **query-params:** Pass QueryParams through EdgeX to Node Services ([#1571](https://github.com/clint456/edgex-go/issues/1571)) ([#4d7ed080](https://github.com/clint456/edgex-go/commits/4d7ed080))
 ### Security
 - Fix non-empty token-provider Logging.File ([#2499](https://github.com/clint456/edgex-go/issues/2499)) ([#fdb80726](https://github.com/clint456/edgex-go/commits/fdb80726))
 ### Refact
@@ -1027,15 +1027,15 @@ commits/471572d2))
 - ADD_PROXY_ROUTE fails if URL contains dot ([#6e12203f](https://github.com/clint456/edgex-go/commits/6e12203f))
 - Fix path dependency in tokenprovider_linux_test.go ([#2641](https://github.com/clint456/edgex-go/issues/2641)) ([#04784571](https://github.com/clint456/edgex-go/commits/04784571))
 - Use Itoa() instead of string() for int conversion ([#2663](https://github.com/clint456/edgex-go/issues/2663)) ([#6df8530f](https://github.com/clint456/edgex-go/commits/6df8530f))
-- Get deviceProfile by ID when updating the valuedescriptor Should query device profile by name and id to prevent item not found error ([#234ed2e8](https://github.com/clint456/edgex-go/commits/234ed2e8))
+- Get profile by ID when updating the valuedescriptor Should query node profile by name and id to prevent item not found error ([#234ed2e8](https://github.com/clint456/edgex-go/commits/234ed2e8))
 - **config-seed:** Slice bound out of range on Windows ([#1606](https://github.com/clint456/edgex-go/issues/1606)) ([#7ee64677](https://github.com/clint456/edgex-go/commits/7ee64677))
 - **data:** Modify the log level of event ([#2833](https://github.com/clint456/edgex-go/issues/2833)) ([#a54f4bf5](https://github.com/clint456/edgex-go/commits/a54f4bf5))
-- **metadata:** Device PATCH V2 API should check service and profile ([#2862](https://github.com/clint456/edgex-go/issues/2862)) ([#471572d2](https://github.com/clint456/edgex-go/commits/471572d2))
-- **metadata:** Refactor deviceProfile JSON and YAML POST API ([#2597](https://github.com/clint456/edgex-go/issues/2597)) ([#9098740b](https://github.com/clint456/edgex-go/commits/9098740b))
-- **metadata:** V2 GET /deviceservice/all returns inconsistent response when specifying labels or not ([#08b8cf9d](https://github.com/clint456/edgex-go/commits/08b8cf9d))
-- **metadata:** Device profile post returns 409 if id exists ([#172f3e63](https://github.com/clint456/edgex-go/commits/172f3e63))
+- **metadata:** Node PATCH V2 API should check service and profile ([#2862](https://github.com/clint456/edgex-go/issues/2862)) ([#471572d2](https://github.com/clint456/edgex-go/commits/471572d2))
+- **metadata:** Refactor profile JSON and YAML POST API ([#2597](https://github.com/clint456/edgex-go/issues/2597)) ([#9098740b](https://github.com/clint456/edgex-go/commits/9098740b))
+- **metadata:** V2 GET /nodeservice/all returns inconsistent response when specifying labels or not ([#08b8cf9d](https://github.com/clint456/edgex-go/commits/08b8cf9d))
+- **metadata:** Node profile post returns 409 if id exists ([#172f3e63](https://github.com/clint456/edgex-go/commits/172f3e63))
 - **metadata:** correct V2 parsing err response ([#c4d32136](https://github.com/clint456/edgex-go/commits/c4d32136))
-- **metadata:** Notify both device services when a Device is moved from one to the other ([#2716](https://github.com/clint456/edgex-go/issues/2716)) ([#bea4f5e6](https://github.com/clint456/edgex-go/commits/bea4f5e6))
+- **metadata:** Notify both node services when a Node is moved from one to the other ([#2716](https://github.com/clint456/edgex-go/issues/2716)) ([#bea4f5e6](https://github.com/clint456/edgex-go/commits/bea4f5e6))
 - **notifications:** Include From/To in SMTP header ([#2758](https://github.com/clint456/edgex-go/issues/2758)) ([#b3e2acdd](https://github.com/clint456/edgex-go/commits/b3e2acdd))
 - **snap:** remove support-logging ([#f3e829cf](https://github.com/clint456/edgex-go/commits/f3e829cf))
 ### Code Refactoring ♻

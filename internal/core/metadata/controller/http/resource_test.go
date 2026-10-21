@@ -31,14 +31,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testDeviceResourceRequest = requests.AddDeviceResourceRequest{
+var testResourceRequest = requests.AddResourceRequest{
 	BaseRequest: commonDTO.BaseRequest{
 		RequestId:   ExampleUUID,
 		Versionable: commonDTO.NewVersionable(),
 	},
-	ProfileName: TestDeviceProfileName,
-	Resource: dtos.DeviceResource{
-		Name:        "TestDeviceResourceNewName",
+	ProfileName: TestProfileName,
+	Resource: dtos.Resource{
+		Name:        "TestResourceNewName",
 		Description: TestDescription,
 		Attributes:  testAttributes,
 		Properties: dtos.ResourceProperties{
@@ -49,42 +49,42 @@ var testDeviceResourceRequest = requests.AddDeviceResourceRequest{
 	},
 }
 
-func buildTestUpdateDeviceResourceRequest() requests.UpdateDeviceResourceRequest {
-	testDeviceResourceName := TestDeviceResourceName
+func buildTestUpdateResourceRequest() requests.UpdateResourceRequest {
+	testResourceName := TestResourceName
 	testDescription := TestDescription
 	testIsHidden := false
-	var testUpdateDeviceResourceReq = requests.UpdateDeviceResourceRequest{
+	var testUpdateResourceReq = requests.UpdateResourceRequest{
 		BaseRequest: commonDTO.BaseRequest{
 			RequestId:   ExampleUUID,
 			Versionable: commonDTO.NewVersionable(),
 		},
-		ProfileName: TestDeviceProfileName,
-		Resource: dtos.UpdateDeviceResource{
-			Name:        &testDeviceResourceName,
+		ProfileName: TestProfileName,
+		Resource: dtos.UpdateResource{
+			Name:        &testResourceName,
 			Description: &testDescription,
 			IsHidden:    &testIsHidden,
 		},
 	}
-	return testUpdateDeviceResourceReq
+	return testUpdateResourceReq
 }
 
-func TestDeviceResourceByProfileNameAndResourceName(t *testing.T) {
-	deviceProfile := dtos.ToDeviceProfileModel(buildTestDeviceProfileRequest().Profile)
+func TestResourceByProfileNameAndResourceName(t *testing.T) {
+	profile := dtos.ToProfileModel(buildTestProfileRequest().Profile)
 	emptyName := ""
 	profileNotFoundName := "profileNotFoundName"
 	resourceNotFoundName := "resourceNotFoundName"
 
 	dic := mockDic()
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceProfileByName", deviceProfile.Name).Return(deviceProfile, nil)
-	dbClientMock.On("DeviceProfileByName", profileNotFoundName).Return(models.DeviceProfile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "device profile doesn't exist in the database", nil))
+	dbClientMock.On("ProfileByName", profile.Name).Return(profile, nil)
+	dbClientMock.On("ProfileByName", profileNotFoundName).Return(models.Profile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "node profile doesn't exist in the database", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
 
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
@@ -94,16 +94,16 @@ func TestDeviceResourceByProfileNameAndResourceName(t *testing.T) {
 		errorExpected      bool
 		expectedStatusCode int
 	}{
-		{"Valid - find device resource by profileName and resourceName", deviceProfile.Name, TestDeviceResourceName, false, http.StatusOK},
-		{"Invalid - profile name is empty", emptyName, TestDeviceResourceName, true, http.StatusBadRequest},
-		{"Invalid - profile name is empty", deviceProfile.Name, emptyName, true, http.StatusBadRequest},
-		{"Invalid - device profile not", profileNotFoundName, TestDeviceResourceName, true, http.StatusNotFound},
-		{"Invalid - resource not found", deviceProfile.Name, resourceNotFoundName, true, http.StatusNotFound},
+		{"Valid - find node resource by profileName and resourceName", profile.Name, TestResourceName, false, http.StatusOK},
+		{"Invalid - profile name is empty", emptyName, TestResourceName, true, http.StatusBadRequest},
+		{"Invalid - profile name is empty", profile.Name, emptyName, true, http.StatusBadRequest},
+		{"Invalid - node profile not", profileNotFoundName, TestResourceName, true, http.StatusNotFound},
+		{"Invalid - resource not found", profile.Name, resourceNotFoundName, true, http.StatusNotFound},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiDeviceResourceByProfileAndResourceRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiResourceByProfileAndResourceRoute, http.NoBody)
 			require.NoError(t, err)
 
 			// Act
@@ -111,7 +111,7 @@ func TestDeviceResourceByProfileNameAndResourceName(t *testing.T) {
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.ProfileName, common.ResourceName)
 			c.SetParamValues(testCase.profileName, testCase.resourceName)
-			err = controller.DeviceResourceByProfileNameAndResourceName(c)
+			err = controller.ResourceByProfileNameAndResourceName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -124,7 +124,7 @@ func TestDeviceResourceByProfileNameAndResourceName(t *testing.T) {
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
 				assert.NotEmpty(t, res.Message, "Response message doesn't contain the error message")
 			} else {
-				var res responseDTO.DeviceResourceResponse
+				var res responseDTO.ResourceResponse
 				err = json.Unmarshal(recorder.Body.Bytes(), &res)
 				require.NoError(t, err)
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
@@ -137,47 +137,47 @@ func TestDeviceResourceByProfileNameAndResourceName(t *testing.T) {
 	}
 }
 
-func TestAddDeviceProfileResource(t *testing.T) {
-	deviceProfile := dtos.ToDeviceProfileModel(buildTestDeviceProfileRequest().Profile)
+func TestAddProfileResource(t *testing.T) {
+	profile := dtos.ToProfileModel(buildTestProfileRequest().Profile)
 	expectedRequestId := ExampleUUID
 
-	valid := testDeviceResourceRequest
-	noRequestId := testDeviceResourceRequest
+	valid := testResourceRequest
+	noRequestId := testResourceRequest
 	noRequestId.RequestId = ""
-	duplicateName := testDeviceResourceRequest
-	duplicateName.Resource.Name = TestDeviceResourceName
-	noProfileName := testDeviceResourceRequest
+	duplicateName := testResourceRequest
+	duplicateName.Resource.Name = TestResourceName
+	noProfileName := testResourceRequest
 	noProfileName.ProfileName = ""
-	noDeviceResourcePropertyType := testDeviceResourceRequest
-	noDeviceResourcePropertyType.Resource.Properties.ValueType = ""
-	notFoundProfileName := testDeviceResourceRequest
+	noResourcePropertyType := testResourceRequest
+	noResourcePropertyType.Resource.Properties.ValueType = ""
+	notFoundProfileName := testResourceRequest
 	notFoundProfileName.ProfileName = "notFoundName"
-	notFoundDBError := errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, fmt.Sprintf("device profile %s does not exists", notFoundProfileName.ProfileName), nil)
+	notFoundDBError := errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, fmt.Sprintf("node profile %s does not exists", notFoundProfileName.ProfileName), nil)
 
 	dic := mockDic()
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceProfileByName", valid.ProfileName).Return(deviceProfile, nil)
-	dbClientMock.On("DeviceProfileByName", notFoundProfileName.ProfileName).Return(deviceProfile, notFoundDBError)
-	dbClientMock.On("UpdateDeviceProfile", mock.Anything).Return(nil)
-	dbClientMock.On("DevicesByProfileName", 0, -1, TestDeviceProfileName).Return([]models.Device{}, nil)
-	dbClientMock.On("DeviceCountByProfileName", TestDeviceProfileName).Return(int64(1), nil)
+	dbClientMock.On("ProfileByName", valid.ProfileName).Return(profile, nil)
+	dbClientMock.On("ProfileByName", notFoundProfileName.ProfileName).Return(profile, notFoundDBError)
+	dbClientMock.On("UpdateProfile", mock.Anything).Return(nil)
+	dbClientMock.On("NodesByProfileName", 0, -1, TestProfileName).Return([]models.Node{}, nil)
+	dbClientMock.On("NodeCountByProfileName", TestProfileName).Return(int64(1), nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name               string
-		Request            []requests.AddDeviceResourceRequest
+		Request            []requests.AddResourceRequest
 		expectedStatusCode int
 	}{
-		{"Valid - AddDeviceProfileResourceRequest", []requests.AddDeviceResourceRequest{valid}, http.StatusCreated},
-		{"Valid - No requestId", []requests.AddDeviceResourceRequest{noRequestId}, http.StatusCreated},
-		{"invalid - duplicate name", []requests.AddDeviceResourceRequest{duplicateName}, http.StatusBadRequest},
-		{"invalid - Not Exist device profile", []requests.AddDeviceResourceRequest{notFoundProfileName}, http.StatusNotFound},
+		{"Valid - AddProfileResourceRequest", []requests.AddResourceRequest{valid}, http.StatusCreated},
+		{"Valid - No requestId", []requests.AddResourceRequest{noRequestId}, http.StatusCreated},
+		{"invalid - duplicate name", []requests.AddResourceRequest{duplicateName}, http.StatusBadRequest},
+		{"invalid - Not Exist node profile", []requests.AddResourceRequest{notFoundProfileName}, http.StatusNotFound},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -186,13 +186,13 @@ func TestAddDeviceProfileResource(t *testing.T) {
 			require.NoError(t, err)
 
 			reader := strings.NewReader(string(jsonData))
-			req, err := http.NewRequest(http.MethodPost, common.ApiDeviceProfileResourceRoute, reader)
+			req, err := http.NewRequest(http.MethodPost, common.ApiProfileResourceRoute, reader)
 			require.NoError(t, err)
 
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			err = controller.AddDeviceProfileResource(c)
+			err = controller.AddProfileResource(c)
 			require.NoError(t, err)
 
 			var res []commonDTO.BaseResponse
@@ -209,23 +209,23 @@ func TestAddDeviceProfileResource(t *testing.T) {
 	}
 }
 
-func TestAddDeviceProfileResource_BadRequest(t *testing.T) {
-	noProfileName := testDeviceResourceRequest
+func TestAddProfileResource_BadRequest(t *testing.T) {
+	noProfileName := testResourceRequest
 	noProfileName.ProfileName = ""
-	noDeviceResourcePropertyType := testDeviceResourceRequest
-	noDeviceResourcePropertyType.Resource.Properties.ValueType = ""
+	noResourcePropertyType := testResourceRequest
+	noResourcePropertyType.Resource.Properties.ValueType = ""
 
 	dic := mockDic()
 
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name    string
-		Request []requests.AddDeviceResourceRequest
+		Request []requests.AddResourceRequest
 	}{
-		{"invalid - no device profile name", []requests.AddDeviceResourceRequest{noProfileName}},
-		{"invalid - No deviceResource property type", []requests.AddDeviceResourceRequest{noDeviceResourcePropertyType}},
+		{"invalid - no node profile name", []requests.AddResourceRequest{noProfileName}},
+		{"invalid - No resource property type", []requests.AddResourceRequest{noResourcePropertyType}},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -234,13 +234,13 @@ func TestAddDeviceProfileResource_BadRequest(t *testing.T) {
 			require.NoError(t, err)
 
 			reader := strings.NewReader(string(jsonData))
-			req, err := http.NewRequest(http.MethodPost, common.ApiDeviceProfileResourceRoute, reader)
+			req, err := http.NewRequest(http.MethodPost, common.ApiProfileResourceRoute, reader)
 			require.NoError(t, err)
 
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			err = controller.AddDeviceProfileResource(c)
+			err = controller.AddProfileResource(c)
 			require.NoError(t, err)
 
 			var res commonDTO.BaseResponse
@@ -256,11 +256,11 @@ func TestAddDeviceProfileResource_BadRequest(t *testing.T) {
 	}
 }
 
-func TestAddDeviceProfileResource_UnitsOfMeasure_Validation(t *testing.T) {
-	deviceProfile := dtos.ToDeviceProfileModel(buildTestDeviceProfileRequest().Profile)
+func TestAddProfileResource_UnitsOfMeasure_Validation(t *testing.T) {
+	profile := dtos.ToProfileModel(buildTestProfileRequest().Profile)
 	expectedRequestId := ExampleUUID
 
-	emptyUnitsReq := testDeviceResourceRequest
+	emptyUnitsReq := testResourceRequest
 	validReq := emptyUnitsReq
 	validReq.Resource.Properties.Units = TestUnits
 	invalidUnitsReq := emptyUnitsReq
@@ -269,10 +269,10 @@ func TestAddDeviceProfileResource_UnitsOfMeasure_Validation(t *testing.T) {
 	dic := mockDic()
 	container.ConfigurationFrom(dic.Get).Writable.UoM.Validation = true
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceProfileByName", validReq.ProfileName).Return(deviceProfile, nil)
-	dbClientMock.On("UpdateDeviceProfile", mock.Anything).Return(nil)
-	dbClientMock.On("DevicesByProfileName", 0, -1, validReq.ProfileName).Return([]models.Device{}, nil)
-	dbClientMock.On("DeviceCountByProfileName", validReq.ProfileName).Return(int64(1), nil)
+	dbClientMock.On("ProfileByName", validReq.ProfileName).Return(profile, nil)
+	dbClientMock.On("UpdateProfile", mock.Anything).Return(nil)
+	dbClientMock.On("NodesByProfileName", 0, -1, validReq.ProfileName).Return([]models.Node{}, nil)
+	dbClientMock.On("NodeCountByProfileName", validReq.ProfileName).Return(int64(1), nil)
 	uomMock := &mocks.UnitsOfMeasure{}
 	uomMock.On("Validate", TestUnits).Return(true)
 	uomMock.On("Validate", "").Return(true)
@@ -286,17 +286,17 @@ func TestAddDeviceProfileResource_UnitsOfMeasure_Validation(t *testing.T) {
 		},
 	})
 
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name               string
-		Request            []requests.AddDeviceResourceRequest
+		Request            []requests.AddResourceRequest
 		expectedStatusCode int
 	}{
-		{"valid - units not provided", []requests.AddDeviceResourceRequest{emptyUnitsReq}, http.StatusCreated},
-		{"valid - expected units", []requests.AddDeviceResourceRequest{validReq}, http.StatusCreated},
-		{"invalid - unexpected units", []requests.AddDeviceResourceRequest{invalidUnitsReq}, http.StatusBadRequest},
+		{"valid - units not provided", []requests.AddResourceRequest{emptyUnitsReq}, http.StatusCreated},
+		{"valid - expected units", []requests.AddResourceRequest{validReq}, http.StatusCreated},
+		{"invalid - unexpected units", []requests.AddResourceRequest{invalidUnitsReq}, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -305,13 +305,13 @@ func TestAddDeviceProfileResource_UnitsOfMeasure_Validation(t *testing.T) {
 			require.NoError(t, err)
 
 			reader := strings.NewReader(string(jsonData))
-			req, err := http.NewRequest(http.MethodPost, common.ApiDeviceProfileResourceRoute, reader)
+			req, err := http.NewRequest(http.MethodPost, common.ApiProfileResourceRoute, reader)
 			require.NoError(t, err)
 
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			err = controller.AddDeviceProfileResource(c)
+			err = controller.AddProfileResource(c)
 			require.NoError(t, err)
 
 			var res []commonDTO.BaseResponse
@@ -328,12 +328,12 @@ func TestAddDeviceProfileResource_UnitsOfMeasure_Validation(t *testing.T) {
 		})
 	}
 }
-func TestPatchDeviceProfileResource(t *testing.T) {
-	deviceProfile := dtos.ToDeviceProfileModel(buildTestDeviceProfileRequest().Profile)
-	testReq := buildTestUpdateDeviceResourceRequest()
-	deviceExistsProfileName := "deviceExists"
-	deviceExistsProfile := deviceProfile
-	deviceExistsProfile.Name = deviceExistsProfileName
+func TestPatchProfileResource(t *testing.T) {
+	profile := dtos.ToProfileModel(buildTestProfileRequest().Profile)
+	testReq := buildTestUpdateResourceRequest()
+	nodeExistsProfileName := "nodeExists"
+	nodeExistsProfile := profile
+	nodeExistsProfile.Name = nodeExistsProfileName
 	expectedRequestId := ExampleUUID
 	emptyString := ""
 	notFound := "notFoundName"
@@ -341,49 +341,49 @@ func TestPatchDeviceProfileResource(t *testing.T) {
 	valid := testReq
 	validWithNoReqID := testReq
 	validWithNoReqID.RequestId = emptyString
-	deviceExists := testReq
-	deviceExists.ProfileName = deviceExistsProfileName
+	nodeExists := testReq
+	nodeExists.ProfileName = nodeExistsProfileName
 	notFoundResource := testReq
 	notFoundResource.Resource.Name = &notFound
 	notFoundProfile := testReq
 	notFoundProfile.ProfileName = notFound
-	notFoundDBError := errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, fmt.Sprintf("device profile %s does not exists", notFoundProfile.ProfileName), nil)
+	notFoundDBError := errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, fmt.Sprintf("node profile %s does not exists", notFoundProfile.ProfileName), nil)
 
 	noProfileName := testReq
 	noProfileName.ProfileName = emptyString
 
 	dic := mockDic()
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DeviceProfileByName", valid.ProfileName).Return(deviceProfile, nil)
-	dbClientMock.On("DevicesByProfileName", 0, mock.Anything, valid.ProfileName).Return([]models.Device{}, nil)
-	dbClientMock.On("DeviceCountByProfileName", TestDeviceProfileName).Return(int64(1), nil)
-	dbClientMock.On("UpdateDeviceProfile", mock.Anything).Return(nil)
+	dbClientMock.On("ProfileByName", valid.ProfileName).Return(profile, nil)
+	dbClientMock.On("NodesByProfileName", 0, mock.Anything, valid.ProfileName).Return([]models.Node{}, nil)
+	dbClientMock.On("NodeCountByProfileName", TestProfileName).Return(int64(1), nil)
+	dbClientMock.On("UpdateProfile", mock.Anything).Return(nil)
 
-	dbClientMock.On("DeviceProfileByName", deviceExistsProfileName).Return(deviceExistsProfile, nil)
-	dbClientMock.On("DevicesByProfileName", 0, -1, deviceExistsProfileName).Return([]models.Device{{}}, nil)
-	dbClientMock.On("DeviceCountByProfileName", deviceExistsProfileName).Return(int64(1), nil)
+	dbClientMock.On("ProfileByName", nodeExistsProfileName).Return(nodeExistsProfile, nil)
+	dbClientMock.On("NodesByProfileName", 0, -1, nodeExistsProfileName).Return([]models.Node{{}}, nil)
+	dbClientMock.On("NodeCountByProfileName", nodeExistsProfileName).Return(int64(1), nil)
 
-	dbClientMock.On("DeviceProfileByName", notFound).Return(deviceProfile, notFoundDBError)
+	dbClientMock.On("ProfileByName", notFound).Return(profile, notFoundDBError)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	assert.NotNil(t, controller)
 
 	tests := []struct {
 		name                 string
-		Request              []requests.UpdateDeviceResourceRequest
+		Request              []requests.UpdateResourceRequest
 		expectedStatusCode   int
 		expectedResponseCode int
 	}{
-		{"Valid - PatchDeviceProfileResourceRequest", []requests.UpdateDeviceResourceRequest{valid}, http.StatusMultiStatus, http.StatusOK},
-		{"Valid - PatchDeviceProfileResourceRequest no requestId", []requests.UpdateDeviceResourceRequest{validWithNoReqID}, http.StatusMultiStatus, http.StatusOK},
-		{"Valid - Profile is in use by other device", []requests.UpdateDeviceResourceRequest{deviceExists}, http.StatusMultiStatus, http.StatusOK},
-		{"Invalid - Not found device resource", []requests.UpdateDeviceResourceRequest{notFoundResource}, http.StatusMultiStatus, http.StatusNotFound},
-		{"Invalid - Not found device profile", []requests.UpdateDeviceResourceRequest{notFoundProfile}, http.StatusMultiStatus, http.StatusNotFound},
-		{"Invalid - No profile name", []requests.UpdateDeviceResourceRequest{noProfileName}, http.StatusBadRequest, http.StatusBadRequest},
+		{"Valid - PatchProfileResourceRequest", []requests.UpdateResourceRequest{valid}, http.StatusMultiStatus, http.StatusOK},
+		{"Valid - PatchProfileResourceRequest no requestId", []requests.UpdateResourceRequest{validWithNoReqID}, http.StatusMultiStatus, http.StatusOK},
+		{"Valid - Profile is in use by other node", []requests.UpdateResourceRequest{nodeExists}, http.StatusMultiStatus, http.StatusOK},
+		{"Invalid - Not found node resource", []requests.UpdateResourceRequest{notFoundResource}, http.StatusMultiStatus, http.StatusNotFound},
+		{"Invalid - Not found node profile", []requests.UpdateResourceRequest{notFoundProfile}, http.StatusMultiStatus, http.StatusNotFound},
+		{"Invalid - No profile name", []requests.UpdateResourceRequest{noProfileName}, http.StatusBadRequest, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -393,13 +393,13 @@ func TestPatchDeviceProfileResource(t *testing.T) {
 
 			reader := strings.NewReader(string(jsonData))
 
-			req, err := http.NewRequest(http.MethodPatch, common.ApiDeviceProfileResourceRoute, reader)
+			req, err := http.NewRequest(http.MethodPatch, common.ApiProfileResourceRoute, reader)
 			require.NoError(t, err)
 
 			// Act
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
-			err = controller.PatchDeviceProfileResource(c)
+			err = controller.PatchProfileResource(c)
 			require.NoError(t, err)
 
 			if testCase.expectedStatusCode == http.StatusMultiStatus {
@@ -434,29 +434,29 @@ func TestPatchDeviceProfileResource(t *testing.T) {
 	}
 }
 
-func TestDeleteDeviceResourceByName(t *testing.T) {
-	dpModel := dtos.ToDeviceProfileModel(buildTestDeviceProfileRequest().Profile)
+func TestDeleteResourceByName(t *testing.T) {
+	dpModel := dtos.ToProfileModel(buildTestProfileRequest().Profile)
 	notFoundName := "notFoundName"
-	deviceExists := "deviceExists"
+	nodeExists := "nodeExists"
 
 	dic := mockDic()
 	dbClientMock := &mocks.DBClient{}
-	dbClientMock.On("DevicesByProfileName", 0, mock.Anything, TestDeviceProfileName).Return([]models.Device{}, nil)
-	dbClientMock.On("DeviceCountByProfileName", TestDeviceProfileName).Return(int64(1), nil)
-	dbClientMock.On("DeviceProfileByName", TestDeviceProfileName).Return(dpModel, nil)
-	dbClientMock.On("UpdateDeviceProfile", mock.Anything).Return(nil)
+	dbClientMock.On("NodesByProfileName", 0, mock.Anything, TestProfileName).Return([]models.Node{}, nil)
+	dbClientMock.On("NodeCountByProfileName", TestProfileName).Return(int64(1), nil)
+	dbClientMock.On("ProfileByName", TestProfileName).Return(dpModel, nil)
+	dbClientMock.On("UpdateProfile", mock.Anything).Return(nil)
 
-	dbClientMock.On("DevicesByProfileName", 0, 1, deviceExists).Return([]models.Device{models.Device{}}, nil)
+	dbClientMock.On("NodesByProfileName", 0, 1, nodeExists).Return([]models.Node{models.Node{}}, nil)
 
-	dbClientMock.On("DevicesByProfileName", 0, 1, notFoundName).Return([]models.Device{}, nil)
-	dbClientMock.On("DeviceProfileByName", notFoundName).Return(models.DeviceProfile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "not found", nil))
+	dbClientMock.On("NodesByProfileName", 0, 1, notFoundName).Return([]models.Node{}, nil)
+	dbClientMock.On("ProfileByName", notFoundName).Return(models.Profile{}, errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "not found", nil))
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
 		},
 	})
 
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	require.NotNil(t, controller)
 
 	tests := []struct {
@@ -465,18 +465,18 @@ func TestDeleteDeviceResourceByName(t *testing.T) {
 		resourceName       string
 		expectedStatusCode int
 	}{
-		{"valid", TestDeviceProfileName, TestDeviceResourceName + "-dup", http.StatusOK},
-		{"invalid - empty profile name", "", TestDeviceResourceName, http.StatusBadRequest},
-		{"invalid - empty resource name", "", TestDeviceResourceName, http.StatusBadRequest},
-		{"invalid - profile is in use by other device", deviceExists, TestDeviceResourceName, http.StatusConflict},
-		{"invalid - profile not found", notFoundName, TestDeviceResourceName, http.StatusNotFound},
-		{"invalid - resource not found in profile", TestDeviceProfileName, notFoundName, http.StatusNotFound},
-		{"invalid - device resource is referenced by device command", TestDeviceProfileName, TestDeviceResourceName, http.StatusBadRequest},
+		{"valid", TestProfileName, TestResourceName + "-dup", http.StatusOK},
+		{"invalid - empty profile name", "", TestResourceName, http.StatusBadRequest},
+		{"invalid - empty resource name", "", TestResourceName, http.StatusBadRequest},
+		{"invalid - profile is in use by other node", nodeExists, TestResourceName, http.StatusConflict},
+		{"invalid - profile not found", notFoundName, TestResourceName, http.StatusNotFound},
+		{"invalid - resource not found in profile", TestProfileName, notFoundName, http.StatusNotFound},
+		{"invalid - node resource is referenced by node command", TestProfileName, TestResourceName, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodDelete, common.ApiDeviceProfileResourceByNameRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodDelete, common.ApiProfileResourceByNameRoute, http.NoBody)
 			require.NoError(t, err)
 
 			// Act
@@ -484,7 +484,7 @@ func TestDeleteDeviceResourceByName(t *testing.T) {
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name, common.ResourceName)
 			c.SetParamValues(testCase.profileName, testCase.resourceName)
-			err = controller.DeleteDeviceResourceByName(c)
+			err = controller.DeleteResourceByName(c)
 			require.NoError(t, err)
 
 			var res commonDTO.BaseResponse
@@ -503,29 +503,29 @@ func TestDeleteDeviceResourceByName(t *testing.T) {
 
 }
 
-func TestDeleteDeviceResourceByName_StrictProfileChanges(t *testing.T) {
+func TestDeleteResourceByName_StrictProfileChanges(t *testing.T) {
 	dic := mockDic()
 	configuration := container.ConfigurationFrom(dic.Get)
-	configuration.Writable.ProfileChange.StrictDeviceProfileChanges = true
+	configuration.Writable.ProfileChange.StrictProfileChanges = true
 	dic.Update(di.ServiceConstructorMap{
 		container.ConfigurationName: func(get di.Get) interface{} {
 			return configuration
 		},
 	})
 
-	controller := NewDeviceResourceController(dic)
+	controller := NewResourceController(dic)
 	require.NotNil(t, controller)
 
 	e := echo.New()
-	req, err := http.NewRequest(http.MethodDelete, common.ApiDeviceProfileResourceByNameRoute, http.NoBody)
+	req, err := http.NewRequest(http.MethodDelete, common.ApiProfileResourceByNameRoute, http.NoBody)
 	require.NoError(t, err)
 
 	// Act
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(req, recorder)
 	c.SetParamNames(common.Name, common.ResourceName)
-	c.SetParamValues(TestDeviceProfileName, TestDeviceResourceName)
-	err = controller.DeleteDeviceResourceByName(c)
+	c.SetParamValues(TestProfileName, TestResourceName)
+	err = controller.DeleteResourceByName(c)
 	require.NoError(t, err)
 
 	var res commonDTO.BaseResponse

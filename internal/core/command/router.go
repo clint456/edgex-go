@@ -25,8 +25,8 @@ func LoadRestRoutes(r *echo.Echo, dic *di.Container, serviceName string) {
 
 	// Command
 	cmd := commandController.NewCommandController(dic)
-	r.GET(common.ApiAllDeviceRoute, cmd.AllCommands, authenticationHook)
-	r.GET(common.ApiDeviceByNameRoute, cmd.CommandsByDeviceName, authenticationHook)
-	r.GET(common.ApiDeviceNameCommandNameRoute, cmd.IssueGetCommandByName, authenticationHook)
-	r.PUT(common.ApiDeviceNameCommandNameRoute, cmd.IssueSetCommandByName, authenticationHook)
+	r.GET(common.ApiAllNodeRoute, cmd.AllCommands, authenticationHook)
+	r.GET(common.ApiNodeByNameRoute, cmd.CommandsByNodeName, authenticationHook)
+	r.GET(common.ApiNodeNameCommandNameRoute, cmd.IssueGetCommandByName, authenticationHook)
+	r.PUT(common.ApiNodeNameCommandNameRoute, cmd.IssueSetCommandByName, authenticationHook)
 }

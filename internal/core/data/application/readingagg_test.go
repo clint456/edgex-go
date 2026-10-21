@@ -25,8 +25,8 @@ import (
 )
 
 var (
-	device1     = "device1"
-	device2     = "device2"
+	node1       = "node1"
+	node2       = "node2"
 	resource1   = "resource1"
 	resource2   = "resource2"
 	invalidFunc = "invalid"
@@ -34,7 +34,7 @@ var (
 	validEnd    = int64(1765244649710610498)
 	aggReading  = models.NumericReading{
 		BaseReading: models.BaseReading{
-			DeviceName:   device1,
+			NodeName:     node1,
 			ResourceName: resource1,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
@@ -43,7 +43,7 @@ var (
 	}
 	aggReading2 = models.NumericReading{
 		BaseReading: models.BaseReading{
-			DeviceName:   device2,
+			NodeName:     node2,
 			ResourceName: resource2,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
@@ -52,7 +52,7 @@ var (
 	}
 	aggReading3 = models.NumericReading{
 		BaseReading: models.BaseReading{
-			DeviceName:   device2,
+			NodeName:     node2,
 			ResourceName: resource1,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeInt8,
@@ -61,7 +61,7 @@ var (
 	}
 	aggReading4 = models.NumericReading{
 		BaseReading: models.BaseReading{
-			DeviceName:   device1,
+			NodeName:     node1,
 			ResourceName: resource2,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
@@ -242,11 +242,11 @@ func TestAggregateReadingsByResourceNameAndTimeRange(t *testing.T) {
 	}
 }
 
-func TestAggregateReadingsByDeviceName(t *testing.T) {
+func TestAggregateReadingsByNodeName(t *testing.T) {
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingsAggregationByDeviceName", device1, "AVG", 0, 0).Return([]models.Reading{aggReading, aggReading4}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceName", device1, invalidFunc, 0, 0).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
+	dbClientMock.On("ReadingsAggregationByNodeName", node1, "AVG", 0, 0).Return([]models.Reading{aggReading, aggReading4}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeName", node1, invalidFunc, 0, 0).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
 
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
@@ -258,20 +258,20 @@ func TestAggregateReadingsByDeviceName(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		aggFunc            string
 		errorExpected      bool
 		expectedCount      int
 		ExpectedErrKind    errors.ErrKind
 		expectedStatusCode int
 	}{
-		{"Valid - all aggregated readings by device", device1, common.AvgFunc, false, 2, "", http.StatusOK},
-		{"InValid - invalid aggregate function", device1, invalidFunc, true, 0, errors.KindServerError, http.StatusInternalServerError},
-		{"InValid - empty device name", "", "", true, 0, errors.KindContractInvalid, http.StatusBadRequest},
+		{"Valid - all aggregated readings by node", node1, common.AvgFunc, false, 2, "", http.StatusOK},
+		{"InValid - invalid aggregate function", node1, invalidFunc, true, 0, errors.KindServerError, http.StatusInternalServerError},
+		{"InValid - empty node name", "", "", true, 0, errors.KindContractInvalid, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := app.AggregateReadingsByDeviceName(testCase.deviceName, testCase.aggFunc, dic, query.Parameters{})
+			result, err := app.AggregateReadingsByNodeName(testCase.nodeName, testCase.aggFunc, dic, query.Parameters{})
 			if testCase.errorExpected {
 				assert.Error(t, err)
 				assert.NotEmpty(t, err.Error(), "Error message is empty")
@@ -285,11 +285,11 @@ func TestAggregateReadingsByDeviceName(t *testing.T) {
 	}
 }
 
-func TestAggregateReadingsByDeviceNameAndTimeRange(t *testing.T) {
+func TestAggregateReadingsByNodeNameAndTimeRange(t *testing.T) {
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndTimeRange", device1, "MIN", validStart, validEnd, 0, 0).Return([]models.Reading{aggReading, aggReading4}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndTimeRange", device1, invalidFunc, int64(0), int64(1), 0, 0).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
+	dbClientMock.On("ReadingsAggregationByNodeNameAndTimeRange", node1, "MIN", validStart, validEnd, 0, 0).Return([]models.Reading{aggReading, aggReading4}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndTimeRange", node1, invalidFunc, int64(0), int64(1), 0, 0).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
 
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
@@ -301,7 +301,7 @@ func TestAggregateReadingsByDeviceNameAndTimeRange(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		aggFunc            string
 		start              int64
 		end                int64
@@ -310,13 +310,13 @@ func TestAggregateReadingsByDeviceNameAndTimeRange(t *testing.T) {
 		ExpectedErrKind    errors.ErrKind
 		expectedStatusCode int
 	}{
-		{"Valid - all aggregated readings by device and time range", device1, common.MinFunc, validStart, validEnd, false, 2, "", http.StatusOK},
-		{"InValid - invalid aggregate function", device1, invalidFunc, int64(0), int64(1), true, 0, errors.KindServerError, http.StatusInternalServerError},
-		{"InValid - empty device name", "", "", int64(0), int64(1), true, 0, errors.KindContractInvalid, http.StatusBadRequest},
+		{"Valid - all aggregated readings by node and time range", node1, common.MinFunc, validStart, validEnd, false, 2, "", http.StatusOK},
+		{"InValid - invalid aggregate function", node1, invalidFunc, int64(0), int64(1), true, 0, errors.KindServerError, http.StatusInternalServerError},
+		{"InValid - empty node name", "", "", int64(0), int64(1), true, 0, errors.KindContractInvalid, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := app.AggregateReadingsByDeviceNameAndTimeRange(testCase.deviceName, testCase.aggFunc, query.Parameters{Start: testCase.start, End: testCase.end}, dic)
+			result, err := app.AggregateReadingsByNodeNameAndTimeRange(testCase.nodeName, testCase.aggFunc, query.Parameters{Start: testCase.start, End: testCase.end}, dic)
 			if testCase.errorExpected {
 				assert.Error(t, err)
 				assert.NotEmpty(t, err.Error(), "Error message is empty")
@@ -330,11 +330,11 @@ func TestAggregateReadingsByDeviceNameAndTimeRange(t *testing.T) {
 	}
 }
 
-func TestAggregateReadingsByDeviceNameAndResourceName(t *testing.T) {
+func TestAggregateReadingsByNodeNameAndResourceName(t *testing.T) {
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceName", device1, resource1, "COUNT", 0, -1).Return([]models.Reading{aggReading}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceName", device1, resource1, invalidFunc, 0, -1).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceName", node1, resource1, "COUNT", 0, -1).Return([]models.Reading{aggReading}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceName", node1, resource1, invalidFunc, 0, -1).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
 
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
@@ -346,7 +346,7 @@ func TestAggregateReadingsByDeviceNameAndResourceName(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		resourceName       string
 		aggFunc            string
 		errorExpected      bool
@@ -354,14 +354,14 @@ func TestAggregateReadingsByDeviceNameAndResourceName(t *testing.T) {
 		ExpectedErrKind    errors.ErrKind
 		expectedStatusCode int
 	}{
-		{"Valid - all aggregated readings by device and resource", device1, resource1, common.CountFunc, false, 1, "", http.StatusOK},
-		{"InValid - invalid aggregate function", device1, resource1, invalidFunc, true, 0, errors.KindServerError, http.StatusInternalServerError},
-		{"InValid - empty device name", "", resource1, "", true, 0, errors.KindContractInvalid, http.StatusBadRequest},
-		{"InValid - empty resource name", device1, "", "", true, 0, errors.KindContractInvalid, http.StatusBadRequest},
+		{"Valid - all aggregated readings by node and resource", node1, resource1, common.CountFunc, false, 1, "", http.StatusOK},
+		{"InValid - invalid aggregate function", node1, resource1, invalidFunc, true, 0, errors.KindServerError, http.StatusInternalServerError},
+		{"InValid - empty node name", "", resource1, "", true, 0, errors.KindContractInvalid, http.StatusBadRequest},
+		{"InValid - empty resource name", node1, "", "", true, 0, errors.KindContractInvalid, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := app.AggregateReadingsByDeviceNameAndResourceName(testCase.deviceName, testCase.resourceName, testCase.aggFunc, dic, query.Parameters{Offset: 0, Limit: -1})
+			result, err := app.AggregateReadingsByNodeNameAndResourceName(testCase.nodeName, testCase.resourceName, testCase.aggFunc, dic, query.Parameters{Offset: 0, Limit: -1})
 			if testCase.errorExpected {
 				assert.Error(t, err)
 				assert.NotEmpty(t, err.Error(), "Error message is empty")
@@ -375,11 +375,11 @@ func TestAggregateReadingsByDeviceNameAndResourceName(t *testing.T) {
 	}
 }
 
-func TestAggregateReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) {
+func TestAggregateReadingsByNodeNameAndResourceNameAndTimeRange(t *testing.T) {
 	dic := mocks.NewMockDIC()
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange", device1, resource1, "MIN", validStart, validEnd, 0, 0).Return([]models.Reading{aggReading, aggReading4}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange", device1, resource1, invalidFunc, int64(0), int64(1), 0, 0).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceNameAndTimeRange", node1, resource1, "MIN", validStart, validEnd, 0, 0).Return([]models.Reading{aggReading, aggReading4}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceNameAndTimeRange", node1, resource1, invalidFunc, int64(0), int64(1), 0, 0).Return(nil, errors.NewCommonEdgeX(errors.KindServerError, "unknown sql func", nil))
 
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
@@ -391,7 +391,7 @@ func TestAggregateReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) 
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		resourceName       string
 		aggFunc            string
 		start              int64
@@ -401,14 +401,14 @@ func TestAggregateReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) 
 		ExpectedErrKind    errors.ErrKind
 		expectedStatusCode int
 	}{
-		{"Valid - all aggregated readings by device and time range", device1, resource1, common.MinFunc, validStart, validEnd, false, 2, "", http.StatusOK},
-		{"InValid - invalid aggregate function", device1, resource1, invalidFunc, int64(0), int64(1), true, 0, errors.KindServerError, http.StatusInternalServerError},
-		{"InValid - empty device name", "", resource1, "", int64(0), int64(1), true, 0, errors.KindContractInvalid, http.StatusBadRequest},
-		{"InValid - empty resource name", device1, "", "", int64(0), int64(1), true, 0, errors.KindContractInvalid, http.StatusBadRequest},
+		{"Valid - all aggregated readings by node and time range", node1, resource1, common.MinFunc, validStart, validEnd, false, 2, "", http.StatusOK},
+		{"InValid - invalid aggregate function", node1, resource1, invalidFunc, int64(0), int64(1), true, 0, errors.KindServerError, http.StatusInternalServerError},
+		{"InValid - empty node name", "", resource1, "", int64(0), int64(1), true, 0, errors.KindContractInvalid, http.StatusBadRequest},
+		{"InValid - empty resource name", node1, "", "", int64(0), int64(1), true, 0, errors.KindContractInvalid, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := app.AggregateReadingsByDeviceNameAndResourceNameAndTimeRange(testCase.deviceName, testCase.resourceName, testCase.aggFunc, query.Parameters{Start: testCase.start, End: testCase.end}, dic)
+			result, err := app.AggregateReadingsByNodeNameAndResourceNameAndTimeRange(testCase.nodeName, testCase.resourceName, testCase.aggFunc, query.Parameters{Start: testCase.start, End: testCase.end}, dic)
 			if testCase.errorExpected {
 				assert.Error(t, err)
 				assert.NotEmpty(t, err.Error(), "Error message is empty")
@@ -426,7 +426,7 @@ func TestGetReadingAggregation(t *testing.T) {
 	dic := mocks.NewMockDIC()
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange", device1, resource1, "MIN", validStart, validEnd, 0, -1).Return([]models.Reading{aggReading}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceNameAndTimeRange", node1, resource1, "MIN", validStart, validEnd, 0, -1).Return([]models.Reading{aggReading}, nil)
 	expectedDTO := dtos.FromReadingModelToDTO(aggReading)
 
 	dic.Update(di.ServiceConstructorMap{
@@ -436,7 +436,7 @@ func TestGetReadingAggregation(t *testing.T) {
 	})
 
 	aggDBFunc := func(dbClient interfaces.DBClient) ([]models.Reading, errors.EdgeX) {
-		return dbClientMock.ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange(device1, resource1, "MIN", validStart, validEnd, 0, -1)
+		return dbClientMock.ReadingsAggregationByNodeNameAndResourceNameAndTimeRange(node1, resource1, "MIN", validStart, validEnd, 0, -1)
 	}
 	result, err := getReadingAggregation(dic, aggDBFunc)
 	assert.NoError(t, err)

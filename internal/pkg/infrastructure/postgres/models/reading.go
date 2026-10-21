@@ -44,7 +44,7 @@ func (r Reading) GetBaseReading() models.BaseReading {
 	return models.BaseReading{
 		Id:           r.Id,
 		Origin:       r.Origin,
-		DeviceName:   r.DeviceName,
+		NodeName:     r.NodeName,
 		ResourceName: r.ResourceName,
 		ProfileName:  r.ProfileName,
 		ValueType:    r.ValueType,

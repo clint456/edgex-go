@@ -26,13 +26,13 @@ func LoadRestRoutes(r *echo.Echo, dic *di.Container, serviceName string) {
 	r.GET(route+"/forward", mc.Forward, authenticationHook)         // 处理正向查询映射的请求
 	r.GET(route+"/reverse", mc.Reverse, authenticationHook)         // 处理反向查询映射的请求
 	r.POST(route+"/batch/:direction", mc.Batch, authenticationHook) // 处理批量查询映射的请求
-	r.GET(route+"/north/device/:northDeviceName", mc.ByNorthDeviceName, authenticationHook)
+	r.GET(route+"/north/node/:northNodeName", mc.ByNorthNodeName, authenticationHook)
 	r.GET(route+"/north/profile/:northProfileName", mc.ByNorthProfileName, authenticationHook)
-	r.GET(route+"/south/device/:southDeviceName", mc.BySouthDeviceName, authenticationHook)
+	r.GET(route+"/south/node/:southNodeName", mc.BySouthNodeName, authenticationHook)
 	r.GET(route+"/south/profile/:southProfileName", mc.BySouthProfileName, authenticationHook)
-	r.DELETE(route+"/north/device/:northDeviceName", mc.DeleteByNorthDeviceName, authenticationHook)
+	r.DELETE(route+"/north/node/:northNodeName", mc.DeleteByNorthNodeName, authenticationHook)
 	r.DELETE(route+"/north/profile/:northProfileName", mc.DeleteByNorthProfileName, authenticationHook)
-	r.DELETE(route+"/south/device/:southDeviceName", mc.DeleteBySouthDeviceName, authenticationHook)
+	r.DELETE(route+"/south/node/:southNodeName", mc.DeleteBySouthNodeName, authenticationHook)
 	r.DELETE(route+"/south/profile/:southProfileName", mc.DeleteBySouthProfileName, authenticationHook)
 	r.DELETE(route+"/:id", mc.Delete, authenticationHook)
 }

@@ -68,14 +68,14 @@ func (b *Bootstrap) BootstrapHandler(ctx context.Context, wg *sync.WaitGroup, st
 		return false
 	}
 
-	err = initDeviceCache(ctx, dic)
+	err = initNodeCache(ctx, dic)
 	if err != nil {
-		lc.Errorf("Failed to init device cache, %v", err)
+		lc.Errorf("Failed to init node cache, %v", err)
 		return false
 	}
 
-	if err = initDeviceInfoCache(dic); err != nil {
-		lc.Errorf("Failed to init device info cache, %v", err)
+	if err = initNodeInfoCache(dic); err != nil {
+		lc.Errorf("Failed to init node info cache, %v", err)
 		return false
 	}
 
@@ -87,39 +87,39 @@ func (b *Bootstrap) BootstrapHandler(ctx context.Context, wg *sync.WaitGroup, st
 	return true
 }
 
-func initDeviceCache(ctx context.Context, dic *di.Container) errors.EdgeX {
-	dc := bootstrapContainer.DeviceClientFrom(dic.Get)
+func initNodeCache(ctx context.Context, dic *di.Container) errors.EdgeX {
+	dc := bootstrapContainer.NodeClientFrom(dic.Get)
 	if dc == nil {
-		return errors.NewCommonEdgeX(errors.KindServerError, "nil DeviceClient returned", nil)
+		return errors.NewCommonEdgeX(errors.KindServerError, "nil NodeClient returned", nil)
 	}
-	deviceStore := cache.DeviceStore(dic)
+	nodeStore := cache.NodeStore(dic)
 	dic.Update(di.ServiceConstructorMap{
-		container.DeviceStoreInterfaceName: func(get di.Get) interface{} {
-			return deviceStore
+		container.NodeStoreInterfaceName: func(get di.Get) interface{} {
+			return nodeStore
 		},
 	})
 
-	devices, err := dc.AllDevices(ctx, nil, 0, -1)
+	nodes, err := dc.AllNodes(ctx, nil, 0, -1)
 	if err != nil {
 		return errors.NewCommonEdgeXWrapper(err)
 	}
-	for _, d := range devices.Devices {
-		deviceStore.Add(dtos.ToDeviceModel(d))
+	for _, d := range nodes.Nodes {
+		nodeStore.Add(dtos.ToNodeModel(d))
 	}
 	return nil
 }
 
-func initDeviceInfoCache(dic *di.Container) errors.EdgeX {
+func initNodeInfoCache(dic *di.Container) errors.EdgeX {
 	dbClient := container.DBClientFrom(dic.Get)
-	deviceInfos, err := dbClient.AllDeviceInfos(0, -1)
+	nodeInfos, err := dbClient.AllNodeInfos(0, -1)
 	if err != nil {
-		return errors.NewCommonEdgeX(errors.Kind(err), "failed to get device infos from db", err)
+		return errors.NewCommonEdgeX(errors.Kind(err), "failed to get node infos from db", err)
 	}
 
-	deviceInfoCache := dataCache.NewDeviceInfoCache(dic, deviceInfos)
+	nodeInfoCache := dataCache.NewNodeInfoCache(dic, nodeInfos)
 	dic.Update(di.ServiceConstructorMap{
-		container.DeviceInfoCacheInterfaceName: func(get di.Get) interface{} {
-			return deviceInfoCache
+		container.NodeInfoCacheInterfaceName: func(get di.Get) interface{} {
+			return nodeInfoCache
 		},
 	})
 

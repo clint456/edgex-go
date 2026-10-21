@@ -96,76 +96,76 @@ func (c *Client) ReadingsAggregationByResourceNameAndTimeRange(resourceName stri
 	return readings, nil
 }
 
-// ReadingsAggregationByDeviceName queries aggregated reading values by device name using the specified SQL aggregation function.
-func (c *Client) ReadingsAggregationByDeviceName(deviceName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFunc, false, deviceNameCol)
+// ReadingsAggregationByNodeName queries aggregated reading values by node name using the specified SQL aggregation function.
+func (c *Client) ReadingsAggregationByNodeName(nodeName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFunc, false, nodeNameCol)
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
 	readings, err := queryAggReadings(
 		context.Background(),
 		c.ConnPool,
 		sqlStatement,
-		pgx.NamedArgs{deviceNameCol: deviceName, offsetCondition: offset, limitCondition: validLimit},
+		pgx.NamedArgs{nodeNameCol: nodeName, offsetCondition: offset, limitCondition: validLimit},
 		aggregateFunc,
 	)
 	if err != nil {
 		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError,
-			fmt.Sprintf("failed to query readings by device name '%s'", deviceName), err)
+			fmt.Sprintf("failed to query readings by node name '%s'", nodeName), err)
 	}
 	return readings, nil
 }
 
-// ReadingsAggregationByDeviceNameAndTimeRange queries aggregated reading values by device name within the given time range using the specified SQL aggregation function.
-func (c *Client) ReadingsAggregationByDeviceNameAndTimeRange(deviceName string, aggregateFun string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFun, true, deviceNameCol)
+// ReadingsAggregationByNodeNameAndTimeRange queries aggregated reading values by node name within the given time range using the specified SQL aggregation function.
+func (c *Client) ReadingsAggregationByNodeNameAndTimeRange(nodeName string, aggregateFun string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFun, true, nodeNameCol)
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
 	readings, err := queryAggReadings(context.Background(),
 		c.ConnPool,
 		sqlStatement,
-		pgx.NamedArgs{deviceNameCol: deviceName, startTimeCondition: start, endTimeCondition: end, offsetCondition: offset, limitCondition: validLimit},
+		pgx.NamedArgs{nodeNameCol: nodeName, startTimeCondition: start, endTimeCondition: end, offsetCondition: offset, limitCondition: validLimit},
 		aggregateFun,
 	)
 	if err != nil {
 		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError,
-			fmt.Sprintf("failed to query readings by device name '%s'", deviceName), err)
+			fmt.Sprintf("failed to query readings by node name '%s'", nodeName), err)
 	}
 	return readings, nil
 }
 
-// ReadingsAggregationByDeviceNameAndResourceName queries aggregated reading values by device name & resource name using the specified SQL aggregation function.
-func (c *Client) ReadingsAggregationByDeviceNameAndResourceName(deviceName string, resourceName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFunc, false, deviceNameCol, resourceNameCol)
+// ReadingsAggregationByNodeNameAndResourceName queries aggregated reading values by node name & resource name using the specified SQL aggregation function.
+func (c *Client) ReadingsAggregationByNodeNameAndResourceName(nodeName string, resourceName string, aggregateFunc string, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFunc, false, nodeNameCol, resourceNameCol)
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
 	readings, err := queryAggReadings(context.Background(),
 		c.ConnPool,
 		sqlStatement,
-		pgx.NamedArgs{deviceNameCol: deviceName, resourceNameCol: resourceName, offsetCondition: offset, limitCondition: validLimit},
+		pgx.NamedArgs{nodeNameCol: nodeName, resourceNameCol: resourceName, offsetCondition: offset, limitCondition: validLimit},
 		aggregateFunc,
 	)
 	if err != nil {
 		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError,
-			fmt.Sprintf("failed to query readings by device '%s' and resource '%s'", deviceName, resourceName), err)
+			fmt.Sprintf("failed to query readings by node '%s' and resource '%s'", nodeName, resourceName), err)
 	}
 	return readings, nil
 }
 
-// ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange queries aggregated reading values by device name & resource name within the given time range using the specified SQL aggregation function.
-func (c *Client) ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange(deviceName string, resourceName string, aggregateFunc string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
-	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFunc, true, deviceNameCol, resourceNameCol)
+// ReadingsAggregationByNodeNameAndResourceNameAndTimeRange queries aggregated reading values by node name & resource name within the given time range using the specified SQL aggregation function.
+func (c *Client) ReadingsAggregationByNodeNameAndResourceNameAndTimeRange(nodeName string, resourceName string, aggregateFunc string, start int64, end int64, offset int, limit int) ([]models.Reading, errors.EdgeX) {
+	sqlStatement := sqlQueryAggregateReadingWithCondsAndPag(aggregateFunc, true, nodeNameCol, resourceNameCol)
 	offset, validLimit := getValidOffsetAndLimit(offset, limit)
 
 	readings, err := queryAggReadings(
 		context.Background(),
 		c.ConnPool,
 		sqlStatement,
-		pgx.NamedArgs{deviceNameCol: deviceName, resourceNameCol: resourceName, startTimeCondition: start, endTimeCondition: end, offsetCondition: offset, limitCondition: validLimit},
+		pgx.NamedArgs{nodeNameCol: nodeName, resourceNameCol: resourceName, startTimeCondition: start, endTimeCondition: end, offsetCondition: offset, limitCondition: validLimit},
 		aggregateFunc,
 	)
 	if err != nil {
 		return nil, errors.NewCommonEdgeX(errors.KindDatabaseError,
-			fmt.Sprintf("failed to query readings by device '%s' and resource '%s'", deviceName, resourceName), err)
+			fmt.Sprintf("failed to query readings by node '%s' and resource '%s'", nodeName, resourceName), err)
 	}
 	return readings, nil
 }

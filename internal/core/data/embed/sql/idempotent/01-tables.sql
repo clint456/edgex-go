@@ -3,10 +3,10 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
--- core_data.device_info is used to store the device related information reusing in the event and reading
-CREATE TABLE IF NOT EXISTS core_data.device_info (
+-- core_data.node_info is used to store the node related information reusing in the event and reading
+CREATE TABLE IF NOT EXISTS core_data.node_info (
     id SERIAL PRIMARY KEY,
-    devicename TEXT,
+    nodename TEXT,
     profilename TEXT,
     sourcename TEXT,
     tags JSONB,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS core_data.device_info (
 CREATE TABLE IF NOT EXISTS core_data.event (
     id UUID,
     origin BIGINT,
-    device_info_id SERIAL
+    node_info_id SERIAL
 );
 
 CREATE INDEX IF NOT EXISTS idx_event_origin
@@ -29,7 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_event_origin
 -- core_data.reading is used to store the reading information
 CREATE TABLE IF NOT EXISTS core_data.reading (
     event_id UUID,
-    device_info_id SERIAL,
+    node_info_id SERIAL,
     origin BIGINT,
     value TEXT,
     binaryvalue BYTEA,

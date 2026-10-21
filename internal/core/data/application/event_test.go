@@ -28,19 +28,19 @@ import (
 )
 
 const (
-	testDeviceResourceName = "TestDeviceResource"
-	testDeviceName         = "TestDevice"
-	testProfileName        = "TestProfile"
-	testSourceName         = "testSourceName"
-	testUUIDString         = "ca93c8fa-9919-4ec5-85d3-f81b2b6a7bc1"
-	testOriginTime         = 1600666185705354000
-	nonexistentEventID     = "8ad33474-fbc5-11ea-adc1-0242ac120002"
-	testEventCount         = int64(7778)
+	testResourceName   = "TestResource"
+	testNodeName       = "TestNode"
+	testProfileName    = "TestProfile"
+	testSourceName     = "testSourceName"
+	testUUIDString     = "ca93c8fa-9919-4ec5-85d3-f81b2b6a7bc1"
+	testOriginTime     = 1600666185705354000
+	nonexistentEventID = "8ad33474-fbc5-11ea-adc1-0242ac120002"
+	testEventCount     = int64(7778)
 )
 
 var persistedEvent = models.Event{
 	Id:         testUUIDString,
-	DeviceName: testDeviceName,
+	NodeName:   testNodeName,
 	SourceName: testSourceName,
 	Origin:     testOriginTime,
 	Readings:   buildReadings(),
@@ -53,8 +53,8 @@ func buildReadings() []models.Reading {
 		BaseReading: models.BaseReading{
 			Id:           uuid.New().String(),
 			Origin:       ticks,
-			DeviceName:   testDeviceName,
-			ResourceName: testDeviceResourceName,
+			NodeName:     testNodeName,
+			ResourceName: testResourceName,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
 		},
@@ -65,8 +65,8 @@ func buildReadings() []models.Reading {
 		BaseReading: models.BaseReading{
 			Id:           uuid.New().String(),
 			Origin:       ticks + 20,
-			DeviceName:   testDeviceName,
-			ResourceName: testDeviceResourceName,
+			NodeName:     testNodeName,
+			ResourceName: testResourceName,
 			ProfileName:  "FileDataProfile",
 		},
 		BinaryValue: []byte("1010"),
@@ -77,8 +77,8 @@ func buildReadings() []models.Reading {
 		BaseReading: models.BaseReading{
 			Id:           uuid.New().String(),
 			Origin:       ticks + 30,
-			DeviceName:   testDeviceName,
-			ResourceName: testDeviceResourceName,
+			NodeName:     testNodeName,
+			ResourceName: testResourceName,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
 		},
@@ -89,8 +89,8 @@ func buildReadings() []models.Reading {
 		BaseReading: models.BaseReading{
 			Id:           uuid.New().String(),
 			Origin:       ticks + 40,
-			DeviceName:   testDeviceName,
-			ResourceName: testDeviceResourceName,
+			NodeName:     testNodeName,
+			ResourceName: testResourceName,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
 		},
@@ -101,8 +101,8 @@ func buildReadings() []models.Reading {
 		BaseReading: models.BaseReading{
 			Id:           uuid.New().String(),
 			Origin:       ticks + 50,
-			DeviceName:   testDeviceName,
-			ResourceName: testDeviceResourceName,
+			NodeName:     testNodeName,
+			ResourceName: testResourceName,
 			ProfileName:  "TempProfile",
 			ValueType:    common.ValueTypeUint16,
 		},
@@ -124,8 +124,8 @@ func newMockDB(persist bool) *dbMock.DBClient {
 		myMock.On("DeleteEventById", nonexistentEventID).Return(errors.NewCommonEdgeX(errors.KindEntityDoesNotExist, "event doesn't exist in the database", nil))
 		myMock.On("DeleteEventById", testUUIDString).Return(nil)
 		myMock.On("EventTotalCount").Return(testEventCount, nil)
-		myMock.On("EventCountByDeviceName", testDeviceName).Return(testEventCount, nil)
-		myMock.On("DeleteEventsByDeviceName", testDeviceName).Return(nil)
+		myMock.On("EventCountByNodeName", testNodeName).Return(testEventCount, nil)
+		myMock.On("DeleteEventsByNodeName", testNodeName).Return(nil)
 		myMock.On("DeleteEventsByAge", int64(0)).Return(nil)
 	}
 
@@ -135,7 +135,7 @@ func newMockDB(persist bool) *dbMock.DBClient {
 func TestValidateEvent(t *testing.T) {
 	evt := models.Event{
 		Id:          testUUIDString,
-		DeviceName:  testDeviceName,
+		NodeName:    testNodeName,
 		ProfileName: testProfileName,
 		SourceName:  testSourceName,
 		Origin:      testOriginTime,
@@ -146,17 +146,17 @@ func TestValidateEvent(t *testing.T) {
 		Name          string
 		event         models.Event
 		profileName   string
-		deviceName    string
+		nodeName      string
 		sourceName    string
 		errorExpected bool
 	}{
-		{"Valid - profileName/deviceName matches", persistedEvent, testProfileName, testDeviceName, testSourceName, false},
-		{"Invalid - empty profile name", persistedEvent, "", testDeviceName, testSourceName, true},
-		{"Invalid - inconsistent profile name", persistedEvent, "inconsistent", testDeviceName, testSourceName, true},
-		{"Invalid - empty device name", persistedEvent, testProfileName, "", testSourceName, true},
+		{"Valid - profileName/nodeName matches", persistedEvent, testProfileName, testNodeName, testSourceName, false},
+		{"Invalid - empty profile name", persistedEvent, "", testNodeName, testSourceName, true},
+		{"Invalid - inconsistent profile name", persistedEvent, "inconsistent", testNodeName, testSourceName, true},
+		{"Invalid - empty node name", persistedEvent, testProfileName, "", testSourceName, true},
 		{"Invalid - inconsistent profile name", persistedEvent, testProfileName, "inconsistent", testSourceName, true},
-		{"Invalid - empty source name", persistedEvent, "", testDeviceName, "", true},
-		{"Invalid - inconsistent source name", persistedEvent, testProfileName, testDeviceName, "inconsistent", true},
+		{"Invalid - empty source name", persistedEvent, "", testNodeName, "", true},
+		{"Invalid - inconsistent source name", persistedEvent, testProfileName, testNodeName, "inconsistent", true},
 	}
 
 	for _, testCase := range tests {
@@ -171,7 +171,7 @@ func TestValidateEvent(t *testing.T) {
 			})
 
 			app := NewCoreDataApp(dic)
-			err := app.ValidateEvent(evt, testCase.profileName, testCase.deviceName, testCase.sourceName, context.Background(), dic)
+			err := app.ValidateEvent(evt, testCase.profileName, testCase.nodeName, testCase.sourceName, context.Background(), dic)
 
 			if testCase.errorExpected {
 				assert.Error(t, err)
@@ -185,7 +185,7 @@ func TestValidateEvent(t *testing.T) {
 func TestAddEvent(t *testing.T) {
 	evt := models.Event{
 		Id:          testUUIDString,
-		DeviceName:  testDeviceName,
+		NodeName:    testNodeName,
 		ProfileName: testProfileName,
 		Origin:      testOriginTime,
 		Readings:    buildReadings(),
@@ -343,7 +343,7 @@ func TestEventTotalCount(t *testing.T) {
 	assert.Equal(t, testEventCount, count, "Event total count is not expected")
 }
 
-func TestEventCountByDeviceName(t *testing.T) {
+func TestEventCountByNodeName(t *testing.T) {
 	dbClientMock := newMockDB(true)
 
 	dic := mocks.NewMockDIC()
@@ -354,12 +354,12 @@ func TestEventCountByDeviceName(t *testing.T) {
 	})
 
 	app := NewCoreDataApp(dic)
-	count, err := app.EventCountByDeviceName(testDeviceName, dic)
+	count, err := app.EventCountByNodeName(testNodeName, dic)
 	require.NoError(t, err)
 	assert.Equal(t, testEventCount, count, "Event total count is not expected")
 }
 
-func TestDeleteEventsByDeviceName(t *testing.T) {
+func TestDeleteEventsByNodeName(t *testing.T) {
 	dbClientMock := newMockDB(true)
 
 	dic := mocks.NewMockDIC()
@@ -371,20 +371,20 @@ func TestDeleteEventsByDeviceName(t *testing.T) {
 
 	tests := []struct {
 		Name               string
-		deviceName         string
+		nodeName           string
 		ErrorExpected      bool
 		ExpectedErrKind    errors.ErrKind
 		ExpectedStatusCode int
 	}{
-		{"Valid - Delete Event by Id", testDeviceName, false, errors.KindInvalidId, http.StatusOK},
-		{"Invalid - Empty device name", "", true, errors.KindInvalidId, http.StatusBadRequest},
-		{"Invalid - Empty device name with spaces", " \n\t\r ", true, errors.KindInvalidId, http.StatusBadRequest},
+		{"Valid - Delete Event by Id", testNodeName, false, errors.KindInvalidId, http.StatusOK},
+		{"Invalid - Empty node name", "", true, errors.KindInvalidId, http.StatusBadRequest},
+		{"Invalid - Empty node name with spaces", " \n\t\r ", true, errors.KindInvalidId, http.StatusBadRequest},
 	}
 
 	for _, testCase := range tests {
 		t.Run(testCase.Name, func(t *testing.T) {
 			app := NewCoreDataApp(dic)
-			err := app.DeleteEventsByDeviceName(testCase.deviceName, dic)
+			err := app.DeleteEventsByNodeName(testCase.nodeName, dic)
 
 			if testCase.ErrorExpected {
 				require.Error(t, err)

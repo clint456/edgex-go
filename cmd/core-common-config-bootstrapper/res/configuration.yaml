@@ -23,7 +23,7 @@ all-services:
     MaxResultCount: 1024
     MaxRequestSize: 0 # Not currently used. Defines the maximum size of http request body in bytes
     RequestTimeout: "10s" # Defines the maximum time allowed for a request to be processed before returning a timeout error
-    EnableNameFieldEscape: false # The name field escape could allow the system to use special or Chinese characters in the different name fields, including device, profile, and so on.  If the EnableNameFieldEscape is false, some special characters might cause system error.
+    EnableNameFieldEscape: false # The name field escape could allow the system to use special or Chinese characters in the different name fields, including node, profile, and so on.  If the EnableNameFieldEscape is false, some special characters might cause system error.
     CORSConfiguration:
       EnableCORS: false
       CORSAllowCredentials: false
@@ -106,7 +106,7 @@ app-services:
     Type: "edgex-messagebus"
     SubscribeTopics: "events/#" # Base topic is prepended to this topic when using edgex-messagebus
 
-device-services:
+node-services:
   MaxEventSize: 0 # value 0 represents unlimited  maximum event size that can be sent to message bus or core-data
   Writable:
     Reading:
@@ -124,13 +124,13 @@ device-services:
       SecurityOptions:
         Mode: ""
         OpenZitiController: "openziti:1280"
-  Device:
+  Node:
     DataTransform: true
     MaxCmdOps: 128
     MaxCmdValueLen: 256
     ProfilesDir: "./res/profiles"
-    DevicesDir: "./res/devices"
-    # ProvisionWatchersDir is omitted here since most Device Services don't use it.
+    NodesDir: "./res/nodes"
+    # ProvisionWatchersDir is omitted here since most Node Services don't use it.
     # Those that do will have it in their private config
     EnableAsyncReadings: true
     AsyncBufferSize: 16

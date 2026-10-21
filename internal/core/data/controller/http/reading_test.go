@@ -226,7 +226,7 @@ func TestReadingsByTimeRange(t *testing.T) {
 				assert.Equal(t, common.ApiVersion, res.ApiVersion, "API Version not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, recorder.Result().StatusCode, "HTTP status code not as expected")
 				assert.Equal(t, testCase.expectedStatusCode, int(res.StatusCode), "Response status code not as expected")
-				assert.Equal(t, testCase.expectedCount, len(res.Readings), "Device count not as expected")
+				assert.Equal(t, testCase.expectedCount, len(res.Readings), "Node count not as expected")
 				assert.Empty(t, res.Message, "Message should be empty when it is successful")
 				assert.Equal(t, testCase.expectedTotalCount, res.TotalCount, "Total count not as expected")
 			}
@@ -240,10 +240,10 @@ func TestReadingsByResourceName(t *testing.T) {
 	app := application.NewCoreDataApp(dic)
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByResourceName", TestDeviceResourceName).Return(totalCount, nil)
-	dbClientMock.On("ReadingsByResourceName", 0, 20, TestDeviceResourceName).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsByResourceName", 0, 1, TestDeviceResourceName).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsAggregationByResourceName", TestDeviceResourceName, validAggFunc, 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingCountByResourceName", TestResourceName).Return(totalCount, nil)
+	dbClientMock.On("ReadingsByResourceName", 0, 20, TestResourceName).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsByResourceName", 0, 1, TestResourceName).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsAggregationByResourceName", TestResourceName, validAggFunc, 0, 10).Return([]models.Reading{}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -265,12 +265,12 @@ func TestReadingsByResourceName(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get readings without offset, and limit", "", "", TestDeviceResourceName, "", false, totalCount, http.StatusOK},
-		{"Valid - get readings with offset, and limit", "0", "1", TestDeviceResourceName, "", false, totalCount, http.StatusOK},
-		{"Invalid - invalid offset format", "aaa", "1", TestDeviceResourceName, "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid limit format", "1", "aaa", TestDeviceResourceName, "", true, totalCount, http.StatusBadRequest},
-		{"Valid - get readings by resource name with aggregateFunc", "0", "10", TestDeviceResourceName, validAggFunc, false, totalCount, http.StatusOK},
-		{"Invalid - get readings by resource name with invalid aggregateFunc", "", "", TestDeviceResourceName, invalidAggFunc, true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings without offset, and limit", "", "", TestResourceName, "", false, totalCount, http.StatusOK},
+		{"Valid - get readings with offset, and limit", "0", "1", TestResourceName, "", false, totalCount, http.StatusOK},
+		{"Invalid - invalid offset format", "aaa", "1", TestResourceName, "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid limit format", "1", "aaa", TestResourceName, "", true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings by resource name with aggregateFunc", "0", "10", TestResourceName, validAggFunc, false, totalCount, http.StatusOK},
+		{"Invalid - get readings by resource name with invalid aggregateFunc", "", "", TestResourceName, invalidAggFunc, true, totalCount, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -320,16 +320,16 @@ func TestReadingsByResourceName(t *testing.T) {
 	}
 }
 
-func TestReadingsByDeviceName(t *testing.T) {
+func TestReadingsByNodeName(t *testing.T) {
 	totalCount := int64(0)
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceName", TestDeviceName).Return(totalCount, nil)
-	dbClientMock.On("ReadingsByDeviceName", 0, 20, TestDeviceName).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsByDeviceName", 0, 1, TestDeviceName).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceName", TestDeviceName, validAggFunc, 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingCountByNodeName", TestNodeName).Return(totalCount, nil)
+	dbClientMock.On("ReadingsByNodeName", 0, 20, TestNodeName).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsByNodeName", 0, 1, TestNodeName).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeName", TestNodeName, validAggFunc, 0, 10).Return([]models.Reading{}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -345,23 +345,23 @@ func TestReadingsByDeviceName(t *testing.T) {
 		name               string
 		offset             string
 		limit              string
-		deviceName         string
+		nodeName           string
 		aggFunc            string
 		errorExpected      bool
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - get readings without offset, and limit", "", "", TestDeviceName, "", false, totalCount, http.StatusOK},
-		{"Valid - get readings with offset, and limit", "0", "1", TestDeviceName, "", false, totalCount, http.StatusOK},
-		{"Invalid - invalid offset format", "aaa", "1", TestDeviceName, "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid limit format", "1", "aaa", TestDeviceName, "", true, totalCount, http.StatusBadRequest},
-		{"Valid - get readings by device name with aggregateFunc", "0", "10", TestDeviceName, validAggFunc, false, totalCount, http.StatusOK},
-		{"Invalid - get readings by device name with invalid aggregateFunc", "", "", TestDeviceName, invalidAggFunc, true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings without offset, and limit", "", "", TestNodeName, "", false, totalCount, http.StatusOK},
+		{"Valid - get readings with offset, and limit", "0", "1", TestNodeName, "", false, totalCount, http.StatusOK},
+		{"Invalid - invalid offset format", "aaa", "1", TestNodeName, "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid limit format", "1", "aaa", TestNodeName, "", true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings by node name with aggregateFunc", "0", "10", TestNodeName, validAggFunc, false, totalCount, http.StatusOK},
+		{"Invalid - get readings by node name with invalid aggregateFunc", "", "", TestNodeName, invalidAggFunc, true, totalCount, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByDeviceNameRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByNodeNameRoute, http.NoBody)
 			query := req.URL.Query()
 			if testCase.offset != "" {
 				query.Add(common.Offset, testCase.offset)
@@ -379,8 +379,8 @@ func TestReadingsByDeviceName(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name)
-			c.SetParamValues(testCase.deviceName)
-			err = controller.ReadingsByDeviceName(c)
+			c.SetParamValues(testCase.nodeName)
+			err = controller.ReadingsByNodeName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -406,11 +406,11 @@ func TestReadingsByDeviceName(t *testing.T) {
 	}
 }
 
-func TestReadingCountByDeviceName(t *testing.T) {
+func TestReadingCountByNodeName(t *testing.T) {
 	expectedReadingCount := int64(656672)
-	deviceName := "deviceA"
+	nodeName := "nodeA"
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceName", deviceName).Return(expectedReadingCount, nil)
+	dbClientMock.On("ReadingCountByNodeName", nodeName).Return(expectedReadingCount, nil)
 
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
@@ -426,14 +426,14 @@ func TestReadingCountByDeviceName(t *testing.T) {
 	rc := NewReadingController(dic)
 
 	e := echo.New()
-	req, err := http.NewRequest(http.MethodGet, common.ApiReadingCountByDeviceNameRoute, http.NoBody)
+	req, err := http.NewRequest(http.MethodGet, common.ApiReadingCountByNodeNameRoute, http.NoBody)
 	require.NoError(t, err)
 
 	recorder := httptest.NewRecorder()
 	c := e.NewContext(req, recorder)
 	c.SetParamNames(common.Name)
-	c.SetParamValues(deviceName)
-	err = rc.ReadingCountByDeviceName(c)
+	c.SetParamValues(nodeName)
+	err = rc.ReadingCountByNodeName(c)
 	require.NoError(t, err)
 
 	var actualResponse commonDTO.CountResponse
@@ -452,9 +452,9 @@ func TestReadingsByResourceNameAndTimeRange(t *testing.T) {
 	app := application.NewCoreDataApp(dic)
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByResourceNameAndTimeRange", TestDeviceResourceName, int64(0), int64(100)).Return(totalCount, nil)
-	dbClientMock.On("ReadingsByResourceNameAndTimeRange", TestDeviceResourceName, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsAggregationByResourceNameAndTimeRange", TestDeviceResourceName, validAggFunc, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingCountByResourceNameAndTimeRange", TestResourceName, int64(0), int64(100)).Return(totalCount, nil)
+	dbClientMock.On("ReadingsByResourceNameAndTimeRange", TestResourceName, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsAggregationByResourceNameAndTimeRange", TestResourceName, validAggFunc, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -478,17 +478,17 @@ func TestReadingsByResourceNameAndTimeRange(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid ", TestDeviceResourceName, "0", "100", "0", "10", "", false, totalCount, http.StatusOK},
+		{"Valid ", TestResourceName, "0", "100", "0", "10", "", false, totalCount, http.StatusOK},
 		{"Invalid - empty resourceName", "", "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid start format", TestDeviceResourceName, "aaa", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid end format", TestDeviceResourceName, "0", "bbb", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty start", TestDeviceResourceName, "", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty end", TestDeviceResourceName, "0", "", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - end before start", TestDeviceResourceName, "10", "0", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid offset format", TestDeviceResourceName, "0", "100", "aaa", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid limit format", TestDeviceResourceName, "0", "100", "0", "aaa", "", true, totalCount, http.StatusBadRequest},
-		{"Valid - get readings by resource name with aggregateFunc", TestDeviceResourceName, "0", "100", "0", "10", validAggFunc, false, totalCount, http.StatusOK},
-		{"Invalid - get readings by resource name with invalid aggregateFunc", TestDeviceResourceName, "0", "100", "", TestDeviceName, invalidAggFunc, true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid start format", TestResourceName, "aaa", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid end format", TestResourceName, "0", "bbb", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty start", TestResourceName, "", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty end", TestResourceName, "0", "", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - end before start", TestResourceName, "10", "0", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid offset format", TestResourceName, "0", "100", "aaa", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid limit format", TestResourceName, "0", "100", "0", "aaa", "", true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings by resource name with aggregateFunc", TestResourceName, "0", "100", "0", "10", validAggFunc, false, totalCount, http.StatusOK},
+		{"Invalid - get readings by resource name with invalid aggregateFunc", TestResourceName, "0", "100", "", TestNodeName, invalidAggFunc, true, totalCount, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -532,16 +532,16 @@ func TestReadingsByResourceNameAndTimeRange(t *testing.T) {
 	}
 }
 
-func TestReadingsByDeviceNameAndResourceName(t *testing.T) {
+func TestReadingsByNodeNameAndResourceName(t *testing.T) {
 	totalCount := int64(0)
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceNameAndResourceName", TestDeviceName, TestDeviceResourceName).Return(totalCount, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndResourceName", TestDeviceName, TestDeviceResourceName, 0, 20).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndResourceName", TestDeviceName, TestDeviceResourceName, 0, 1).Return([]models.Reading{}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceName", TestDeviceName, TestDeviceResourceName, validAggFunc, 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingCountByNodeNameAndResourceName", TestNodeName, TestResourceName).Return(totalCount, nil)
+	dbClientMock.On("ReadingsByNodeNameAndResourceName", TestNodeName, TestResourceName, 0, 20).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsByNodeNameAndResourceName", TestNodeName, TestResourceName, 0, 1).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceName", TestNodeName, TestResourceName, validAggFunc, 0, 10).Return([]models.Reading{}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -555,7 +555,7 @@ func TestReadingsByDeviceNameAndResourceName(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		resourceName       string
 		offset             string
 		limit              string
@@ -564,19 +564,19 @@ func TestReadingsByDeviceNameAndResourceName(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"valid - get readings without offset, and limit", TestDeviceName, TestDeviceResourceName, "", "", "", false, totalCount, http.StatusOK},
-		{"valid - get readings with offset, and limit", TestDeviceName, TestDeviceResourceName, "0", "1", "", false, totalCount, http.StatusOK},
-		{"invalid - empty deviceName", "", TestDeviceResourceName, "0", "1", "", true, totalCount, http.StatusBadRequest},
-		{"invalid - empty resourceName", TestDeviceName, "", "0", "1", "", true, totalCount, http.StatusBadRequest},
-		{"invalid - invalid offset format", TestDeviceName, TestDeviceResourceName, "aaa", "1", "", true, totalCount, http.StatusBadRequest},
-		{"invalid - invalid limit format", TestDeviceName, TestDeviceResourceName, "1", "aaa", "", true, totalCount, http.StatusBadRequest},
-		{"Valid - get readings by device and resource with aggregateFunc", TestDeviceName, TestDeviceResourceName, "0", "10", validAggFunc, false, totalCount, http.StatusOK},
-		{"Invalid - get readings by device and resource with invalid aggregateFunc", TestDeviceName, TestDeviceResourceName, "", "", invalidAggFunc, true, totalCount, http.StatusBadRequest},
+		{"valid - get readings without offset, and limit", TestNodeName, TestResourceName, "", "", "", false, totalCount, http.StatusOK},
+		{"valid - get readings with offset, and limit", TestNodeName, TestResourceName, "0", "1", "", false, totalCount, http.StatusOK},
+		{"invalid - empty nodeName", "", TestResourceName, "0", "1", "", true, totalCount, http.StatusBadRequest},
+		{"invalid - empty resourceName", TestNodeName, "", "0", "1", "", true, totalCount, http.StatusBadRequest},
+		{"invalid - invalid offset format", TestNodeName, TestResourceName, "aaa", "1", "", true, totalCount, http.StatusBadRequest},
+		{"invalid - invalid limit format", TestNodeName, TestResourceName, "1", "aaa", "", true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings by node and resource with aggregateFunc", TestNodeName, TestResourceName, "0", "10", validAggFunc, false, totalCount, http.StatusOK},
+		{"Invalid - get readings by node and resource with invalid aggregateFunc", TestNodeName, TestResourceName, "", "", invalidAggFunc, true, totalCount, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByDeviceNameAndResourceNameRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByNodeNameAndResourceNameRoute, http.NoBody)
 			require.NoError(t, err)
 			query := req.URL.Query()
 			if testCase.offset != "" {
@@ -595,8 +595,8 @@ func TestReadingsByDeviceNameAndResourceName(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name, common.ResourceName)
-			c.SetParamValues(testCase.deviceName, testCase.resourceName)
-			err = controller.ReadingsByDeviceNameAndResourceName(c)
+			c.SetParamValues(testCase.nodeName, testCase.resourceName)
+			err = controller.ReadingsByNodeNameAndResourceName(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -622,18 +622,18 @@ func TestReadingsByDeviceNameAndResourceName(t *testing.T) {
 	}
 }
 
-func TestReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) {
+func TestReadingsByNodeNameAndResourceNameAndTimeRange(t *testing.T) {
 	totalCount := int64(0)
 	totalCountWithValue := int64(1)
-	TestDeviceSkipTotalCount := "TestDevice_1"
+	TestNodeSkipTotalCount := "TestNode_1"
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceNameAndResourceNameAndTimeRange", TestDeviceName, TestDeviceResourceName, int64(0), int64(100)).Return(totalCountWithValue, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndResourceNameAndTimeRange", TestDeviceName, TestDeviceResourceName, int64(0), int64(100), 0, 10).Return([]models.Reading{persistedReading}, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndResourceNameAndTimeRange", TestDeviceSkipTotalCount, TestDeviceResourceName, int64(0), int64(100), -1, 10).Return([]models.Reading{persistedReading}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndResourceNameAndTimeRange", TestDeviceName, TestDeviceResourceName, validAggFunc, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingCountByNodeNameAndResourceNameAndTimeRange", TestNodeName, TestResourceName, int64(0), int64(100)).Return(totalCountWithValue, nil)
+	dbClientMock.On("ReadingsByNodeNameAndResourceNameAndTimeRange", TestNodeName, TestResourceName, int64(0), int64(100), 0, 10).Return([]models.Reading{persistedReading}, nil)
+	dbClientMock.On("ReadingsByNodeNameAndResourceNameAndTimeRange", TestNodeSkipTotalCount, TestResourceName, int64(0), int64(100), -1, 10).Return([]models.Reading{persistedReading}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndResourceNameAndTimeRange", TestNodeName, TestResourceName, validAggFunc, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -647,7 +647,7 @@ func TestReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		resourceName       string
 		start              string
 		end                string
@@ -658,24 +658,24 @@ func TestReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid ", TestDeviceName, TestDeviceResourceName, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
-		{"Valid with skip total count ", TestDeviceSkipTotalCount, TestDeviceResourceName, "0", "100", "-1", "10", "", false, totalCount, http.StatusOK},
-		{"Invalid - empty deviceName", "", TestDeviceResourceName, "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty resourceName", TestDeviceName, "", "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid start format", TestDeviceName, TestDeviceResourceName, "aaa", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid end format", TestDeviceName, TestDeviceResourceName, "0", "bbb", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty start", TestDeviceName, TestDeviceResourceName, "", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty end", TestDeviceName, TestDeviceResourceName, "0", "", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - end before start", TestDeviceName, TestDeviceResourceName, "10", "0", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid offset format", TestDeviceName, TestDeviceResourceName, "0", "100", "aaa", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid limit format", TestDeviceName, TestDeviceResourceName, "0", "100", "0", "aaa", "", true, totalCount, http.StatusBadRequest},
-		{"Valid - get readings by device, resource and time range with aggregateFunc", TestDeviceName, TestDeviceResourceName, "0", "100", "0", "10", validAggFunc, false, totalCount, http.StatusOK},
-		{"Invalid - get readings by device, resource and time range with invalid aggregateFunc", TestDeviceName, TestDeviceResourceName, "0", "100", "", "", invalidAggFunc, true, totalCount, http.StatusBadRequest},
+		{"Valid ", TestNodeName, TestResourceName, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
+		{"Valid with skip total count ", TestNodeSkipTotalCount, TestResourceName, "0", "100", "-1", "10", "", false, totalCount, http.StatusOK},
+		{"Invalid - empty nodeName", "", TestResourceName, "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty resourceName", TestNodeName, "", "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid start format", TestNodeName, TestResourceName, "aaa", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid end format", TestNodeName, TestResourceName, "0", "bbb", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty start", TestNodeName, TestResourceName, "", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty end", TestNodeName, TestResourceName, "0", "", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - end before start", TestNodeName, TestResourceName, "10", "0", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid offset format", TestNodeName, TestResourceName, "0", "100", "aaa", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid limit format", TestNodeName, TestResourceName, "0", "100", "0", "aaa", "", true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings by node, resource and time range with aggregateFunc", TestNodeName, TestResourceName, "0", "100", "0", "10", validAggFunc, false, totalCount, http.StatusOK},
+		{"Invalid - get readings by node, resource and time range with invalid aggregateFunc", TestNodeName, TestResourceName, "0", "100", "", "", invalidAggFunc, true, totalCount, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
 			e := echo.New()
-			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByDeviceNameAndResourceNameAndTimeRangeRoute, http.NoBody)
+			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByNodeNameAndResourceNameAndTimeRangeRoute, http.NoBody)
 			require.NoError(t, err)
 			query := req.URL.Query()
 			query.Add(common.Offset, testCase.offset)
@@ -688,8 +688,8 @@ func TestReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name, common.ResourceName, common.Start, common.End)
-			c.SetParamValues(testCase.deviceName, testCase.resourceName, testCase.start, testCase.end)
-			err = rc.ReadingsByDeviceNameAndResourceNameAndTimeRange(c)
+			c.SetParamValues(testCase.nodeName, testCase.resourceName, testCase.start, testCase.end)
+			err = rc.ReadingsByNodeNameAndResourceNameAndTimeRange(c)
 			require.NoError(t, err)
 
 			// Assert
@@ -715,7 +715,7 @@ func TestReadingsByDeviceNameAndResourceNameAndTimeRange(t *testing.T) {
 	}
 }
 
-func TestReadingsByDeviceNameAndResourceNamesAndTimeRange(t *testing.T) {
+func TestReadingsByNodeNameAndResourceNamesAndTimeRange(t *testing.T) {
 	totalCount := int64(0)
 	totalCountWithValue := int64(1)
 	testResourceNames := []string{"resource01", "resource02"}
@@ -724,16 +724,16 @@ func TestReadingsByDeviceNameAndResourceNamesAndTimeRange(t *testing.T) {
 	testResourceNamesPayload[common.ResourceNames] = testResourceNames
 	dic := mocks.NewMockDIC()
 	app := application.NewCoreDataApp(dic)
-	TestDeviceSkipTotalCount := "TestDevice_1"
+	TestNodeSkipTotalCount := "TestNode_1"
 
 	dbClientMock := &dbMock.DBClient{}
-	dbClientMock.On("ReadingCountByDeviceNameAndTimeRange", TestDeviceName, int64(0), int64(100)).Return(totalCountWithValue, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndTimeRange", TestDeviceName, int64(0), int64(100), 0, 10).Return([]models.Reading{persistedReading}, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndTimeRange", TestDeviceSkipTotalCount, int64(0), int64(100), -1, 10).Return([]models.Reading{persistedReading}, nil)
-	dbClientMock.On("ReadingCountByDeviceNameAndResourceNamesAndTimeRange", TestDeviceName, testResourceNames, int64(0), int64(100)).Return(totalCountWithValue, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndResourceNamesAndTimeRange", TestDeviceName, testResourceNames, int64(0), int64(100), 0, 10).Return([]models.Reading{persistedReading}, nil)
-	dbClientMock.On("ReadingsByDeviceNameAndResourceNamesAndTimeRange", TestDeviceSkipTotalCount, testResourceNames, int64(0), int64(100), -1, 10).Return([]models.Reading{persistedReading}, nil)
-	dbClientMock.On("ReadingsAggregationByDeviceNameAndTimeRange", TestDeviceName, validAggFunc, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
+	dbClientMock.On("ReadingCountByNodeNameAndTimeRange", TestNodeName, int64(0), int64(100)).Return(totalCountWithValue, nil)
+	dbClientMock.On("ReadingsByNodeNameAndTimeRange", TestNodeName, int64(0), int64(100), 0, 10).Return([]models.Reading{persistedReading}, nil)
+	dbClientMock.On("ReadingsByNodeNameAndTimeRange", TestNodeSkipTotalCount, int64(0), int64(100), -1, 10).Return([]models.Reading{persistedReading}, nil)
+	dbClientMock.On("ReadingCountByNodeNameAndResourceNamesAndTimeRange", TestNodeName, testResourceNames, int64(0), int64(100)).Return(totalCountWithValue, nil)
+	dbClientMock.On("ReadingsByNodeNameAndResourceNamesAndTimeRange", TestNodeName, testResourceNames, int64(0), int64(100), 0, 10).Return([]models.Reading{persistedReading}, nil)
+	dbClientMock.On("ReadingsByNodeNameAndResourceNamesAndTimeRange", TestNodeSkipTotalCount, testResourceNames, int64(0), int64(100), -1, 10).Return([]models.Reading{persistedReading}, nil)
+	dbClientMock.On("ReadingsAggregationByNodeNameAndTimeRange", TestNodeName, validAggFunc, int64(0), int64(100), 0, 10).Return([]models.Reading{}, nil)
 	dic.Update(di.ServiceConstructorMap{
 		container.DBClientInterfaceName: func(get di.Get) interface{} {
 			return dbClientMock
@@ -747,7 +747,7 @@ func TestReadingsByDeviceNameAndResourceNamesAndTimeRange(t *testing.T) {
 
 	tests := []struct {
 		name               string
-		deviceName         string
+		nodeName           string
 		payload            map[string]interface{}
 		start              string
 		end                string
@@ -758,21 +758,21 @@ func TestReadingsByDeviceNameAndResourceNamesAndTimeRange(t *testing.T) {
 		expectedTotalCount int64
 		expectedStatusCode int
 	}{
-		{"Valid - provide deviceName and nil resourceNames", TestDeviceName, nil, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
-		{"Valid - provide deviceName and empty resourceNames", TestDeviceName, emptyPayload, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
-		{"Valid - provide deviceName and empty resourceNames and skip total count", TestDeviceSkipTotalCount, emptyPayload, "0", "100", "-1", "10", "", false, totalCount, http.StatusOK},
-		{"Valid - provide deviceName and resourceNames", TestDeviceName, testResourceNamesPayload, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
-		{"Valid - provide deviceName and resourceNames and skip total count", TestDeviceSkipTotalCount, testResourceNamesPayload, "0", "100", "-1", "10", "", false, totalCount, http.StatusOK},
-		{"Invalid - empty deviceName", "", testResourceNamesPayload, "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid start format", TestDeviceName, testResourceNamesPayload, "aaa", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid end format", TestDeviceName, testResourceNamesPayload, "0", "bbb", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty start", TestDeviceName, testResourceNamesPayload, "", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - empty end", TestDeviceName, testResourceNamesPayload, "0", "", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - end before start", TestDeviceName, testResourceNamesPayload, "10", "0", "0", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid offset format", TestDeviceName, testResourceNamesPayload, "0", "100", "aaa", "10", "", true, totalCount, http.StatusBadRequest},
-		{"Invalid - invalid limit format", TestDeviceName, testResourceNamesPayload, "0", "100", "0", "aaa", "", true, totalCount, http.StatusBadRequest},
-		{"Valid - get readings by device and time range with aggregateFunc", TestDeviceName, nil, "0", "100", "0", "10", validAggFunc, false, totalCount, http.StatusOK},
-		{"Invalid - get readings by device time range with invalid aggregateFunc", TestDeviceName, nil, "0", "100", "", "", invalidAggFunc, true, totalCount, http.StatusBadRequest},
+		{"Valid - provide nodeName and nil resourceNames", TestNodeName, nil, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
+		{"Valid - provide nodeName and empty resourceNames", TestNodeName, emptyPayload, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
+		{"Valid - provide nodeName and empty resourceNames and skip total count", TestNodeSkipTotalCount, emptyPayload, "0", "100", "-1", "10", "", false, totalCount, http.StatusOK},
+		{"Valid - provide nodeName and resourceNames", TestNodeName, testResourceNamesPayload, "0", "100", "0", "10", "", false, totalCountWithValue, http.StatusOK},
+		{"Valid - provide nodeName and resourceNames and skip total count", TestNodeSkipTotalCount, testResourceNamesPayload, "0", "100", "-1", "10", "", false, totalCount, http.StatusOK},
+		{"Invalid - empty nodeName", "", testResourceNamesPayload, "0", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid start format", TestNodeName, testResourceNamesPayload, "aaa", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid end format", TestNodeName, testResourceNamesPayload, "0", "bbb", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty start", TestNodeName, testResourceNamesPayload, "", "100", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - empty end", TestNodeName, testResourceNamesPayload, "0", "", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - end before start", TestNodeName, testResourceNamesPayload, "10", "0", "0", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid offset format", TestNodeName, testResourceNamesPayload, "0", "100", "aaa", "10", "", true, totalCount, http.StatusBadRequest},
+		{"Invalid - invalid limit format", TestNodeName, testResourceNamesPayload, "0", "100", "0", "aaa", "", true, totalCount, http.StatusBadRequest},
+		{"Valid - get readings by node and time range with aggregateFunc", TestNodeName, nil, "0", "100", "0", "10", validAggFunc, false, totalCount, http.StatusOK},
+		{"Invalid - get readings by node time range with invalid aggregateFunc", TestNodeName, nil, "0", "100", "", "", invalidAggFunc, true, totalCount, http.StatusBadRequest},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -785,7 +785,7 @@ func TestReadingsByDeviceNameAndResourceNamesAndTimeRange(t *testing.T) {
 			} else {
 				reader = http.NoBody
 			}
-			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByDeviceNameAndTimeRangeRoute, reader)
+			req, err := http.NewRequest(http.MethodGet, common.ApiReadingByNodeNameAndTimeRangeRoute, reader)
 			req.Header.Set(common.ContentType, common.ContentTypeJSON)
 			require.NoError(t, err)
 			query := req.URL.Query()
@@ -799,8 +799,8 @@ func TestReadingsByDeviceNameAndResourceNamesAndTimeRange(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			c := e.NewContext(req, recorder)
 			c.SetParamNames(common.Name, common.Start, common.End)
-			c.SetParamValues(testCase.deviceName, testCase.start, testCase.end)
-			err = rc.ReadingsByDeviceNameAndResourceNamesAndTimeRange(c)
+			c.SetParamValues(testCase.nodeName, testCase.start, testCase.end)
+			err = rc.ReadingsByNodeNameAndResourceNamesAndTimeRange(c)
 			require.NoError(t, err)
 
 			// Assert

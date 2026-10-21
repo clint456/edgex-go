@@ -35,7 +35,7 @@ type ConfigurationStruct struct {
 // ExternalCommandInfo configures handling of inbound external (MQTT) command requests.
 type ExternalCommandInfo struct {
 	// MaxConcurrentRequests caps in-flight external MQTT command requests so a slow/offline
-	// device cannot starve the Paho callback. Values <= 0 fall back to the built-in default.
+	// node cannot starve the Paho callback. Values <= 0 fall back to the built-in default.
 	MaxConcurrentRequests int
 }
 

@@ -5,9 +5,9 @@
 
 package models
 
-type DeviceInfo struct {
+type NodeInfo struct {
 	Id           int
-	DeviceName   string
+	NodeName     string
 	ProfileName  string
 	SourceName   string
 	Tags         map[string]any

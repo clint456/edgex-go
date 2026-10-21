@@ -95,7 +95,7 @@ func registrations(conn redis.Conn, start, end int) ([]models.Registration, erro
 		r := models.Registration{}
 		err := json.Unmarshal(in, &r)
 		if err != nil {
-			return nil, errors.NewCommonEdgeX(errors.KindDatabaseError, "device format parsing failed from the database", err)
+			return nil, errors.NewCommonEdgeX(errors.KindDatabaseError, "node format parsing failed from the database", err)
 		}
 		registries[i] = r
 	}
