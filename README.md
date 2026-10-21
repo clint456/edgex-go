@@ -98,6 +98,28 @@ cd $GOPATH/src/github.com/clint456/edgex-go
 make build
 ```
 
+#### Cross-compiling for arm64
+
+The Makefile cross-compiles the service binaries through `GOOS`/`GOARCH` (defaulting to the host platform):
+
+```sh
+make build-arm64    # equivalent to: make build GOOS=linux GOARCH=arm64
+make build-amd64
+```
+
+Docker images can target another architecture via `PLATFORM`. The Go build still runs on the host platform, only the runtime image is built for the requested architecture:
+
+```sh
+make docker-arm64    # equivalent to: make docker PLATFORM=linux/arm64
+make docker PLATFORM=linux/arm64
+```
+
+When `PLATFORM` differs from the host architecture, the `apk` steps in the runtime stage require binfmt/QEMU to be registered once:
+
+```sh
+docker run --privileged --rm tonistiigi/binfmt --install arm64
+```
+
 #### Deploy EdgeX
 
 Recommended deployment of EdgeX services is with Docker. See [Getting Started with Docker](https://docs.edgexfoundry.org/2.0/getting-started/Ch-GettingStartedUsers/) for more details. 

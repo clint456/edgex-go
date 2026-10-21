@@ -18,13 +18,16 @@
 #  ----------------------------------------------------------------------------------
 
 ARG BUILDER_BASE=golang:1.25-alpine3.22
-FROM ${BUILDER_BASE} AS builder
+FROM --platform=$BUILDPLATFORM ${BUILDER_BASE} AS builder
 
 ARG ALPINE_MIRROR=mirrors.aliyun.com
 # Alpine dl-cdn/dl-4 mirrors are flaky (TLS resets / 403); use the mirror from ALPINE_MIRROR.
 RUN [ -z "${ALPINE_MIRROR}" ] || sed -i "s#dl-cdn[.]alpinelinux[.]org#${ALPINE_MIRROR}#g; s#dl-4[.]alpinelinux[.]org#${ALPINE_MIRROR}#g" /etc/apk/repositories
 
 ARG ADD_BUILD_TAGS=""
+# Target platform for cross-compilation, set by the Makefile (PLATFORM).
+ARG TARGETOS=linux
+ARG TARGETARCH
 
 WORKDIR /edgex-go
 
@@ -41,7 +44,7 @@ COPY edgex-go/go.mod edgex-go/go.sum ./
 RUN [ ! -d "vendor" ] && go mod download all || echo "skipping..."
 
 COPY edgex-go/ .
-RUN make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS  cmd/core-command/core-command
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH make -e ADD_BUILD_TAGS=$ADD_BUILD_TAGS cmd/core-command/core-command
 
 FROM alpine:3.22
 

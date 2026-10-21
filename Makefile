@@ -6,7 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-.PHONY: build clean unittest hadolint lint test docker run sbom docker-fuzz fuzz-test-command fuzz-test-data
+.PHONY: build build-amd64 build-arm64 clean unittest hadolint lint test docker \
+	docker-amd64 docker-arm64 run sbom docker-fuzz fuzz-test-command fuzz-test-data
 
 # change the following boolean flag to include or exclude the delayed start libs for builds for core services
 INCLUDE_DELAYED_START_BUILD_CORE:="false"
@@ -17,6 +18,13 @@ ENABLE_FULL_RELRO=true
 ENABLE_PIE=true
 
 GO=go
+
+# Cross-compilation settings. Override on the command line, e.g.
+#   make build GOARCH=arm64
+#   make build-arm64
+GOOS ?= $(shell $(GO) env GOOS)
+GOARCH ?= $(shell $(GO) env GOARCH)
+CGO_ENABLED ?= 0
 
 DOCKERS= \
 	docker_core_data \
@@ -56,6 +64,17 @@ GIT_SHA=$(shell git rev-parse HEAD)
 
 ARCH=$(shell uname -m)
 
+# Target platform used for docker builds. Defaults to the host GOOS/GOARCH so
+# that `make docker` keeps building natively; override for multi-arch builds, e.g.
+#   make docker-arm64
+#   make docker PLATFORM=linux/arm64
+# When PLATFORM differs from the host architecture the builder stage still runs
+# on the build platform (Go cross-compiles), but the runtime stage's `apk` steps
+# require binfmt/QEMU, e.g. `docker run --privileged --rm tonistiigi/binfmt --install arm64`.
+PLATFORM ?= linux/$(GOARCH)
+PLATFORM_GOOS ?= $(firstword $(subst /, ,$(PLATFORM)))
+PLATFORM_GOARCH ?= $(lastword $(subst /, ,$(PLATFORM)))
+
 GO_VERSION=$(shell grep '^go [0-9].[0-9]*' go.mod | cut -d' ' -f 2)
 
 # DO NOT change the following flag, as it is automatically set based on the boolean switch INCLUDE_DELAYED_START_BUILD_CORE
@@ -87,6 +106,13 @@ DOCKER_BUILD_EXTRA ?=
 
 build: $(MICROSERVICES)
 
+# Convenience targets for cross-compiling the service binaries.
+build-amd64:
+	$(MAKE) build GOOS=linux GOARCH=amd64
+
+build-arm64:
+	$(MAKE) build GOOS=linux GOARCH=arm64
+
 build-nats:
 	make -e ADD_BUILD_TAGS=include_nats_messaging build
 
@@ -100,27 +126,27 @@ core: metadata data command
 
 metadata: cmd/core-metadata/core-metadata
 cmd/core-metadata/core-metadata:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-metadata
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-metadata
 
 data: cmd/core-data/core-data
 cmd/core-data/core-data:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-data
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-data
 
 command: cmd/core-command/core-command
 cmd/core-command/core-command:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-command
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-command
 
 common-config: cmd/core-common-config-bootstrapper/core-common-config-bootstrapper
 cmd/core-common-config-bootstrapper/core-common-config-bootstrapper:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-common-config-bootstrapper
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-common-config-bootstrapper
 
 keeper: cmd/core-keeper/core-keeper
 cmd/core-keeper/core-keeper:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-keeper
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/core-keeper
 
 support-mappings: cmd/support-mappings/support-mappings
 cmd/support-mappings/support-mappings:
-	$(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/support-mappings
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags "$(ADD_BUILD_TAGS) $(NON_DELAYED_START_GO_BUILD_TAG_FOR_CORE)" $(GOFLAGS) -o $@ ./cmd/support-mappings
 
 clean:
 	rm -f $(MICROSERVICES)
@@ -129,11 +155,11 @@ unittest:
 	$(GO) test $(GOTESTFLAGS) -coverprofile=coverage.out ./...
 
 hadolint:
-	if which hadolint > /dev/null ; then hadolint --config .hadolint.yml `find * -type f -name 'Dockerfile*' -print` ; elif test "${ARCH}" = "x86_64" && which docker > /dev/null ; then docker run --rm -v `pwd`:/host:ro,z --entrypoint /bin/hadolint hadolint/hadolint:latest --config /host/.hadolint.yml `find * -type f -name 'Dockerfile*' | xargs -i echo '/host/{}'` ; fi
+	if which hadolint > /dev/null ; then hadolint --config .hadolint.yml `find * -type f -name 'Dockerfile*' -print` ; elif { [ "${ARCH}" = "x86_64" ] || [ "${ARCH}" = "aarch64" ] || [ "${ARCH}" = "arm64" ]; } && which docker > /dev/null ; then docker run --rm -v `pwd`:/host:ro,z --entrypoint /bin/hadolint hadolint/hadolint:latest --config /host/.hadolint.yml `find * -type f -name 'Dockerfile*' | xargs -i echo '/host/{}'` ; fi
 	
 lint:
 	@which golangci-lint >/dev/null || echo "WARNING: go linter not installed. To install, run make install-lint"
-	@if [ "z${ARCH}" = "zx86_64" ] && which golangci-lint >/dev/null ; then echo "running golangci-lint"; golangci-lint version; go version; golangci-lint cache clean; golangci-lint run --verbose --config .golangci.yml ; else echo "WARNING: Linting skipped (not on x86_64 or linter not installed)"; fi
+	@if { [ "z${ARCH}" = "zx86_64" ] || [ "z${ARCH}" = "zaarch64" ] || [ "z${ARCH}" = "zarm64" ]; } && which golangci-lint >/dev/null ; then echo "running golangci-lint"; golangci-lint version; go version; golangci-lint cache clean; golangci-lint run --verbose --config .golangci.yml ; else echo "WARNING: Linting skipped (unsupported architecture or linter not installed)"; fi
 
 install-lint:
 	sudo curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v2.5.0
@@ -145,6 +171,12 @@ test: unittest hadolint lint
 	./bin/test-attribution-txt.sh
 
 docker: $(DOCKERS)
+
+docker-amd64:
+	$(MAKE) docker PLATFORM=linux/amd64
+
+docker-arm64:
+	$(MAKE) docker PLATFORM=linux/arm64
 
 docker-nats:
 	make -e ADD_BUILD_TAGS=include_nats_messaging docker
@@ -164,7 +196,7 @@ docker_base:
 	cp .dockerignore ../.dockerignore; \
 	DOCKERFILE=$$(mktemp); \
 	{ \
-		echo "FROM golang:$(GO_VERSION)-alpine"; \
+		echo "FROM --platform=$$BUILDPLATFORM golang:$(GO_VERSION)-alpine"; \
 		if [ -n "$(ALPINE_MIRROR)" ]; then \
 			echo "RUN sed -i 's#dl-cdn.alpinelinux.org#$(ALPINE_MIRROR)#g' /etc/apk/repositories"; \
 		fi; \
@@ -197,6 +229,9 @@ docker_core_metadata: docker_base
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
 		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg TARGETOS=$(PLATFORM_GOOS) \
+		--build-arg TARGETARCH=$(PLATFORM_GOARCH) \
+		--platform $(PLATFORM) \
 		-f cmd/core-metadata/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-metadata:$(GIT_SHA) \
@@ -211,6 +246,9 @@ docker_core_data: docker_base
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
 		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg TARGETOS=$(PLATFORM_GOOS) \
+		--build-arg TARGETARCH=$(PLATFORM_GOARCH) \
+		--platform $(PLATFORM) \
 		-f cmd/core-data/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-data:$(GIT_SHA) \
@@ -225,6 +263,9 @@ docker_core_command: docker_base
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
 		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg TARGETOS=$(PLATFORM_GOOS) \
+		--build-arg TARGETARCH=$(PLATFORM_GOARCH) \
+		--platform $(PLATFORM) \
 		-f cmd/core-command/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-command:$(GIT_SHA) \
@@ -239,6 +280,9 @@ docker_core_common_config: docker_base
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
 		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg TARGETOS=$(PLATFORM_GOOS) \
+		--build-arg TARGETARCH=$(PLATFORM_GOARCH) \
+		--platform $(PLATFORM) \
 		-f cmd/core-common-config-bootstrapper/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-common-config-bootstrapper:$(GIT_SHA) \
@@ -253,6 +297,9 @@ docker_core_keeper: docker_base
 		--build-arg https_proxy \
 		--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
 		--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+		--build-arg TARGETOS=$(PLATFORM_GOOS) \
+		--build-arg TARGETARCH=$(PLATFORM_GOARCH) \
+		--platform $(PLATFORM) \
 		-f cmd/core-keeper/Dockerfile \
 		--label "git_sha=$(GIT_SHA)" \
 		-t edge-hy/core-keeper:$(GIT_SHA) \
@@ -267,6 +314,9 @@ docker_support_mappings: docker_base
 			--build-arg https_proxy \
 			--build-arg BUILDER_BASE=$(LOCAL_CACHE_IMAGE) \
 			--build-arg ALPINE_MIRROR=$(ALPINE_MIRROR) \
+			--build-arg TARGETOS=$(PLATFORM_GOOS) \
+			--build-arg TARGETARCH=$(PLATFORM_GOARCH) \
+			--platform $(PLATFORM) \
 			-f cmd/support-mappings/Dockerfile \
 			--label "git_sha=$(GIT_SHA)" \
 			-t edge-hy/support-mappings:$(GIT_SHA) \
